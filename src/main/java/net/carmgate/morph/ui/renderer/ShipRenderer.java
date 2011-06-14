@@ -1,7 +1,15 @@
 package net.carmgate.morph.ui.renderer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.model.behavior.Emitting;
+import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.ship.Ship;
+import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
+import net.carmgate.morph.ui.renderer.behavior.EmittingRenderer;
 
 import org.lwjgl.opengl.GL11;
 
@@ -9,8 +17,14 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	private MorphRenderer currentMorphRenderer;
 
+	private final Map<Class<? extends Behavior<?>>, BehaviorRenderer<?>> renderersMap = new HashMap<Class<? extends Behavior<?>>, BehaviorRenderer<?>>();
+
 	public ShipRenderer() {
 		currentMorphRenderer = new MorphRenderer();
+
+		// Behavior renderers map init
+		renderersMap.put(Emitting.class, new EmittingRenderer());
+		renderersMap.put(SpreadingEnergy.class, null);
 	}
 
 	public void render(int glMode, RenderStyle renderStyle, Ship ship) {
@@ -40,7 +54,25 @@ public class ShipRenderer implements Renderer<Ship> {
 			}
 		}
 
+		for (Morph morph : ship.getMorphList()) {
+			// Render morph behaviors
+			if (glMode == GL11.GL_RENDER) {
+				for (Behavior<?> behavior : morph.alwaysActiveSpecificBehaviorList) {
+					renderBehavior(glMode, renderStyle, behavior);
+				}
+				for (Behavior<?> behavior : morph.activableSpecificBehaviorList) {
+					renderBehavior(glMode, renderStyle, behavior);
+				}
+			}
+		}
 
+	}
+
+	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior) {
+		BehaviorRenderer<?> behaviorRenderer = renderersMap.get(behavior.getClass());
+		if (behaviorRenderer != null) {
+			behaviorRenderer.render(glMode, drawType, behavior);
+		}
 	}
 
 	public void setMorphRenderer(MorphRenderer morphRenderer) {

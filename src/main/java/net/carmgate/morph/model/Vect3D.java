@@ -45,6 +45,12 @@ public class Vect3D {
 		return angleInDegrees;
 	}
 
+	public void copy(Vect3D vect3d) {
+		x = vect3d.x;
+		y = vect3d.y;
+		z = vect3d.z;
+	}
+
 	public float distance(Vect3D vect) {
 		Vect3D tmpVect = new Vect3D(this);
 		tmpVect.substract(vect);

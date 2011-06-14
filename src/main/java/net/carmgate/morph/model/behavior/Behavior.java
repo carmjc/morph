@@ -26,9 +26,9 @@ public abstract class Behavior<T> {
 	}
 
 	protected abstract boolean activate();
+
 	protected abstract boolean deactivate();
 	protected abstract void execute();
-
 	/**
 	 * @return the time to wait before activation is available after deactivation
 	 */
@@ -41,6 +41,10 @@ public abstract class Behavior<T> {
 
 	public T getOwner() {
 		return owner;
+	}
+
+	public State getState() {
+		return state;
 	}
 
 	/**

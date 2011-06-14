@@ -39,7 +39,7 @@ public class WorldRenderer implements Renderer<World> {
 		}
 
 		selectionId = 0;
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		//		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		renderShips(glMode, drawType, world);
 
 		if (debugDisplay && glMode == GL11.GL_RENDER) {
@@ -49,7 +49,9 @@ public class WorldRenderer implements Renderer<World> {
 
 			// Show the pointer
 			renderPointer(glMode, drawType);
+
 		}
+
 	}
 
 	private void renderForces(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {

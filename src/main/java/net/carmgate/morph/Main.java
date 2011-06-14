@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.ia.combat.WorldPositionFirer;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
-import net.carmgate.morph.model.behavior.Emitting;
-import net.carmgate.morph.model.morph.EmitterMorph;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.ship.Ship;
 import net.carmgate.morph.ui.MorphMouse;
@@ -27,6 +26,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
 public class Main {
+
+	private static final int MIN_MOVE_FOR_DRAG = 5;
 
 	private static Logger log = Logger.getLogger(Main.class);
 
@@ -46,8 +47,7 @@ public class Main {
 
 	private WorldRenderer worldDecorator;
 
-	private final List<IA> trackerList = new ArrayList<IA>();
-	private Vect3D holdMousePos = null;
+	private final List<IA> iaList = new ArrayList<IA>();
 	private Vect3D holdWorldMousePos = null;
 
 	/**
@@ -160,7 +160,7 @@ public class Main {
 
 		// udpate tracker
 		List<IA> iasToRemove = new ArrayList<IA>();
-		for (IA track : trackerList) {
+		for (IA track : iaList) {
 			if (track != null) {
 				if (track.done()) {
 					iasToRemove.add(track);
@@ -170,7 +170,7 @@ public class Main {
 			}
 		}
 		for (IA track : iasToRemove) {
-			trackerList.remove(track);
+			iaList.remove(track);
 		}
 		iasToRemove.clear();
 
@@ -199,7 +199,7 @@ public class Main {
 			Vect3D worldMousePos = new Vect3D(MorphMouse.getX(), MorphMouse.getY(), 0);
 			Vect3D mousePos = new Vect3D(Mouse.getX(), Mouse.getY(), 0);
 			if (holdWorldMousePos != null) {
-				if (holdWorldMousePos.x != MorphMouse.getX() || holdWorldMousePos.y != MorphMouse.getY()) {
+				if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG || Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
 					WorldRenderer.focalPoint.add(holdWorldMousePos);
 					WorldRenderer.focalPoint.substract(worldMousePos);
 					GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -218,7 +218,7 @@ public class Main {
 
 				if (Mouse.getEventButton() == 0) {
 					if (!Mouse.getEventButtonState()) {
-						if (holdMousePos.x != Mouse.getX() || holdMousePos.y != Mouse.getY()) {
+						if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG || Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
 							WorldRenderer.focalPoint.add(holdWorldMousePos);
 							WorldRenderer.focalPoint.substract(worldMousePos);
 							GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -231,10 +231,8 @@ public class Main {
 							pick(MorphMouse.getX(),MorphMouse.getY());
 						}
 						holdWorldMousePos = null;
-						holdMousePos = null;
 					} else {
 						holdWorldMousePos = worldMousePos;
-						holdMousePos = mousePos;
 					}
 				}
 
@@ -250,19 +248,13 @@ public class Main {
 					}
 
 					if (world.getSelectedShip().getSelectedMorphList().isEmpty()) {
-						trackerList.add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
+						iaList.add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
 					}
 				}
 
+				// Gestion du tir
 				if (Mouse.getEventButton() == 2 && !Mouse.getEventButtonState() && world.getSelectedShip() != null) {
-					for (Morph morph : world.getSelectedShip().getMorphList()) {
-						if (morph instanceof EmitterMorph) {
-							System.out.println("activation");
-							Emitting emitting = (Emitting) morph.activableSpecificBehaviorList.get(0);
-							emitting.target = new Vect3D(worldMousePos);
-							emitting.tryToActivate();
-						}
-					}
+					iaList.add(new WorldPositionFirer(world.getSelectedShip(), worldMousePos));
 				}
 
 				//				int dWheel = Mouse.getDWheel();

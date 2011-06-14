@@ -6,10 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.carmgate.morph.model.World;
-import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.morph.Morph.MorphType;
-import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
@@ -43,10 +41,7 @@ public class MorphRenderer implements Renderer<Morph> {
 		}
 	}
 
-	private final BehaviorRenderer<?> behaviorRenderer;
-
 	public MorphRenderer() {
-		behaviorRenderer = new BehaviorRenderer();
 	}
 
 	public void render(int glMode, RenderStyle drawType, Morph morph) {
@@ -109,15 +104,6 @@ public class MorphRenderer implements Renderer<Morph> {
 		GL11.glRotatef(-morph.rot.z - morph.ship.rot.z, 0, 0, 1);
 		GL11.glScalef(1 / size, 1 / size, 1 / size);
 		GL11.glTranslatef(-morph.pos.x, -morph.pos.y, -morph.pos.z);
-
-		if (glMode == GL11.GL_RENDER) {
-			for (Behavior<?> behavior : morph.alwaysActiveSpecificBehaviorList) {
-				behaviorRenderer.render(glMode, drawType, behavior);
-			}
-			for (Behavior<?> behavior : morph.activableSpecificBehaviorList) {
-				behaviorRenderer.render(glMode, drawType, behavior);
-			}
-		}
 
 	}
 

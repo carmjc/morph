@@ -25,9 +25,9 @@ public abstract class Morph {
 	}
 
 	/** These behaviors are always active. */
-	public List<Behavior<Morph>> alwaysActiveSpecificBehaviorList = new ArrayList<Behavior<Morph>>();
+	public List<Behavior<?>> alwaysActiveSpecificBehaviorList = new ArrayList<Behavior<?>>();
 	/** These behaviors are activated when the morph is active. */
-	public List<Behavior<Morph>> activableSpecificBehaviorList = new ArrayList<Behavior<Morph>>();
+	public List<Behavior<?>> activableSpecificBehaviorList = new ArrayList<Behavior<?>>();
 
 	/** Morph mass. */
 	public float mass = 1;
@@ -96,17 +96,17 @@ public abstract class Morph {
 
 	public void update() {
 		// first execute behavior that are specific to the morph and always active
-		for (Behavior<Morph> behavior : alwaysActiveSpecificBehaviorList) {
+		for (Behavior<?> behavior : alwaysActiveSpecificBehaviorList) {
 			behavior.tryToExecute();
 		}
 
 		// then execute the behavior specific to the morph that might be inactive
-		for (Behavior<Morph> behavior : activableSpecificBehaviorList) {
+		for (Behavior<?> behavior : activableSpecificBehaviorList) {
 			behavior.tryToExecute();
 		}
 
 		// then execute the behaviors that have been temporarily added to the morph
-		for (Behavior<Morph> behavior : activableSpecificBehaviorList) {
+		for (Behavior<?> behavior : activableSpecificBehaviorList) {
 			behavior.tryToExecute();
 		}
 	}

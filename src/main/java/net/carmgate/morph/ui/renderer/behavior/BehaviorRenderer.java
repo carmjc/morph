@@ -1,22 +1,13 @@
 package net.carmgate.morph.ui.renderer.behavior;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.behavior.Emitting;
 import net.carmgate.morph.ui.renderer.Renderer;
 
-public class BehaviorRenderer<T extends Behavior<?>> implements Renderer<T> {
+public abstract class BehaviorRenderer<K extends Behavior<?>> implements Renderer<Behavior<?>> {
 
-	private static Map<Class<? extends Behavior<?>>, BehaviorRenderer<?>> renderersMap = new HashMap<Class<? extends Behavior<?>>, BehaviorRenderer<?>>();
-
-	static {
-		renderersMap.put(Emitting.class, new EmittingRenderer());
+	public final void render(int glMode, RenderStyle drawType, Behavior<?> sceneItem) {
+		renderBehavior(glMode, drawType, (K) sceneItem);
 	}
 
-	public void render(int glMode, RenderStyle drawType, T behavior) {
-		renderersMap.get(behavior.getClass()).render(glMode, drawType, (Behavior<?>) 	behavior);
-	}
-
+	protected abstract void renderBehavior(int glMode, RenderStyle drawType, K sceneItem);
 }

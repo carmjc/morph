@@ -1,9 +1,9 @@
 package net.carmgate.morph.model.behavior;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.morph.Morph;
+import net.carmgate.morph.model.morph.EmitterMorph;
 
-public class Emitting extends Behavior<Morph> {
+public class Emitting extends Behavior<EmitterMorph> {
 
 	private final float minimalEnergy;
 	private float coolDownTimer;
@@ -15,7 +15,7 @@ public class Emitting extends Behavior<Morph> {
 	 * @param minimalEnergy minimal energy for the behavior to be available
 	 * @param coolDown the time between each execution
 	 */
-	public Emitting(Morph owner, float minimalEnergy, float coolDown, Vect3D target) {
+	public Emitting(EmitterMorph owner, float minimalEnergy, float coolDown, Vect3D target) {
 		super(owner);
 		this.minimalEnergy = minimalEnergy;
 		this.coolDown = coolDown;
