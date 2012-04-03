@@ -12,7 +12,11 @@ import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.ship.Ship;
 import net.carmgate.morph.ui.MorphMouse;
+import net.carmgate.morph.ui.action.ToggleCombatMode;
+import net.carmgate.morph.ui.action.ToggleDebugAction;
+import net.carmgate.morph.ui.renderer.InterfaceRenderer;
 import net.carmgate.morph.ui.renderer.MorphRenderer;
+import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -27,6 +31,9 @@ import org.lwjgl.util.glu.GLU;
 
 public class Main {
 
+	/**
+	 * The distance (in pixels) the mouse should be dragged to trigger a world translation following the mouse pointer.
+	 */
 	private static final int MIN_MOVE_FOR_DRAG = 5;
 
 	private static Logger log = Logger.getLogger(Main.class);
@@ -34,6 +41,7 @@ public class Main {
 	//	public static final float SCALE_FACTOR = 1f;
 	public static final int HEIGHT = 768;
 	public static final int WIDTH = 1024;
+
 	/**
 	 * Main Class
 	 */
@@ -45,10 +53,15 @@ public class Main {
 	private final Vect3D worldRotation = new Vect3D(0, 0, 0);
 	private World world;
 
-	private WorldRenderer worldDecorator;
+	// Renderers
+	private WorldRenderer worldRenderer;
+	private InterfaceRenderer interfaceRenderer;
 
-	private final List<IA> iaList = new ArrayList<IA>();
 	private Vect3D holdWorldMousePos = null;
+
+	// Actions
+	private final ToggleDebugAction toggleDebugAction = new ToggleDebugAction();
+	private final ToggleCombatMode toggleCombatMode = new ToggleCombatMode();
 
 	/**
 	 * Initialise the GL display
@@ -82,8 +95,8 @@ public class Main {
 		GL11.glLoadIdentity();
 		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width * WorldRenderer.scale / 2,
 				WorldRenderer.focalPoint.x + width * WorldRenderer.scale / 2,
-				WorldRenderer.focalPoint.y - height * WorldRenderer.scale / 2,
-				WorldRenderer.focalPoint.y + height * WorldRenderer.scale / 2);
+				WorldRenderer.focalPoint.y + height * WorldRenderer.scale / 2,
+				WorldRenderer.focalPoint.y - height * WorldRenderer.scale / 2);
 
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -116,7 +129,7 @@ public class Main {
 		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 6.0f, 6.0f, viewport);
 		GLU.gluOrtho2D(0, WIDTH, 0, HEIGHT);
 
-		worldDecorator.render(GL11.GL_SELECT, null, world);
+		worldRenderer.render(GL11.GL_SELECT, null, world);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glPopMatrix();
@@ -145,37 +158,41 @@ public class Main {
 	 * draw a quad with the image on it
 	 */
 	public void render() {
-		//		worldOrigin.x += 0.3;
-		//		worldOrigin.y += 0.3;
-		//		worldRotation.z += 0;
 
 		GL11.glTranslatef(worldOrigin.x, worldOrigin.y, worldOrigin.z);
 		GL11.glRotatef(worldRotation.z, 0, 0, 1);
 
 		// draw world
-		worldDecorator.render(GL11.GL_RENDER, null, world);
+		worldRenderer.render(GL11.GL_RENDER, null, world);
+
+		GL11.glRotatef(-worldRotation.z, 0, 0, 1);
+		GL11.glTranslatef(-worldOrigin.x, -worldOrigin.y, -worldOrigin.z);
+
+		// Interface rendering
+		GL11.glTranslatef(WorldRenderer.focalPoint.x, WorldRenderer.focalPoint.y, WorldRenderer.focalPoint.z);
+		interfaceRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
+		GL11.glTranslatef(-WorldRenderer.focalPoint.x, -WorldRenderer.focalPoint.y, -WorldRenderer.focalPoint.z);
 
 		// move world
 		world.update();
 
-		// udpate tracker
-		List<IA> iasToRemove = new ArrayList<IA>();
-		for (IA track : iaList) {
-			if (track != null) {
-				if (track.done()) {
-					iasToRemove.add(track);
-				} else {
-					track.compute();
+		// udpate IAs
+		for (Ship ship : world.getShipList()) {
+			List<IA> iasToRemove = new ArrayList<IA>();
+			for (IA ia : ship.getIAList()) {
+				if (ia != null) {
+					if (ia.done()) {
+						iasToRemove.add(ia);
+					} else {
+						ia.compute();
+					}
 				}
 			}
+			for (IA ia : iasToRemove) {
+				ship.getIAList().remove(ia);
+			}
+			iasToRemove.clear();
 		}
-		for (IA track : iasToRemove) {
-			iaList.remove(track);
-		}
-		iasToRemove.clear();
-
-		GL11.glRotatef(-worldRotation.z, 0, 0, 1);
-		GL11.glTranslatef(-worldOrigin.x, -worldOrigin.y, -worldOrigin.z);
 	}
 
 	/**
@@ -185,19 +202,30 @@ public class Main {
 		initGL(WIDTH, HEIGHT);
 		MorphRenderer.init();
 
+		// Initializes the world and its renderer
 		world = World.getWorld();
 		world.init();
-		worldDecorator = new WorldRenderer();
+		worldRenderer = new WorldRenderer();
+		interfaceRenderer = new InterfaceRenderer();
+		interfaceRenderer.init();
 
+		// Rendering loop
 		while (true) {
+			// Renders everything
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 			render();
 
+			// updates display and sets frame rate
 			Display.update();
-			Display.sync(200);
+			Display.sync(50);
 
+			// Get mouse position in world coordinates
 			Vect3D worldMousePos = new Vect3D(MorphMouse.getX(), MorphMouse.getY(), 0);
+			// Get mouse position in pixels on the display.
 			Vect3D mousePos = new Vect3D(Mouse.getX(), Mouse.getY(), 0);
+
+			// Handling world moving around by drag and dropping the world.
+			// This portion of code is meant to allow the engine to show the world while it's being dragged.
 			if (holdWorldMousePos != null) {
 				if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG || Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
 					WorldRenderer.focalPoint.add(holdWorldMousePos);
@@ -206,17 +234,20 @@ public class Main {
 					GL11.glLoadIdentity();
 					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH * WorldRenderer.scale / 2,
 							WorldRenderer.focalPoint.x + WIDTH * WorldRenderer.scale / 2,
-							WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2,
-							WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2);
+							WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2,
+							WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2);
 					holdWorldMousePos.x = MorphMouse.getX();
 					holdWorldMousePos.y = MorphMouse.getY();
 
 				}
 			}
 
+			// If a mouse event has fired, Mouse.next() returns true.
 			if (Mouse.next()) {
 
+				// Event button == 0 : Left button related event
 				if (Mouse.getEventButton() == 0) {
+					// if event button state is false, the button is being released
 					if (!Mouse.getEventButtonState()) {
 						if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG || Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
 							WorldRenderer.focalPoint.add(holdWorldMousePos);
@@ -225,18 +256,22 @@ public class Main {
 							GL11.glLoadIdentity();
 							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH * WorldRenderer.scale / 2,
 									WorldRenderer.focalPoint.x + WIDTH * WorldRenderer.scale / 2,
-									WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2,
-									WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2);
+									WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2,
+									WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2);
 						} else {
 							pick(MorphMouse.getX(),MorphMouse.getY());
 						}
 						holdWorldMousePos = null;
 					} else {
+						// the mouse left button is being pressed
 						holdWorldMousePos = worldMousePos;
 					}
 				}
 
-				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectedShip() != null) {
+				// Event button == 0 : Right button related event
+				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectedShip() != null && !World.combat) {
+					// Right mouse button has been released and a ship is selected
+					// Activate or deactivate the morph under mouse pointer.
 					for (Morph morph : world.getSelectedShip().getSelectedMorphList()) {
 						if (morph.ship.toggleActiveMorph(morph)) {
 							if (!morph.disabled) {
@@ -247,14 +282,15 @@ public class Main {
 						}
 					}
 
+					// If no morph is selected, the right click should be understood as a moveto order.
 					if (world.getSelectedShip().getSelectedMorphList().isEmpty()) {
-						iaList.add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
+						world.getSelectedShip().getIAList().add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
 					}
 				}
 
-				// Gestion du tir
-				if (Mouse.getEventButton() == 2 && !Mouse.getEventButtonState() && world.getSelectedShip() != null) {
-					iaList.add(new WorldPositionFirer(world.getSelectedShip(), worldMousePos));
+				// Handling shoot
+				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectedShip() != null && World.combat) {
+					world.getSelectedShip().getIAList().add(new WorldPositionFirer(world.getSelectedShip(), worldMousePos));
 				}
 
 				//				int dWheel = Mouse.getDWheel();
@@ -265,15 +301,8 @@ public class Main {
 			}
 
 			if (Keyboard.next()) {
-				if (Keyboard.getEventKey() == Keyboard.KEY_D && Keyboard.getEventKeyState()) {
-					if (WorldRenderer.debugDisplay) {
-						WorldRenderer.debugDisplay = false;
-						log.info("Graphical debug: Off");
-					} else {
-						WorldRenderer.debugDisplay = true;
-						log.info("Graphical debug: On");
-					}
-				}
+				toggleDebugAction.run();
+				toggleCombatMode.run();
 			}
 
 			if (Display.isCloseRequested()) {

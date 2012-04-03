@@ -3,6 +3,7 @@ package net.carmgate.morph.model.ship;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.morph.Morph;
@@ -52,6 +53,9 @@ public abstract class Ship implements Cloneable {
 
 	/** List of active morphs. */
 	private final List<Morph> activeMorphList = new ArrayList<Morph>();
+
+	/** List of ships IAs. */
+	private final List<IA> iaList = new ArrayList<IA>();
 
 	public Ship(float x, float y, float z) {
 		pos = new Vect3D(x, y, z);
@@ -105,6 +109,10 @@ public abstract class Ship implements Cloneable {
 
 	public List<Morph> getActiveMorphList() {
 		return activeMorphList;
+	}
+
+	public List<IA> getIAList() {
+		return iaList;
 	}
 
 	public List<Morph> getMorphList() {

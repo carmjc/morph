@@ -30,7 +30,7 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		try {
 			// load texture from PNG file
-			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/sphere.png").getPath()));
+			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morph64.png").getPath()));
 			textures.put(MorphType.BASIC, null);
 			textures.put(MorphType.EMITTER, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/emitter-0.png").getPath())));
 			textures.put(MorphType.PROPULSOR, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/propulsor-0.png").getPath())));

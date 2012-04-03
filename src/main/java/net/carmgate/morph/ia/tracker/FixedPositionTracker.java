@@ -44,36 +44,7 @@ public class FixedPositionTracker implements IA, Cloneable {
 			m.rot.z = - m.ship.rot.z + new Vect3D(1, 0, 0).angleWith(tmpVect);
 		}
 
-
-
-		// Normalize the vector to 1/nth of the it's modulus (n being the number of vectors combined in the sum.
-		//		targetSum.normalize(targetSum.modulus() / propulsorMorphs.size());
-		//		targetSum.add(ship.pos);
-
-		// Calculating a pseudo propulsor equivalent to the propulsing forces applied to the ship.
-		//		PropulsorMorph target = new PropulsorMorph(0, 0, 0);
-		//		target.pos.x = targetSum.x;
-		//		target.pos.y = targetSum.y;
-		//		target.pos.z = targetSum.z;
-		//		target.ship = ship;
-		//		if (ship.debugForce == null) {
-		//			ship.debugForce = new Force(target, forceSum);
-		//			World.getWorld().getForceList().add(ship.debugForce);
-		//		} else {
-		//			ship.debugForce.target = target;
-		//			ship.debugForce.vector = forceSum;
-		//		}
-		//		targetSum.substract(virtualShip.pos);
 	}
-
-	//	private void brake(Vect3D forceSum, Vect3D targetSum) {
-	//		// Reorient all engines towards the target (minus the position of the engine in the ship)
-	//		for (Morph m : propulsorMorphs) {
-	//			Vect3D tmpVect = new Vect3D(targetPos);
-	//			tmpVect.substract(ship.pos);
-	//			m.rot.z = 180 - m.ship.rot.z + new Vect3D(1, 0, 0).angleWith(tmpVect);
-	//		}
-	//	}
 
 	public void compute() {
 		// update the list of active propulsors
@@ -103,26 +74,6 @@ public class FixedPositionTracker implements IA, Cloneable {
 				targetSum.substract(ship.pos);
 			}
 		}
-
-		// is it needed to accelerate or brake ?
-		// it s needed to break if the distance necessary to stop with reverse thrust is the current distance to target
-		// it should be independent from frame rate ... however, for now it won't be ...
-		//		float thrustFactor = 1;
-		//		float distanceLeft = targetPos.distance(ship.pos);
-		//		float shipSpeed = ship.posSpeed.modulus();
-		//		float shipAccel = ship.posAccel.modulus();
-		//		float timeLeft = (float) ((-shipSpeed + Math.sqrt(Math.pow(shipSpeed, 2) + 2 * shipAccel * distanceLeft)) / shipAccel);
-		//		System.out.println("forceSum: " + forceSum.modulus() + ", " + shipSpeed);
-		//		double distanceToBreak = shipSpeed * timeLeft - 1f / 2 * forceSum.modulus() * Math.pow(timeLeft, 2);
-		//		System.out.println("distanceLeft: " + distanceLeft + ", timeLeft: " + timeLeft + ", distanceToBreak: " + distanceToBreak);
-		//		if (distanceToBreak > distanceLeft && ship.pos.distance(targetPos) > 150) {
-		//			accelerate(forceSum, targetSum);
-		//		} else if (ship.pos.distance(targetPos) > 100) {
-		//			brake(forceSum, targetSum);
-		//		} else {
-		//			accelerate(forceSum, targetSum);
-		//			thrustFactor = ship.pos.distance(targetPos) / 500;
-		//		}
 
 		// adjust thrust factor
 		// if we are near the target, we should adjust the thrust factor

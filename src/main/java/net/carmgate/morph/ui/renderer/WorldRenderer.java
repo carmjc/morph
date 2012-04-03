@@ -13,7 +13,7 @@ public class WorldRenderer implements Renderer<World> {
 
 	private int selectionId = 0;
 	public static boolean debugDisplay = false;
-	public static float scale = 3;
+	public static float scale = 2;
 	public static final Vect3D focalPoint = new Vect3D(0, 0, 0);
 
 	// Renderers
@@ -28,8 +28,9 @@ public class WorldRenderer implements Renderer<World> {
 	}
 
 	/**
-	 * @param glMode
-	 * @param drawType this value is not used
+	 * Renders the world.
+	 * In normal mode, renders the world areas and the ships.
+	 * In debug mode, renders the mouse pointer and the forces.
 	 */
 	public void render(int glMode, RenderStyle drawType, World world) {
 
@@ -39,7 +40,6 @@ public class WorldRenderer implements Renderer<World> {
 		}
 
 		selectionId = 0;
-		//		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		renderShips(glMode, drawType, world);
 
 		if (debugDisplay && glMode == GL11.GL_RENDER) {
@@ -54,12 +54,24 @@ public class WorldRenderer implements Renderer<World> {
 
 	}
 
+	/**
+	 * Renders forces.
+	 * @param glMode {@link GL11#GL_RENDER} or {@link GL11#GL_SELECT}
+	 * @param drawType Normal or Debug mode
+	 * @param world the world whose ships should be rendered.
+	 */
 	private void renderForces(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
 		for (Force f : world.getForceList()) {
 			currentForceRenderer.render(glMode, drawType, f);
 		}
 	}
 
+	/**
+	 * Renders the mouse pointer.
+	 * @param glMode {@link GL11#GL_RENDER} or {@link GL11#GL_SELECT}
+	 * @param drawType Normal or Debug mode
+	 * @param world the world whose ships should be rendered.
+	 */
 	private void renderPointer(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType) {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glTranslatef(MorphMouse.getX(), MorphMouse.getY(), 0);
@@ -74,6 +86,12 @@ public class WorldRenderer implements Renderer<World> {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 
+	/**
+	 * Cycles through the ships to render them.
+	 * @param glMode {@link GL11#GL_RENDER} or {@link GL11#GL_SELECT}
+	 * @param drawType Normal or Debug mode
+	 * @param world the world whose ships should be rendered.
+	 */
 	private void renderShips(int glMode, RenderStyle drawType, World world) {
 		for (Ship ship : world.getShipList()) {
 
@@ -91,6 +109,12 @@ public class WorldRenderer implements Renderer<World> {
 		}
 	}
 
+	/**
+	 * Render the world area
+	 * @param glMode {@link GL11#GL_RENDER} or {@link GL11#GL_SELECT}
+	 * @param drawType Normal or Debug mode
+	 * @param world the world whose ships should be rendered.
+	 */
 	private void renderWorldAreas(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
 		for (WorldArea wa : world.getWorldAreas().values()) {
 			currentWorldAreaRenderer.render(glMode, drawType, wa);
@@ -98,15 +122,15 @@ public class WorldRenderer implements Renderer<World> {
 	}
 
 	public void setForceRenderer(ForceRenderer forceRenderer) {
-		this.currentForceRenderer = forceRenderer;
+		currentForceRenderer = forceRenderer;
 	}
 
 	public void setShipRenderer(ShipRenderer shipRenderer) {
-		this.currentShipRenderer = shipRenderer;
+		currentShipRenderer = shipRenderer;
 	}
 
 	public void setWorldAreaRenderer(WorldAreaRenderer worldAreaRenderer) {
-		this.currentWorldAreaRenderer = worldAreaRenderer;
+		currentWorldAreaRenderer = worldAreaRenderer;
 	}
 
 }

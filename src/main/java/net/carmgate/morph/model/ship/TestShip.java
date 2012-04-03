@@ -7,6 +7,12 @@ import net.carmgate.morph.model.morph.ShieldMorph;
 
 public class TestShip extends Ship {
 
+	/**
+	 * Creating a new ship with the given coordinates
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	public TestShip(float x, float y, float z) {
 		super(x, y, z);
 

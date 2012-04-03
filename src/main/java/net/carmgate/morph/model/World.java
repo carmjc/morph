@@ -9,10 +9,16 @@ import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.ship.Ship;
 import net.carmgate.morph.model.ship.TestShip;
 
+/**
+ * The world has a list of world areas, a ships list, a forces list and a currently selected ship (for now).
+ * @author Carm
+ */
 public class World {
 	public static final int GRID_SIZE = 64; // Main.SCALE_FACTOR);
 
 	public static World worldInstance;
+
+	public static boolean combat = false;
 
 	public static World getWorld() {
 		if (worldInstance == null) {
@@ -21,7 +27,11 @@ public class World {
 		return worldInstance;
 	}
 
-	/** World areas. */
+	/**
+	 * World areas.
+	 * The coordinates of the world areas in this Map are not the world coordinates, but the coordinates of the world areas along the 3 axis.
+	 * @See {@link WorldArea#toWorldAreaPos(Vect3D)}
+	 */
 	private final Map<Vect3D, WorldArea> worldAreas = new HashMap<Vect3D, WorldArea>();
 
 	/** the list of all ships in game. */
@@ -67,7 +77,7 @@ public class World {
 	}
 
 	public void init() {
-		TestShip ship = new TestShip(200, 100, 0);
+		TestShip ship = new TestShip(0, 0, 0);
 		shipList.add(ship);
 		ship = new TestShip(500, 200, 0);
 		ship.rot.z = 60;
@@ -76,9 +86,9 @@ public class World {
 
 	public void setSelectedShip(int index) {
 		if (index >= 0 && index < shipList.size()) {
-			this.selectedShip = shipList.get(index);
+			selectedShip = shipList.get(index);
 		} else {
-			this.selectedShip = null;
+			selectedShip = null;
 		}
 	}
 
