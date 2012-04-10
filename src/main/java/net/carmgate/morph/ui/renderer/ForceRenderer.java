@@ -11,9 +11,14 @@ public class ForceRenderer implements Renderer<Force> {
 
 	public void render(int glMode, RenderStyle drawType, Force force) {
 		Vect3D forceVector = new Vect3D(force.vector);
-		forceVector.rotateZ(force.target.rot.z + force.target.ship.rot.z);
-		Vect3D targetPos = new Vect3D(force.target.pos);
+		forceVector.rotate(force.target.getRotInShip() + force.target.getShip().rot);
+		Vect3D targetPos = new Vect3D(force.target.getPosInShip());
 		forceVector.normalize(forceVector.modulus() * VISIBILITY_FACTOR);
+
+		renderVector(glMode, drawType, targetPos, forceVector);
+	}
+
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D vector) {
 
 		GL11.glLineWidth(2.0f);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
@@ -21,22 +26,22 @@ public class ForceRenderer implements Renderer<Force> {
 		GL11.glBegin(GL11.GL_LINES);
 
 		// main line
-		GL11.glVertex3f(targetPos.x, targetPos.y, targetPos.z);
-		GL11.glVertex3f(targetPos.x + forceVector.x,
-				targetPos.y + forceVector.y,
-				targetPos.z + forceVector.z);
+		GL11.glVertex3f(origin.x, origin.y, origin.z);
+		GL11.glVertex3f(origin.x + vector.x,
+				origin.y + vector.y,
+				origin.z + vector.z);
 
 		// arrow detail
-		targetPos.add(forceVector);
-		forceVector.normalize(forceVector.modulus() / 3);
-		forceVector.rotateZ(20);
-		GL11.glVertex3f(targetPos.x, targetPos.y, targetPos.z);
-		GL11.glVertex3f(targetPos.x - forceVector.x,
-				targetPos.y - forceVector.y,
-				targetPos.z - forceVector.z);
-		forceVector.rotateZ(-40);
-		GL11.glVertex3f(targetPos.x, targetPos.y, targetPos.z);
-		GL11.glVertex3f(targetPos.x - forceVector.x, targetPos.y - forceVector.y, targetPos.z - forceVector.z);
+		origin.add(vector);
+		vector.normalize(vector.modulus() / 3);
+		vector.rotate(20);
+		GL11.glVertex3f(origin.x, origin.y, origin.z);
+		GL11.glVertex3f(origin.x - vector.x,
+				origin.y - vector.y,
+				origin.z - vector.z);
+		vector.rotate(-40);
+		GL11.glVertex3f(origin.x, origin.y, origin.z);
+		GL11.glVertex3f(origin.x - vector.x, origin.y - vector.y, origin.z - vector.z);
 
 
 		GL11.glEnd();

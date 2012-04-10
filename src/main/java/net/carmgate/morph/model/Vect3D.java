@@ -6,9 +6,14 @@ package net.carmgate.morph.model;
  */
 public class Vect3D {
 
+	public static final Vect3D NORTH = new Vect3D(0, -1, 0);
+
 	public float x;
 	public float y;
 	public float z;
+
+	public Vect3D() {
+	}
 
 	/**
 	 * Simple constructor.
@@ -101,7 +106,7 @@ public class Vect3D {
 	}
 
 	/**
-	 * @return x.10^10 + y.10^5 + z 
+	 * @return x.10^10 + y.10^5 + z
 	 */
 	@Override
 	public int hashCode() {
@@ -145,19 +150,11 @@ public class Vect3D {
 	 * Rotates a vector by the given angles in degrees.
 	 * @param angle the rotation angles in degrees along the 3 axis.
 	 */
-	public void rotate(Vect3D angle) {
-		float newX = (float) (Math.cos(Math.toRadians(angle.z)) * x - Math.sin(Math.toRadians(angle.z)) * y);
-		float newY = (float) (Math.sin(Math.toRadians(angle.z)) * x + Math.cos(Math.toRadians(angle.z)) * y);
+	public void rotate(float angle) {
+		float newX = (float) (Math.cos(Math.toRadians(angle)) * x - Math.sin(Math.toRadians(angle)) * y);
+		float newY = (float) (Math.sin(Math.toRadians(angle)) * x + Math.cos(Math.toRadians(angle)) * y);
 		x = newX;
 		y = newY;
-	}
-
-	/**
-	 * Rotates a vector by the given angle in degrees.
-	 * @param angle the angle along the z axis.
-	 */
-	public void rotateZ(float angle) {
-		rotate(new Vect3D(0, 0, angle));
 	}
 
 	/**

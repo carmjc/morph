@@ -1,24 +1,13 @@
 package net.carmgate.morph.model.morph;
 
 import net.carmgate.morph.model.behavior.Emitting;
+import net.carmgate.morph.model.ship.Ship;
 
 public class EmitterMorph extends BasicMorph {
 
-	public EmitterMorph(float x, float y, float z) {
-		super(x, y, z);
-		activableSpecificBehaviorList.add(new Emitting(this, 1, 0, null));
-	}
-
-	@Override
-	public void activate() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-
+	public EmitterMorph(Ship ship, float x, float y, float z) {
+		super(ship, x, y, z);
+		activableBehaviorList.add(new Emitting(this, 1, 0, null));
 	}
 
 	@Override

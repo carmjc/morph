@@ -1,6 +1,7 @@
 package net.carmgate.morph.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,13 @@ import net.carmgate.morph.model.ship.TestShip;
 public class World {
 	public static final int GRID_SIZE = 64; // Main.SCALE_FACTOR);
 
+	/** World singleton instance. */
 	public static World worldInstance;
+
+	/** number of millis since game start. */
+	private long msec = 0;
+	/** timestamp of game start. */
+	private final long gameStartMsec = new Date().getTime();
 
 	public static boolean combat = false;
 
@@ -51,6 +58,13 @@ public class World {
 		return forceList;
 	}
 
+	/**
+	 * @return number of millis since game start.
+	 */
+	public long getMsec() {
+		return msec;
+	}
+
 	public Ship getSelectedShip() {
 		return selectedShip;
 	}
@@ -80,7 +94,7 @@ public class World {
 		TestShip ship = new TestShip(0, 0, 0);
 		shipList.add(ship);
 		ship = new TestShip(500, 200, 0);
-		ship.rot.z = 60;
+		ship.rot = 60;
 		shipList.add(ship);
 	}
 
@@ -92,7 +106,14 @@ public class World {
 		}
 	}
 
+	/**
+	 * Update the world.
+	 */
 	public void update() {
+		// update the number of millis since game start
+		msec = new Date().getTime() - gameStartMsec;
+
+		// update ships
 		for (Ship ship : shipList) {
 			ship.update();
 		}

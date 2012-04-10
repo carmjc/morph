@@ -1,54 +1,42 @@
 package net.carmgate.morph.model.morph;
 
-import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.World;
-import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.model.behavior.Propulsing;
+import net.carmgate.morph.model.ship.Ship;
 
+/**
+ * A propulsor morph transforms its potential energy in cinetic energy by unknown means (we don't care)
+ * A propulsor morph does not loose mass by being activated.
+ */
 public class PropulsorMorph extends BasicMorph {
 
-	private final Force force = new Force(this, new Vect3D(0.02f, 0, 0));
+	/** Energy Consumption per millis at full thrust. */
+	private final static float energyConsumptionAtFullThrust = 0.0001f;
+	private final static float propulsingForceModulusAtFullThrust = 0.0002f;
 
-	public float thrustFactor = 1;
-	public final float massLossAtFullThrust = 0.1f;
+	/** The default activable behavior of this morph. */
+	private final Propulsing propulsingBehavior;
 
-	public PropulsorMorph(float x, float y, float z) {
-		super(x, y, z);
+	public PropulsorMorph(Ship ship, float x, float y, float z) {
+		super(ship, x, y, z);
 		maxMass = mass = 500;
 		disableMass = 100;
 		reenableMass = 200;
+
+		//Behaviors
+		propulsingBehavior = new Propulsing(this, energyConsumptionAtFullThrust, propulsingForceModulusAtFullThrust);
+		activableBehaviorList.add(propulsingBehavior);
 	}
 
 	@Override
-	public void activate() {
-		if (energy <= 0) {
-			disabled = true;
-			return;
+	public void afterActivate() {
+		for (Behavior<?> b : activableBehaviorList) {
+			b.tryToActivate();
 		}
-
-		Force generatedForce = getGeneratedForce();
-		ship.ownForceList.add(generatedForce);
-		World.getWorld().getForceList().add(generatedForce);
-
-		// energy loss
-		energy -= .1;
-
-		// mass transfer to void
-		float massLoss = massLossAtFullThrust * thrustFactor;
-		mass -= massLoss;
-		World.getWorld().getWorldArea(pos).mass += massLoss;
 	}
 
-	@Override
-	public void deactivate() {
-		Force generatedForce = getGeneratedForce();
-		ship.ownForceList.remove(generatedForce);
-		World.getWorld().getForceList().remove(generatedForce);
-	}
-
-	public Force getGeneratedForce() {
-		Vect3D vector = new Vect3D(force.vector);
-		vector.normalize(vector.modulus() * thrustFactor);
-		return new Force(force.target, vector);
+	public Propulsing getPropulsingBehavior() {
+		return propulsingBehavior;
 	}
 
 	@Override
@@ -56,7 +44,4 @@ public class PropulsorMorph extends BasicMorph {
 		return MorphType.PROPULSOR;
 	}
 
-	public void setThrustFactor(float thrustFactor) {
-		this.thrustFactor = thrustFactor;
-	}
 }

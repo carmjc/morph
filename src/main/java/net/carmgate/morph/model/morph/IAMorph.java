@@ -1,21 +1,11 @@
 package net.carmgate.morph.model.morph;
 
+import net.carmgate.morph.model.ship.Ship;
+
 public class IAMorph extends BasicMorph {
 
-	public IAMorph(float x, float y, float z) {
-		super(x, y, z);
-	}
-
-	@Override
-	public void activate() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-
+	public IAMorph(Ship ship, float x, float y, float z) {
+		super(ship, x, y, z);
 	}
 
 	@Override

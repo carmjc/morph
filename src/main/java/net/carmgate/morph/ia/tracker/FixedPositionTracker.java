@@ -1,7 +1,6 @@
 package net.carmgate.morph.ia.tracker;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.carmgate.morph.ia.IA;
@@ -10,15 +9,21 @@ import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.morph.PropulsorMorph;
 import net.carmgate.morph.model.ship.Ship;
 
-public class FixedPositionTracker implements IA, Cloneable {
+import org.apache.log4j.Logger;
 
-	private final Vect3D targetPos;
+/**
+ * All Vect3D instances are understood in the ship's referential.
+ */
+public class FixedPositionTracker implements IA {
+
+	private static final Logger logger = Logger.getLogger(FixedPositionTracker.class);
+
 	private final List<PropulsorMorph> propulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final Ship ship;
+	private final Vect3D targetPos;
 
 	public FixedPositionTracker(Ship ship, Vect3D targetPos) {
-
 		this.ship = ship;
 		this.targetPos = targetPos;
 
@@ -36,16 +41,6 @@ public class FixedPositionTracker implements IA, Cloneable {
 		}
 	}
 
-	private void accelerate(Vect3D forceSum, Vect3D targetSum) {
-		// Reorient all engines towards the target (minus the position of the engine in the ship)
-		for (Morph m : activePropulsorMorphs) {
-			Vect3D tmpVect = new Vect3D(targetPos);
-			tmpVect.substract(ship.pos);
-			m.rot.z = - m.ship.rot.z + new Vect3D(1, 0, 0).angleWith(tmpVect);
-		}
-
-	}
-
 	public void compute() {
 		// update the list of active propulsors
 		activePropulsorMorphs.clear();
@@ -53,72 +48,38 @@ public class FixedPositionTracker implements IA, Cloneable {
 			if (!m.disabled) {
 				activePropulsorMorphs.add(m);
 			}
+			break;
 		}
 
-		// should only suppress its own forces.
-		ship.ownForceList.clear();
+		logger.debug(activePropulsorMorphs);
 
-		Vect3D forceSum = new Vect3D(0, 0, 0);
-		Vect3D targetSum = new Vect3D(0, 0, 0);
-		for (Iterator<PropulsorMorph> i = activePropulsorMorphs.iterator(); i.hasNext(); ) {
-			PropulsorMorph m = i.next();
-
-			if (i.hasNext()) {
-				// where does the vector sum points to
-				Vect3D vector = new Vect3D(m.getGeneratedForce().vector);
-				vector.rotateZ(m.rot.z);
-				forceSum.add(vector);
-
-				// What is the application point of the sum of the forces
-				targetSum.add(m.getGeneratedForce().target.pos);
-				targetSum.substract(ship.pos);
-			}
-		}
-
-		// adjust thrust factor
-		// if we are near the target, we should adjust the thrust factor
-		float thrustFactor = 1;
-		if (ship.pos.distance(targetPos) > 1000) {
-			thrustFactor = 1;
-		} else {
-			thrustFactor = ship.pos.distance(targetPos) / 1000;
-		}
-		accelerate(forceSum, targetSum);
-
-		for (Iterator<PropulsorMorph> i = activePropulsorMorphs.iterator(); i.hasNext(); ) {
-			PropulsorMorph m = i.next();
-
-			if (i.hasNext() || activePropulsorMorphs.size() <= 2) {
-				if (!m.disabled) {
-					m.setThrustFactor(thrustFactor);
-					m.activate();
-				}
-			} else {
-				if (!m.disabled) {
-					Vect3D counterVector = new Vect3D(-forceSum.x, -forceSum.y, -forceSum.z);
-					m.rot.z = new Vect3D(1, 0, 0).angleWith(counterVector);
-					m.setThrustFactor(thrustFactor);
-					m.activate();
-				}
-			}
+		for (PropulsorMorph m : activePropulsorMorphs) {
+			Vect3D direction = new Vect3D(targetPos);
+			direction.substract(m.getPosInWorld());
+			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(direction));
+			m.activate();
 		}
 
 	}
 
 	public boolean done() {
-		// Detect if we are close enough to the target point
-		if (ship.pos.distance(targetPos) < 20 && ship.posSpeed.modulus() < 0.1) {
-			// should only suppress its own forces.
-			ship.ownForceList.clear();
-			return true;
-		}
-
-		// Dectect if all the propulsors are out of energy
-		if (activePropulsorMorphs.size() == 0) {
-			return true;
-		}
+//		// Detect if we are close enough to the target point
+//		if (ship.pos.distance(targetPos) < 20 && ship.posSpeed.modulus() < 0.1) {
+//			// should only suppress its own forces.
+//			ship.ownForceList.clear();
+//			return true;
+//		}
+//
+//		// Dectect if all the propulsors are out of energy
+//		if (activePropulsorMorphs.size() == 0) {
+//			return true;
+//		}
 
 		return false;
+	}
+
+	public Vect3D getTargetPos() {
+		return targetPos;
 	}
 
 }

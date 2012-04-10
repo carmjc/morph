@@ -5,14 +5,17 @@ import java.util.List;
 
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.physics.Force;
+
+import org.apache.log4j.Logger;
 
 /**
  * TODO : Il faut ajouter un centre d'inertie et modifier les calculs des forces pour gérer le vrai centre d'inertie.
  */
 public abstract class Ship implements Cloneable {
+
+	private static final Logger logger = Logger.getLogger(Ship.class);
 
 	/** The ship position in the world. */
 	public Vect3D pos;
@@ -20,9 +23,9 @@ public abstract class Ship implements Cloneable {
 	public Vect3D posAccel;
 
 	/** The ship orientation in the world. */
-	public Vect3D rot;
-	public Vect3D rotSpeed;
-	public Vect3D rotAccel;
+	public float rot;
+	public float rotSpeed;
+	public float rotAccel;
 
 	/** The drag factor. The lower, the more it's dragged. */
 	public float dragFactor = 0.995f;
@@ -61,13 +64,13 @@ public abstract class Ship implements Cloneable {
 		pos = new Vect3D(x, y, z);
 		posSpeed = new Vect3D(0, 0, 0);
 		posAccel = new Vect3D(0, 0, 0);
-		rot = new Vect3D(0, 0, 0);
-		rotSpeed = new Vect3D(0, 0, 0);
-		rotAccel = new Vect3D(0, 0, 0);
+		rot = 0;
+		rotSpeed = 0;
+		rotAccel = 0;
 	}
 
 	public void addMorph(Morph morph) {
-		morph.ship = this;
+		morph.setShip(this);
 		morphList.add(morph);
 	}
 
@@ -75,27 +78,25 @@ public abstract class Ship implements Cloneable {
 		posAccel.x = 0;
 		posAccel.y = 0;
 		posAccel.z = 0;
-		rotAccel.x = 0;
-		rotAccel.y = 0;
-		rotAccel.z = 0;
+		rotAccel = 0;
 
 		for (Force f : ownForceList) {
 
 			// the acceleration caused by the force is applied to the ship's inertia center.
 			Vect3D forceVector = new Vect3D(f.vector);
-			forceVector.rotateZ(f.target.rot.z + rot.z);
+			forceVector.rotate(f.target.getRotInShip() + rot); // remove the effect of morph and ship rotation. TODO : check this
 			posAccel.add(forceVector);
 
 			// the tangential element of the force generates a rotation of the ship
 			// the following is done in the ship's referential
-			Vect3D targetClone = new Vect3D(f.target.pos);
+			Vect3D targetClone = new Vect3D(f.target.getPosInShip()); //FIXME this should rather use the center of mass of the ship
 			targetClone.substract(pos);
 
 			// Get the angle between the two vectors
 			float angle = targetClone.angleWith(forceVector);
 
 			// Compute the acceleration
-			rotAccel.z += targetClone.modulus() * forceVector.modulus() * Math.sin(Math.toRadians(angle)) / morphList.size() * 0.05f;
+			rotAccel += targetClone.modulus() * forceVector.modulus() * Math.sin(Math.toRadians(angle)) / morphList.size() * 0.05f;
 
 		}
 	}
@@ -213,17 +214,11 @@ public abstract class Ship implements Cloneable {
 		pos.y += posSpeed.y;
 		pos.z += posSpeed.z;
 
-		rotSpeed.x += rotAccel.x;
-		rotSpeed.y += rotAccel.y;
-		rotSpeed.z += rotAccel.z;
+		rotSpeed += rotAccel;
 
-		rotSpeed.x = Math.abs(rotSpeed.x * dragFactor) > MIN_SPEED ? rotSpeed.x * dragFactor : 0;
-		rotSpeed.y = Math.abs(rotSpeed.y * dragFactor) > MIN_SPEED ? rotSpeed.y * dragFactor : 0;
-		rotSpeed.z = Math.abs(rotSpeed.z * dragFactor) > MIN_SPEED ? rotSpeed.z * dragFactor : 0;
+		rotSpeed = Math.abs(rotSpeed * dragFactor) > MIN_SPEED ? rotSpeed * dragFactor : 0;
 
-		rot.x = (rot.x + rotSpeed.x) % 360;
-		rot.y = (rot.y + rotSpeed.y) % 360;
-		rot.z = (rot.z + rotSpeed.z) % 360;
+		rot = (rot + rotSpeed) % 360;
 
 		updateMorphs();
 	}
@@ -231,17 +226,18 @@ public abstract class Ship implements Cloneable {
 	private void updateMorphs() {
 		for (Morph m : morphList) {
 			// Position of the morph in the referential centered on the ship (the central one has coords (0, 0).
-			m.pos.x = m.shipGridPos.x * World.GRID_SIZE + m.shipGridPos.y * World.GRID_SIZE / 2;
-			m.pos.y = (float) (m.shipGridPos.y * World.GRID_SIZE * Math.sqrt(3)/2);
+//			m.getPosInShip().x = m.shipGridPos.x * World.GRID_SIZE + m.shipGridPos.y * World.GRID_SIZE / 2;
+//			m.getPosInShip().y = (float) (m.shipGridPos.y * World.GRID_SIZE * Math.sqrt(3)/2);
 
 			// Adding the rotation around the center of the ship
-			m.pos.rotateZ(rot.z);
+//			m.getPosInShip().rotate(rot);
 
 			// Adding the position of the ship's inertia center
-			m.pos.add(pos);
+//			m.getPosInShip().add(pos);
 
 			// Disabling if necessary
 			if (m.mass < m.disableMass && !m.disabled) {
+				logger.debug("Disabling morph");
 				m.disabled = true;
 			}
 

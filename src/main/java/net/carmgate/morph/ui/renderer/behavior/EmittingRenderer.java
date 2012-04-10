@@ -13,14 +13,14 @@ public class EmittingRenderer extends BehaviorRenderer<Emitting> {
 			return;
 		}
 
-		System.out.println("Shooting from " + emitting.getOwner().pos + " at " + emitting.getTarget());
+		System.out.println("Shooting from " + emitting.getOwner().getPosInShip() + " at " + emitting.getTarget());
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glLineWidth(2.0f);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
 		GL11.glColor3f(0.0f, 1.0f, 1.0f);
 		GL11.glBegin(GL11.GL_LINES);
 
-		GL11.glVertex3f(emitting.getOwner().pos.x, emitting.getOwner().pos.y, emitting.getOwner().pos.z);
+		GL11.glVertex3f(emitting.getOwner().getPosInShip().x, emitting.getOwner().getPosInShip().y, emitting.getOwner().getPosInShip().z);
 		GL11.glVertex3f(emitting.getTarget().x, emitting.getTarget().y, emitting.getTarget().z);
 
 		GL11.glEnd();

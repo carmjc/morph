@@ -1,21 +1,12 @@
 package net.carmgate.morph.model.morph;
 
+import net.carmgate.morph.model.ship.Ship;
+
+// FIXME Do not know what a spreader morph is
 public class SpreaderMorph extends BasicMorph {
 
-	public SpreaderMorph(float x, float y, float z) {
-		super(x, y, z);
-	}
-
-	@Override
-	public void activate() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-
+	public SpreaderMorph(Ship ship, float x, float y, float z) {
+		super(ship, x, y, z);
 	}
 
 	@Override

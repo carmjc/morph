@@ -36,7 +36,7 @@ public class Main {
 	 */
 	private static final int MIN_MOVE_FOR_DRAG = 5;
 
-	private static Logger log = Logger.getLogger(Main.class);
+	private static Logger logger = Logger.getLogger(Main.class);
 
 	//	public static final float SCALE_FACTOR = 1f;
 	public static final int HEIGHT = 768;
@@ -65,7 +65,7 @@ public class Main {
 
 	/**
 	 * Initialise the GL display
-	 * 
+	 *
 	 * @param width The width of the display
 	 * @param height The height of the display
 	 */
@@ -104,9 +104,9 @@ public class Main {
 
 	public void pick(int x, int y) {
 
-		log.debug("Picking at " + x + " " + y);
+		logger.debug("Picking at " + x + " " + y);
 		if (World.getWorld().getSelectedShip() != null) {
-			log.debug("Selected ship: " + World.getWorld().getSelectedShip().pos);
+			logger.debug("Selected ship: " + World.getWorld().getSelectedShip().pos);
 		}
 
 		// get viewport
@@ -273,7 +273,7 @@ public class Main {
 					// Right mouse button has been released and a ship is selected
 					// Activate or deactivate the morph under mouse pointer.
 					for (Morph morph : world.getSelectedShip().getSelectedMorphList()) {
-						if (morph.ship.toggleActiveMorph(morph)) {
+						if (morph.getShip().toggleActiveMorph(morph)) {
 							if (!morph.disabled) {
 								morph.activate();
 							}
