@@ -182,7 +182,6 @@ public abstract class Morph {
 	// TODO Unit test
 	public void setPosInShip(Vect3D posInShip) {
 		this.posInShip.copy(posInShip);
-		logger.debug(posInShip);
 		if (getShip() != null) {
 			posInWorld.copy(posInShip);
 			posInWorld.rotate(getShip().rot);

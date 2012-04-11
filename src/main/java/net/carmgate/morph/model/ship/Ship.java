@@ -60,6 +60,9 @@ public abstract class Ship implements Cloneable {
 	/** List of ships IAs. */
 	private final List<IA> iaList = new ArrayList<IA>();
 
+	/** The center of mass of the ship, in world coordinates */
+	private Vect3D centerOfMass = new Vect3D(Vect3D.NULL);
+
 	public Ship(float x, float y, float z) {
 		pos = new Vect3D(x, y, z);
 		posSpeed = new Vect3D(0, 0, 0);
@@ -72,6 +75,7 @@ public abstract class Ship implements Cloneable {
 	public void addMorph(Morph morph) {
 		morph.setShip(this);
 		morphList.add(morph);
+		calculateCOM();
 	}
 
 	public void applyForces() {
@@ -101,6 +105,20 @@ public abstract class Ship implements Cloneable {
 		}
 	}
 
+	/**
+	 * Calculates the COM (center of mass).
+	 * The COM vector origin is the morph with shipgrid coordinates (0,0)
+	 * The current computation is an approximation and assumes that each and every morph in
+	 * the ship is at full mass.
+	 */
+	private void calculateCOM() {
+		centerOfMass.copy(Vect3D.NULL);
+		for (Morph m : getMorphList()) {
+			centerOfMass.add(m.getPosInShip());
+		}
+		centerOfMass.normalize(centerOfMass.modulus() / getMorphList().size());
+	}
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		Ship clone = (Ship) super.clone();
@@ -110,6 +128,10 @@ public abstract class Ship implements Cloneable {
 
 	public List<Morph> getActiveMorphList() {
 		return activeMorphList;
+	}
+
+	public Vect3D getCenterOfMassInShip() {
+		return centerOfMass;
 	}
 
 	public List<IA> getIAList() {
@@ -168,6 +190,10 @@ public abstract class Ship implements Cloneable {
 		activeMorphList.remove(morph);
 	}
 
+	public void setCenterOfMassInWorld(Vect3D centerOfMass) {
+		this.centerOfMass = centerOfMass;
+	}
+
 	public void setSelectedMorph(int index) {
 		selectedMorphList.clear();
 		if (index >= 0 && index < morphList.size()) {
@@ -197,6 +223,24 @@ public abstract class Ship implements Cloneable {
 	@Override
 	public String toString() {
 		return "ship:" + pos.toString();
+	}
+
+	/**
+	 * Transforms the provided vector from ship referential coordinates to world referential coordinates.
+	 * @param coords the coordinates in ship referential
+	 */
+	public void transformShipToWorldCoords(Vect3D coords) {
+		coords.rotate(rot);
+		coords.add(pos);
+	}
+
+	/**
+	 * Transforms the provided vector from world referential coordinates to ship referential coordinates.
+	 * @param coords the coordinates in world referential
+	 */
+	public void transformWorldToShipCoords(Vect3D coords) {
+		coords.substract(pos);
+		coords.rotate(-rot);
 	}
 
 	public void update() {

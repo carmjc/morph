@@ -7,6 +7,7 @@ package net.carmgate.morph.model;
 public class Vect3D {
 
 	public static final Vect3D NORTH = new Vect3D(0, -1, 0);
+	public static final Vect3D NULL = new Vect3D(0, 0, 0);
 
 	public float x;
 	public float y;

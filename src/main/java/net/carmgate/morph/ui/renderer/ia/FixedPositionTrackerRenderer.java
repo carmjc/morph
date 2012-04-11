@@ -18,7 +18,7 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 	static private final Logger log = Logger.getLogger(FixedPositionTrackerRenderer.class);
 
 	/** The texture under the morph image. */
-	public static Texture texture;
+	private static Texture texture;
 	private ForceRenderer forceRenderer;
 
 	public void init() {
