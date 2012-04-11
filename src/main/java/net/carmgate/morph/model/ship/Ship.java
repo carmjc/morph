@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 /**
  * TODO : Il faut ajouter un centre d'inertie et modifier les calculs des forces pour gérer le vrai centre d'inertie.
  */
-public abstract class Ship implements Cloneable {
+public abstract class Ship {
 
 	private static final Logger logger = Logger.getLogger(Ship.class);
 
@@ -117,13 +117,6 @@ public abstract class Ship implements Cloneable {
 			centerOfMass.add(m.getPosInShip());
 		}
 		centerOfMass.normalize(centerOfMass.modulus() / getMorphList().size());
-	}
-
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		Ship clone = (Ship) super.clone();
-
-		return clone;
 	}
 
 	public List<Morph> getActiveMorphList() {

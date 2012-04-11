@@ -150,11 +150,14 @@ public abstract class Morph {
 		}
 		return posInShip;
 	}
+
+	/**
+	 * @return morph pos in world
+	 */
 	public Vect3D getPosInWorld() {
 		if (ship != null) {
 			posInWorld.copy(posInShip);
-			posInWorld.rotate(getShip().rot);
-			posInWorld.add(getShip().pos);
+			ship.transformShipToWorldCoords(posInWorld);
 		}
 		return posInWorld;
 	}

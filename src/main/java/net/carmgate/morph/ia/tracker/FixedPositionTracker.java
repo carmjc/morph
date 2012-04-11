@@ -22,6 +22,7 @@ public class FixedPositionTracker implements IA {
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final Ship ship;
 	private final Vect3D targetPos;
+	private static Vect3D dummyVect = new Vect3D();
 
 	public FixedPositionTracker(Ship ship, Vect3D targetPos) {
 		this.ship = ship;
@@ -33,12 +34,6 @@ public class FixedPositionTracker implements IA {
 				propulsorMorphs.add((PropulsorMorph) m);
 			}
 		}
-
-		for (PropulsorMorph m : propulsorMorphs) {
-			if (!m.disabled) {
-				activePropulsorMorphs.add(m);
-			}
-		}
 	}
 
 	public void compute() {
@@ -48,14 +43,15 @@ public class FixedPositionTracker implements IA {
 			if (!m.disabled) {
 				activePropulsorMorphs.add(m);
 			}
-			break;
 		}
 
 		logger.debug(activePropulsorMorphs);
 
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			Vect3D direction = new Vect3D(targetPos);
-			direction.substract(m.getPosInWorld());
+			dummyVect.copy(ship.getCenterOfMassInShip());
+			ship.transformShipToWorldCoords(dummyVect);
+			direction.substract(dummyVect);
 			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(direction));
 			m.activate();
 		}
