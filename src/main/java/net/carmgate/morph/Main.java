@@ -163,7 +163,11 @@ public class Main {
 		GL11.glRotatef(worldRotation.z, 0, 0, 1);
 
 		// draw world
-		worldRenderer.render(GL11.GL_RENDER, null, world);
+		RenderStyle renderStyle = RenderStyle.NORMAL;
+		if (WorldRenderer.debugDisplay) {
+			renderStyle = RenderStyle.DEBUG;
+		}
+		worldRenderer.render(GL11.GL_RENDER, renderStyle, world);
 
 		GL11.glRotatef(-worldRotation.z, 0, 0, 1);
 		GL11.glTranslatef(-worldOrigin.x, -worldOrigin.y, -worldOrigin.z);

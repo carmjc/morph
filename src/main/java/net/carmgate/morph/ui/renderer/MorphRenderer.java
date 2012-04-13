@@ -26,10 +26,12 @@ public class MorphRenderer implements Renderer<Morph> {
 
 	/** The map of the morph texture. */
 	private static Map<MorphType, Texture> textures;
+	private static Map<MorphType, Texture> debugTextures;
 
 	// loading resources
 	public static void init() {
 		textures = new HashMap<Morph.MorphType, Texture>();
+		debugTextures = new HashMap<Morph.MorphType, Texture>();
 
 		try {
 			// load texture from PNG file
@@ -39,6 +41,11 @@ public class MorphRenderer implements Renderer<Morph> {
 			textures.put(MorphType.PROPULSOR, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/propulsor-0.png").getPath())));
 			textures.put(MorphType.SHIELD, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/shield-0.png").getPath())));
 			textures.put(MorphType.SPREADER, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/spreader-0.png").getPath())));
+			debugTextures.put(MorphType.BASIC, null);
+			debugTextures.put(MorphType.EMITTER, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/emitter-0.png").getPath())));
+			debugTextures.put(MorphType.PROPULSOR, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/propulsor-0-debug.png").getPath())));
+			debugTextures.put(MorphType.SHIELD, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/shield-0.png").getPath())));
+			debugTextures.put(MorphType.SPREADER, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/spreader-0.png").getPath())));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -96,6 +103,9 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		// morph texture
 		Texture morphTexture = textures.get(morph.getType());
+		if (drawType == RenderStyle.DEBUG) {
+			morphTexture = debugTextures.get(morph.getType());
+		}
 		if (morphTexture != null) {
 			morphTexture.bind();
 			GL11.glBegin(GL11.GL_QUADS);

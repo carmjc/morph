@@ -43,6 +43,7 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	private final Map<Class<? extends Behavior<?>>, BehaviorRenderer<?>> behaviorRenderersMap = new HashMap<Class<? extends Behavior<?>>, BehaviorRenderer<?>>();
 	private final Map<Class<? extends IA>, Renderer> iaRendererMap = new HashMap<Class<? extends IA>, Renderer>();
+	private ForceRenderer forceRenderer;
 
 	public ShipRenderer() {
 
@@ -56,6 +57,9 @@ public class ShipRenderer implements Renderer<Ship> {
 		FixedPositionTrackerRenderer fixedPositionTrackerRenderer = new FixedPositionTrackerRenderer();
 		fixedPositionTrackerRenderer.init();
 		iaRendererMap.put(FixedPositionTracker.class, fixedPositionTrackerRenderer);
+
+		// Force renderer
+		forceRenderer = new ForceRenderer();
 	}
 
 	public void render(int glMode, RenderStyle renderStyle, Ship ship) {
@@ -76,7 +80,7 @@ public class ShipRenderer implements Renderer<Ship> {
 
 			GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);
 			GL11.glRotatef(morph.getRotInShip(), 0, 0, 1);
-			currentMorphRenderer.render(glMode, RenderStyle.NORMAL, morph);
+			currentMorphRenderer.render(glMode, renderStyle, morph);
 			GL11.glRotatef(-morph.getRotInShip(), 0, 0, 1);
 			GL11.glTranslatef(-morph.getPosInShip().x, -morph.getPosInShip().y, -morph.getPosInShip().z);
 
@@ -111,6 +115,10 @@ public class ShipRenderer implements Renderer<Ship> {
 			}
 		}
 
+		// Render ship speed
+		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
+		ship.transformShipToWorldCoords(comInWorld);
+		forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posSpeed);
 	}
 
 	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior) {

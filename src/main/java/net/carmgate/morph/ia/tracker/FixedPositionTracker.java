@@ -18,6 +18,10 @@ public class FixedPositionTracker implements IA {
 
 	private static final Logger logger = Logger.getLogger(FixedPositionTracker.class);
 
+	private static final float MAX_ACCEL = 1;
+	private static final float MAX_SPEED = 1;
+	private static final float CAP_DISTANCE = 200;
+
 	private final List<PropulsorMorph> propulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final Ship ship;
@@ -45,20 +49,102 @@ public class FixedPositionTracker implements IA {
 			}
 		}
 
-		logger.debug(activePropulsorMorphs);
+		// Calculate center of mass in world
+		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
+		ship.transformShipToWorldCoords(comInWorld);
 
+		// Calculate left props and right props considering the direction vector
+		// The direction vector points from the center of mass in the direction of the targetPos
+		// To evaluate which side is each propulsor morph, it suffices to evaluate the dot product
+		//  between the direction vector rotated -90° and the position vector of the morph into the ship.
+		Vect3D directionVector = new Vect3D(targetPos);
+		directionVector.substract(comInWorld);
+		directionVector.rotate(-90);
+
+		List<PropulsorMorph> leftMorphs = new ArrayList<PropulsorMorph>();
+		List<PropulsorMorph> rightMorphs = new ArrayList<PropulsorMorph>();
+		Vect3D v = new Vect3D();
 		for (PropulsorMorph m : activePropulsorMorphs) {
-			Vect3D direction = new Vect3D(targetPos);
-			dummyVect.copy(ship.getCenterOfMassInShip());
-			ship.transformShipToWorldCoords(dummyVect);
-			direction.substract(dummyVect);
-			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(direction));
+			v.copy(m.getPosInWorld());
+			v.substract(comInWorld);
+			float prodScal = directionVector.prodScal(v);
+			if (prodScal > 0) {
+				leftMorphs.add(m);
+			} else if (prodScal < 0) {
+				rightMorphs.add(m);
+			}
+		}
+
+		// Recalculate direction Vector
+		directionVector.copy(targetPos);
+		directionVector.substract(comInWorld);
+
+		// Now that we have the left and right morphs, let's evaluate the total rotational moment of each collection.
+		float leftMoment = 0;
+		float rightMoment = 0;
+		Vect3D moment = new Vect3D();
+		for (PropulsorMorph m : leftMorphs) {
+			moment.copy(m.getPosInWorld());
+			moment.substract(comInWorld);
+			leftMoment += moment.prodVectOnZ(directionVector);
+		}
+		for (PropulsorMorph m : rightMorphs) {
+			moment.copy(m.getPosInWorld());
+			moment.substract(comInWorld);
+			rightMoment -= moment.prodVectOnZ(directionVector);
+		}
+
+		float leftThrust = 1;
+		float rightThrust = 1;
+//		if (leftMoment != 0 && rightMoment != 0) {
+//			if (leftMoment < rightMoment) {
+//				rightThrust = leftMoment / rightMoment;
+//			} else {
+//				leftThrust = rightMoment / leftMoment;
+//			}
+//		}
+		leftThrust = rightMoment * rightMoment / (leftMoment * leftMoment + rightMoment * rightMoment);
+		rightThrust = 1 - leftThrust;
+
+		float shipAccel = ship.posAccel.modulus();
+		float shipSpeed = ship.posSpeed.modulus();
+		float distanceToTarget = ship.pos.distance(targetPos);
+		logger.debug(shipAccel + ", " + shipSpeed + ", " + distanceToTarget + ", " + ship.getCenterOfMassInShip().modulus());
+
+		// We balance forces of both sides
+		// and adjust thrust according to max_accel, max_speed and distanceToTarget
+		for (PropulsorMorph m : activePropulsorMorphs) {
+			// Adjust thrust for moments
+			float thrust = 1;
+			if (leftMorphs.contains(m)) {
+				thrust = leftThrust;
+			} else if (rightMorphs.contains(m)) {
+				thrust = rightThrust;
+			}
+
+			if (distanceToTarget <= shipSpeed) {
+				m.setRotInWorld(180 + new Vect3D(0, -1, 0).angleWith(directionVector));
+				if (shipSpeed / MAX_SPEED > distanceToTarget / CAP_DISTANCE) {
+					m.getPropulsingBehavior().setThrustPercentage(thrust);
+				}
+				m.getPropulsingBehavior().setThrustPercentage(0);
+			} else {
+				m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(directionVector));
+				m.getPropulsingBehavior().setThrustPercentage(thrust);
+			}
+
 			m.activate();
 		}
 
 	}
 
 	public boolean done() {
+
+		float distanceToTarget = ship.pos.distance(targetPos);
+		float shipSpeed = ship.posSpeed.modulus();
+		if (distanceToTarget < 50 && shipSpeed < 0.001) {
+			return true;
+		}
 //		// Detect if we are close enough to the target point
 //		if (ship.pos.distance(targetPos) < 20 && ship.posSpeed.modulus() < 0.1) {
 //			// should only suppress its own forces.

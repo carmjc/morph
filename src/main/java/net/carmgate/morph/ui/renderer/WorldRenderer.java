@@ -100,7 +100,7 @@ public class WorldRenderer implements Renderer<World> {
 				GL11.glPushName(selectionId++);
 			}
 
-			currentShipRenderer.render(glMode, RenderStyle.NORMAL, ship);
+			currentShipRenderer.render(glMode, drawType, ship);
 
 			// Selection names management
 			if (glMode == GL11.GL_SELECT) {

@@ -7,19 +7,28 @@ import org.lwjgl.opengl.GL11;
 
 public class ForceRenderer implements Renderer<Force> {
 
-	private static final float VISIBILITY_FACTOR = 5000;
+	private static final float VISIBILITY_FACTOR = 100;
 
 	public void render(int glMode, RenderStyle drawType, Force force) {
 		Vect3D forceVector = new Vect3D(force.vector);
 		forceVector.rotate(force.target.getRotInShip() + force.target.getShip().rot);
 		Vect3D targetPos = new Vect3D(force.target.getPosInShip());
-		forceVector.normalize(forceVector.modulus() * VISIBILITY_FACTOR);
 
 		renderVector(glMode, drawType, targetPos, forceVector);
 	}
 
-	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D vector) {
+	/**
+	 * Renders an arrow given an origin and a direction vector.
+	 * @param glMode
+	 * @param drawType
+	 * @param origin
+	 * @param forceVector
+	 */
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector) {
+		Vect3D vector = new Vect3D(forceVector);
+		vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
 
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glLineWidth(2.0f);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
 		GL11.glColor3f(1.0f, 1.0f, 1.0f);

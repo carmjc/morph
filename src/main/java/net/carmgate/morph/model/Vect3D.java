@@ -148,8 +148,16 @@ public class Vect3D {
 	}
 
 	/**
+	 * @param vect
+	 * @return the project on the Z-axis of the cross product of currentVect and parameter vect
+	 */
+	public float prodVectOnZ(Vect3D vect) {
+		return x * vect.y - y * vect.x;
+	}
+
+	/**
 	 * Rotates a vector by the given angles in degrees.
-	 * @param angle the rotation angles in degrees along the 3 axis.
+	 * @param angle the rotation angles in degrees along the z axis.
 	 */
 	public void rotate(float angle) {
 		float newX = (float) (Math.cos(Math.toRadians(angle)) * x - Math.sin(Math.toRadians(angle)) * y);

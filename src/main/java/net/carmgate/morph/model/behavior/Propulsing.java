@@ -41,6 +41,8 @@ public class Propulsing extends Behavior<Morph> {
 
 	@Override
 	protected void execute() {
+
+		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
 		if (getOwner().disabled) {
 			getOwner().getShip().ownForceList.remove(force);
 			return;
@@ -48,8 +50,11 @@ public class Propulsing extends Behavior<Morph> {
 
 		// update force
 		force.vector.copy(Vect3D.NORTH);
-		force.vector.rotate(getOwner().getRotInWorld());
+//		force.vector.rotate(getOwner().getRotInWorld());
 		force.vector.normalize(propulsingForceModulusAtFullThrust * thrustPercentage);
+		if (thrustPercentage > 1) {
+			logger.debug("<1");
+		}
 
 		// energy loss
 		getOwner().energy -= energyConsumptionAtFullThrust

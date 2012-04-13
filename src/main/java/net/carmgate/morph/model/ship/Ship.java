@@ -28,7 +28,7 @@ public abstract class Ship {
 	public float rotAccel;
 
 	/** The drag factor. The lower, the more it's dragged. */
-	public float dragFactor = 0.995f;
+	public float dragFactor = 0.990f;
 
 	/** Under that speed, the ship stops completely. */
 	public static final float MIN_SPEED = 0.00001f;
@@ -84,6 +84,13 @@ public abstract class Ship {
 		posAccel.z = 0;
 		rotAccel = 0;
 
+		// Calculate com in world
+		Vect3D comInWorld = new Vect3D(getCenterOfMassInShip());
+		transformShipToWorldCoords(comInWorld);
+
+		// Initialize forceTarget vector
+		Vect3D forceTarget = new Vect3D();
+
 		for (Force f : ownForceList) {
 
 			// the acceleration caused by the force is applied to the ship's inertia center.
@@ -92,15 +99,10 @@ public abstract class Ship {
 			posAccel.add(forceVector);
 
 			// the tangential element of the force generates a rotation of the ship
-			// the following is done in the ship's referential
-			Vect3D targetClone = new Vect3D(f.target.getPosInShip()); //FIXME this should rather use the center of mass of the ship
-			targetClone.substract(pos);
-
-			// Get the angle between the two vectors
-			float angle = targetClone.angleWith(forceVector);
-
-			// Compute the acceleration
-			rotAccel += targetClone.modulus() * forceVector.modulus() * Math.sin(Math.toRadians(angle)) / morphList.size() * 0.05f;
+			// with intensity proportional to the force moment
+			forceTarget.copy(f.target.getPosInWorld());
+			forceTarget.substract(pos);
+			rotAccel += forceTarget.prodVectOnZ(forceVector) / morphList.size() * 0.05f;
 
 		}
 	}
