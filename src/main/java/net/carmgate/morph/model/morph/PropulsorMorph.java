@@ -12,7 +12,7 @@ public class PropulsorMorph extends BasicMorph {
 
 	/** Energy Consumption per millis at full thrust. */
 	private final static float energyConsumptionAtFullThrust = 0.000001f;
-	private final static float propulsingForceModulusAtFullThrust = 5f;
+	private final static float propulsingForceModulusAtFullThrust = 100f;
 
 	/** The default activable behavior of this morph. */
 	private final Propulsing propulsingBehavior;
@@ -32,6 +32,13 @@ public class PropulsorMorph extends BasicMorph {
 	public void afterActivate() {
 		for (Behavior<?> b : activableBehaviorList) {
 			b.tryToActivate();
+		}
+	}
+
+	@Override
+	public void afterDeactivate() {
+		for (Behavior<?> b : activableBehaviorList) {
+			b.tryToDeactivate();
 		}
 	}
 

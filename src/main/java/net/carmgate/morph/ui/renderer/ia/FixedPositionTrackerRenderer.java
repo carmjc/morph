@@ -23,7 +23,7 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 
 	public void init() {
 		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("mvt_target.png").getPath()));
+			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("target.png").getPath()));
 		} catch (IOException e) {
 			log.error("Could not load textures", e);
 		}

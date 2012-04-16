@@ -25,11 +25,13 @@ public class FixedPositionTracker implements IA {
 	private final List<PropulsorMorph> propulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final Ship ship;
-	private final Vect3D targetPos;
+	private Vect3D targetPos;
 
 	private boolean done;
-	private static Vect3D dummyVect = new Vect3D();
 
+	private Vect3D lastSteeringForce = new Vect3D();
+
+	private static Vect3D dummyVect = new Vect3D();
 	public FixedPositionTracker(Ship ship, Vect3D targetPos) {
 		this.ship = ship;
 		this.targetPos = targetPos;
@@ -59,33 +61,19 @@ public class FixedPositionTracker implements IA {
 		// The direction vector points in the direction the ship should try to go
 		Vect3D comToTarget = new Vect3D(targetPos);
 		comToTarget.substract(comInWorld);
-		comToTarget.normalize(1);
+		float distanceToTarget = comToTarget.modulus();
+		float rampedSpeed = ship.maxSpeed * distanceToTarget / ship.slowingDistance;
+		float clippedSpeed = Math.min(rampedSpeed, ship.maxSpeed);
+		Vect3D desiredVelocity = new Vect3D(comToTarget);
+		desiredVelocity.normalize(clippedSpeed);
 
-		// Ship speed and ship accel towards the target
-		Vect3D posAccel = new Vect3D(ship.posAccel);
-		float shipAccel = Math.abs(posAccel.prodScal(comToTarget));
-		Vect3D posSpeed = new Vect3D(ship.posSpeed);
-		float shipSpeed = posSpeed.prodScal(comToTarget);
-		float distanceToTarget = ship.pos.distance(targetPos);
-		logger.debug(shipAccel + ", " + shipSpeed + ", " + distanceToTarget + ", " + ship.getCenterOfMassInShip().modulus() + ", " + (distanceToTarget <= shipSpeed));
-
-		if (distanceToTarget <= shipSpeed * shipSpeed / (2 * shipAccel) && shipSpeed > 0) {
-			comToTarget.rotate(180);
-
-			if (Math.abs(shipSpeed) < 1) {
-				done = true;
-				return;
-			}
-		}
-
-		Vect3D directionVector = new Vect3D(comToTarget);
-		directionVector.normalize(ship.posSpeed.modulus() + ship.posAccel.modulus());
-		directionVector.substract(ship.posSpeed);
+		Vect3D steeringForce = new Vect3D(desiredVelocity);
+		steeringForce.substract(ship.posSpeed);
 
 		// Calculate left props and right props considering the direction vector
 		// To evaluate which side is each propulsor morph, it suffices to evaluate the dot product
 		//  between the direction vector rotated -90° and the position vector of the morph into the ship.
-		Vect3D rotatedCopy = new Vect3D(directionVector);
+		Vect3D rotatedCopy = new Vect3D(steeringForce);
 		rotatedCopy.rotate(-90);
 
 		List<PropulsorMorph> leftMorphs = new ArrayList<PropulsorMorph>();
@@ -95,7 +83,7 @@ public class FixedPositionTracker implements IA {
 			v.copy(m.getPosInWorld());
 			v.substract(comInWorld);
 			float prodScal = rotatedCopy.prodScal(v);
-			if (prodScal > 0) {
+			if (prodScal >= 0) {
 				leftMorphs.add(m);
 			} else if (prodScal < 0) {
 				rightMorphs.add(m);
@@ -109,38 +97,38 @@ public class FixedPositionTracker implements IA {
 		for (PropulsorMorph m : leftMorphs) {
 			moment.copy(m.getPosInWorld());
 			moment.substract(comInWorld);
-			leftMoment += moment.prodVectOnZ(directionVector);
+			leftMoment += moment.prodVectOnZ(steeringForce);
 		}
 		for (PropulsorMorph m : rightMorphs) {
 			moment.copy(m.getPosInWorld());
 			moment.substract(comInWorld);
-			rightMoment -= moment.prodVectOnZ(directionVector);
+			rightMoment -= moment.prodVectOnZ(steeringForce);
 		}
 
 		float leftThrust = 1;
 		float rightThrust = 1;
-//		if (leftMoment != 0 && rightMoment != 0) {
-//			if (leftMoment < rightMoment) {
-//				rightThrust = leftMoment / rightMoment;
-//			} else {
-//				leftThrust = rightMoment / leftMoment;
-//			}
-//		}
-		leftThrust = rightMoment * rightMoment / (leftMoment * leftMoment + rightMoment * rightMoment);
-		rightThrust = 1 - leftThrust;
+		if (leftMoment != 0 && rightMoment != 0) {
+			if (leftMoment < rightMoment) {
+				rightThrust = leftMoment / rightMoment;
+			} else {
+				leftThrust = rightMoment / leftMoment;
+			}
+		}
+//		leftThrust = rightMoment * rightMoment / (leftMoment * leftMoment + rightMoment * rightMoment);
+//		rightThrust = 1 - leftThrust;
 
 		// We balance forces of both sides
 		// and adjust thrust according to max_accel, max_speed and distanceToTarget
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			// Adjust thrust for moments
-			float thrust = 1;
+			float thrust = steeringForce.modulus() / ship.maxSpeed;
 			if (leftMorphs.contains(m)) {
-				thrust = leftThrust;
+				thrust *= leftThrust;
 			} else if (rightMorphs.contains(m)) {
-				thrust = rightThrust;
+				thrust *= rightThrust;
 			}
 
-				m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(directionVector));
+				m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
 				m.getPropulsingBehavior().setThrustPercentage(thrust);
 
 			m.activate();
@@ -172,6 +160,10 @@ public class FixedPositionTracker implements IA {
 
 	public Vect3D getTargetPos() {
 		return targetPos;
+	}
+
+	public void setTargetPos(Vect3D targetPos) {
+		this.targetPos = targetPos;
 	}
 
 }

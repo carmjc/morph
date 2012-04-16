@@ -290,7 +290,16 @@ public class Main {
 
 					// If no morph is selected, the right click should be understood as a moveto order.
 					if (world.getSelectedShip().getSelectedMorphList().isEmpty()) {
-						world.getSelectedShip().getIAList().add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
+						List<IA> iaList = world.getSelectedShip().getIAList();
+
+						// Look for existing tracker
+						for (IA ia : iaList) {
+							if (ia instanceof FixedPositionTracker) {
+								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+							}
+						}
+
+						iaList.add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
 					}
 				}
 

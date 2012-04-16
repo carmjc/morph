@@ -18,6 +18,10 @@ public abstract class Ship {
 
 	private static final Logger logger = Logger.getLogger(Ship.class);
 
+	/** The ship max speed. */
+	public float maxSpeed = 200;
+	public float slowingDistance = 400;
+
 	/** The ship position in the world. */
 	public Vect3D pos;
 	public Vect3D posSpeed;
