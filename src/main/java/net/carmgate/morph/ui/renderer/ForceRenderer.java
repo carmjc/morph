@@ -7,8 +7,6 @@ import org.lwjgl.opengl.GL11;
 
 public class ForceRenderer implements Renderer<Force> {
 
-	private static final float VISIBILITY_FACTOR = 100;
-
 	public void render(int glMode, RenderStyle drawType, Force force) {
 		Vect3D forceVector = new Vect3D(force.vector);
 		forceVector.rotate(force.target.getRotInShip() + force.target.getShip().rot);
@@ -24,9 +22,10 @@ public class ForceRenderer implements Renderer<Force> {
 	 * @param origin
 	 * @param forceVector
 	 */
-	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector) {
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D orig, Vect3D forceVector) {
+		Vect3D origin = new Vect3D(orig);
 		Vect3D vector = new Vect3D(forceVector);
-		vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
+//		vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
 
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glLineWidth(2.0f);
@@ -55,6 +54,20 @@ public class ForceRenderer implements Renderer<Force> {
 
 		GL11.glEnd();
 		GL11.glColor3f(0.7f, 0.7f, 0.7f);
+	}
+
+	/**
+	 * Renders an arrow given an origine and a normalized vector
+	 * @param glMode
+	 * @param drawType
+	 * @param origin
+	 * @param forceVector
+	 * @param modulus
+	 */
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector, float modulus) {
+		Vect3D normFoVect = new Vect3D(forceVector);
+		normFoVect.normalize(modulus);
+		renderVector(glMode, drawType, origin, normFoVect);
 	}
 
 }

@@ -14,6 +14,7 @@ import net.carmgate.morph.model.ship.Ship;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.action.ToggleCombatMode;
 import net.carmgate.morph.ui.action.ToggleDebugAction;
+import net.carmgate.morph.ui.action.ToggleFreezeAction;
 import net.carmgate.morph.ui.renderer.InterfaceRenderer;
 import net.carmgate.morph.ui.renderer.MorphRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
@@ -62,6 +63,7 @@ public class Main {
 	// Actions
 	private final ToggleDebugAction toggleDebugAction = new ToggleDebugAction();
 	private final ToggleCombatMode toggleCombatMode = new ToggleCombatMode();
+	private final ToggleFreezeAction toggleFreezeAction = new ToggleFreezeAction();
 
 	/**
 	 * Initialise the GL display
@@ -307,6 +309,7 @@ public class Main {
 			if (Keyboard.next()) {
 				toggleDebugAction.run();
 				toggleCombatMode.run();
+				toggleFreezeAction.run();
 			}
 
 			if (Display.isCloseRequested()) {

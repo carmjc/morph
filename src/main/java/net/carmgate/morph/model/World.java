@@ -26,6 +26,7 @@ public class World {
 	private final long gameStartMsec = new Date().getTime();
 
 	public static boolean combat = false;
+	public static boolean freeze = false;
 
 	public static World getWorld() {
 		if (worldInstance == null) {
@@ -54,15 +55,15 @@ public class World {
 		// privatized constructor
 	}
 
-	public List<Force> getForceList() {
-		return forceList;
-	}
-
 	/**
 	 * @return number of millis since game start.
 	 */
-	public long getMsec() {
+	public long getCurrentTS() {
 		return msec;
+	}
+
+	public List<Force> getForceList() {
+		return forceList;
 	}
 
 	public Ship getSelectedShip() {
@@ -110,6 +111,10 @@ public class World {
 	 * Update the world.
 	 */
 	public void update() {
+		if (World.freeze) {
+			return;
+		}
+
 		// update the number of millis since game start
 		msec = new Date().getTime() - gameStartMsec;
 

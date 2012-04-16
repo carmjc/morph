@@ -11,8 +11,8 @@ import net.carmgate.morph.model.ship.Ship;
 public class PropulsorMorph extends BasicMorph {
 
 	/** Energy Consumption per millis at full thrust. */
-	private final static float energyConsumptionAtFullThrust = 0.0001f;
-	private final static float propulsingForceModulusAtFullThrust = 0.0002f;
+	private final static float energyConsumptionAtFullThrust = 0.000001f;
+	private final static float propulsingForceModulusAtFullThrust = 5f;
 
 	/** The default activable behavior of this morph. */
 	private final Propulsing propulsingBehavior;

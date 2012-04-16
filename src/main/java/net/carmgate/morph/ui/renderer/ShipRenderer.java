@@ -119,6 +119,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
 		ship.transformShipToWorldCoords(comInWorld);
 		forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posSpeed);
+		forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posAccel, 100);
 	}
 
 	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior) {

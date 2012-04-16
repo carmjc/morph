@@ -68,8 +68,8 @@ public abstract class Morph {
 	/** the energy stored by the morph. */
 	public float energy;
 
-	/** the number of millisecond from game start of last time the morph was updated. */
-	public long lastUpdateMsec;
+	/** The timestamp of last time the morph was updated. */
+	public long lastUpdateTS;
 
 	// Activity
 	public long activeMsec;
@@ -249,7 +249,7 @@ public abstract class Morph {
 		//		}
 
 		// Update last update msec
-		lastUpdateMsec = World.getWorld().getMsec();
+		lastUpdateTS = World.getWorld().getCurrentTS();
 	}
 
 }

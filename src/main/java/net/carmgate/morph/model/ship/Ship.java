@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.physics.Force;
 
@@ -63,6 +64,9 @@ public abstract class Ship {
 	/** The center of mass of the ship, in world coordinates */
 	private Vect3D centerOfMass = new Vect3D(Vect3D.NULL);
 
+	/** Timestamp of last time the ship's position was calculated. */
+	private long lastUpdateTS;
+
 	public Ship(float x, float y, float z) {
 		pos = new Vect3D(x, y, z);
 		posSpeed = new Vect3D(0, 0, 0);
@@ -70,6 +74,9 @@ public abstract class Ship {
 		rot = 0;
 		rotSpeed = 0;
 		rotAccel = 0;
+
+		// Init lastUpdateTS
+		lastUpdateTS = World.worldInstance.getCurrentTS();
 	}
 
 	public void addMorph(Morph morph) {
@@ -79,9 +86,7 @@ public abstract class Ship {
 	}
 
 	public void applyForces() {
-		posAccel.x = 0;
-		posAccel.y = 0;
-		posAccel.z = 0;
+		posAccel.copy(Vect3D.NULL);
 		rotAccel = 0;
 
 		// Calculate com in world
@@ -105,6 +110,9 @@ public abstract class Ship {
 			rotAccel += forceTarget.prodVectOnZ(forceVector) / morphList.size() * 0.05f;
 
 		}
+
+		// Then we clean the list
+		ownForceList.clear();
 	}
 
 	/**
@@ -239,25 +247,36 @@ public abstract class Ship {
 	}
 
 	public void update() {
+		// timestamp of last update
+		float secondsSinceLastUpdate = ((float) World.worldInstance.getCurrentTS() - lastUpdateTS) / 1000;
+		lastUpdateTS = World.worldInstance.getCurrentTS();
+		if (secondsSinceLastUpdate == 0f) {
+			return;
+		}
+
 		applyForces();
 
-		posSpeed.x += posAccel.x;
-		posSpeed.y += posAccel.y;
-		posSpeed.z += posAccel.z;
+		logger.debug(posAccel.modulus());
 
-		posSpeed.x = Math.abs(posSpeed.x * dragFactor) > MIN_SPEED ? posSpeed.x * dragFactor : 0;
-		posSpeed.y = Math.abs(posSpeed.y * dragFactor) > MIN_SPEED ? posSpeed.y * dragFactor : 0;
-		posSpeed.z = Math.abs(posSpeed.z * dragFactor) > MIN_SPEED ? posSpeed.z * dragFactor : 0;
+		posSpeed.x += posAccel.x * secondsSinceLastUpdate;
+		posSpeed.y += posAccel.y * secondsSinceLastUpdate;
+		posSpeed.z += posAccel.z * secondsSinceLastUpdate;
 
-		pos.x += posSpeed.x;
-		pos.y += posSpeed.y;
-		pos.z += posSpeed.z;
+		// The drag factor is reduced to take into account the fact that we update the position since last TS and not from a full second ago.
+		float reducedDragFactor = 1 - (1 - dragFactor) * secondsSinceLastUpdate;
+		posSpeed.x = Math.abs(posSpeed.x * reducedDragFactor) > MIN_SPEED ? posSpeed.x * reducedDragFactor : 0;
+		posSpeed.y = Math.abs(posSpeed.y * reducedDragFactor) > MIN_SPEED ? posSpeed.y * reducedDragFactor : 0;
+		posSpeed.z = Math.abs(posSpeed.z * reducedDragFactor) > MIN_SPEED ? posSpeed.z * reducedDragFactor : 0;
 
-		rotSpeed += rotAccel;
+		pos.x += posSpeed.x * secondsSinceLastUpdate;
+		pos.y += posSpeed.y * secondsSinceLastUpdate;
+		pos.z += posSpeed.z * secondsSinceLastUpdate;
 
-		rotSpeed = Math.abs(rotSpeed * dragFactor) > MIN_SPEED ? rotSpeed * dragFactor : 0;
+		rotSpeed += rotAccel * secondsSinceLastUpdate;
 
-		rot = (rot + rotSpeed) % 360;
+		rotSpeed = Math.abs(rotSpeed * reducedDragFactor) > MIN_SPEED ? rotSpeed * reducedDragFactor : 0;
+
+		rot = (rot + rotSpeed * secondsSinceLastUpdate) % 360;
 
 		updateMorphs();
 	}
