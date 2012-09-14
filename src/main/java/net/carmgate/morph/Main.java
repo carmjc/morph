@@ -37,7 +37,7 @@ public class Main {
 	 */
 	private static final int MIN_MOVE_FOR_DRAG = 5;
 
-	private static Logger logger = Logger.getLogger(Main.class);
+	private static Logger LOGGER = Logger.getLogger(Main.class);
 
 	//	public static final float SCALE_FACTOR = 1f;
 	public static final int HEIGHT = 768;
@@ -106,9 +106,9 @@ public class Main {
 
 	public void pick(int x, int y) {
 
-		logger.debug("Picking at " + x + " " + y);
+		LOGGER.debug("Picking at " + x + " " + y);
 		if (World.getWorld().getSelectedShip() != null) {
-			logger.debug("Selected ship: " + World.getWorld().getSelectedShip().pos);
+			LOGGER.debug("Selected ship: " + World.getWorld().getSelectedShip().pos);
 		}
 
 		// get viewport
@@ -152,7 +152,11 @@ public class Main {
 		int index = selectBuf.get(j + 4);
 		world.setSelectedShip(index);
 		if (lastSelectedShip != null && lastSelectedShip == world.getSelectedShip()) {
-			world.getSelectedShip().toggleSelectedMorph(selectBuf.get(j + 5));
+			int selectedMorphIndexInShip = selectBuf.get(j + 5);
+			LOGGER.debug(selectedMorphIndexInShip);
+			if (selectedMorphIndexInShip < world.getSelectedShip().getMorphList().size()) {
+				world.getSelectedShip().toggleSelectedMorph(selectedMorphIndexInShip);
+			}
 		}
 	}
 

@@ -12,7 +12,7 @@ public class ForceRenderer implements Renderer<Force> {
 		forceVector.rotate(force.target.getRotInShip() + force.target.getShip().rot);
 		Vect3D targetPos = new Vect3D(force.target.getPosInShip());
 
-		renderVector(glMode, drawType, targetPos, forceVector);
+		renderVector(glMode, drawType, targetPos, forceVector, null);
 	}
 
 	/**
@@ -22,7 +22,11 @@ public class ForceRenderer implements Renderer<Force> {
 	 * @param origin
 	 * @param forceVector
 	 */
-	public void renderVector(int glMode, RenderStyle drawType, Vect3D orig, Vect3D forceVector) {
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D orig, Vect3D forceVector, float[] color) {
+		if (color == null) {
+			color = new float[] {1.0f, 1.0f, 1.0f};
+		}
+		
 		Vect3D origin = new Vect3D(orig);
 		Vect3D vector = new Vect3D(forceVector);
 //		vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
@@ -30,7 +34,7 @@ public class ForceRenderer implements Renderer<Force> {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glLineWidth(2.0f);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
-		GL11.glColor3f(1.0f, 1.0f, 1.0f);
+		GL11.glColor3f(color[0], color[1], color[2]);
 		GL11.glBegin(GL11.GL_LINES);
 
 		// main line
@@ -64,10 +68,10 @@ public class ForceRenderer implements Renderer<Force> {
 	 * @param forceVector
 	 * @param modulus
 	 */
-	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector, float modulus) {
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector, float modulus, float[] color) {
 		Vect3D normFoVect = new Vect3D(forceVector);
 		normFoVect.normalize(modulus);
-		renderVector(glMode, drawType, origin, normFoVect);
+		renderVector(glMode, drawType, origin, normFoVect, color);
 	}
 
 }

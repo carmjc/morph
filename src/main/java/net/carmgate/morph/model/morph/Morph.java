@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.morph;
 
+import java.awt.GridBagConstraints;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,8 @@ public abstract class Morph {
 		EMITTER,
 		PROPULSOR,
 		SHIELD,
-		SPREADER;
+		SPREADER, 
+		STEM;
 	}
 
 	private static final Logger logger = Logger.getLogger(Morph.class);
@@ -34,7 +36,7 @@ public abstract class Morph {
 	public List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
 
 	/** Morph mass. */
-	public float mass = 1;
+	public float mass = 0.5f;
 
 	/** Morph max mass. */
 	public float maxMass = 1;
@@ -85,14 +87,17 @@ public abstract class Morph {
 
 		// Position and rotation in ship and world
 		this.ship = ship;
-		setPosInShip(new Vect3D(
-				shipGridPos.x * World.GRID_SIZE + shipGridPos.y * World.GRID_SIZE / 2,
-				(float) (shipGridPos.y * World.GRID_SIZE * Math.sqrt(3)/2),
-				0));
+		updatePosFromGridPos();
 		setRotInShip(0);
 
 		// energy
 		energy = getMaxEnergy();
+	}
+	public void updatePosFromGridPos() {
+		setPosInShip(new Vect3D(
+				shipGridPos.x * World.GRID_SIZE + shipGridPos.y * World.GRID_SIZE / 2,
+				(float) (shipGridPos.y * World.GRID_SIZE * Math.sqrt(3)/2),
+				0));
 	}
 	public abstract boolean activable();
 
@@ -252,4 +257,22 @@ public abstract class Morph {
 		lastUpdateTS = World.getWorld().getCurrentTS();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		Morph morph = (Morph) obj;
+		return shipGridPos.x == morph.shipGridPos.x && 
+				shipGridPos.y == morph.shipGridPos.y && 
+						shipGridPos.z == morph.shipGridPos.z && 
+				getShip() == morph.getShip();
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int) (((100 + (long) shipGridPos.x * 500) + (long) shipGridPos.y * 500) + (long) shipGridPos.z * 500) + ship.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return "posInShip:" + getPosInShip().x + "," + getPosInShip().y;
+	}
 }

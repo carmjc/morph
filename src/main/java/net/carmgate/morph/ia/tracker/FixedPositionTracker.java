@@ -18,10 +18,6 @@ public class FixedPositionTracker implements IA {
 
 	private static final Logger logger = Logger.getLogger(FixedPositionTracker.class);
 
-	private static final float MAX_ACCEL = 1;
-	private static final float MAX_SPEED = 1;
-	private static final float CAP_DISTANCE = 200;
-
 	private final List<PropulsorMorph> propulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final Ship ship;
@@ -29,9 +25,6 @@ public class FixedPositionTracker implements IA {
 
 	private boolean done;
 
-	private Vect3D lastSteeringForce = new Vect3D();
-
-	private static Vect3D dummyVect = new Vect3D();
 	public FixedPositionTracker(Ship ship, Vect3D targetPos) {
 		this.ship = ship;
 		this.targetPos = targetPos;
@@ -41,6 +34,16 @@ public class FixedPositionTracker implements IA {
 		for (Morph m : ship.getMorphList()) {
 			if (m instanceof PropulsorMorph) {
 				propulsorMorphs.add((PropulsorMorph) m);
+			}
+		}
+
+		// initializes the list of active propulsors
+		// this is mandatory so that done() does not considers the ship can't move
+		//  after initialization
+		activePropulsorMorphs.clear();
+		for (PropulsorMorph m : propulsorMorphs) {
+			if (!m.disabled) {
+				activePropulsorMorphs.add(m);
 			}
 		}
 	}
@@ -62,7 +65,10 @@ public class FixedPositionTracker implements IA {
 		Vect3D comToTarget = new Vect3D(targetPos);
 		comToTarget.substract(comInWorld);
 		float distanceToTarget = comToTarget.modulus();
-		float rampedSpeed = ship.maxSpeed * distanceToTarget / ship.slowingDistance;
+		float nbSecondsToBreak = ship.posSpeed.modulus() / (PropulsorMorph.propulsingForceModulusAtFullThrust * activePropulsorMorphs.size());
+		float distanceToBreak = ship.posSpeed.modulus() * nbSecondsToBreak;
+		logger.debug("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
+		float rampedSpeed = ship.maxSpeed * distanceToTarget / distanceToBreak;//ship.slowingDistance;
 		float clippedSpeed = Math.min(rampedSpeed, ship.maxSpeed);
 		Vect3D desiredVelocity = new Vect3D(comToTarget);
 		desiredVelocity.normalize(clippedSpeed);
@@ -70,66 +76,13 @@ public class FixedPositionTracker implements IA {
 		Vect3D steeringForce = new Vect3D(desiredVelocity);
 		steeringForce.substract(ship.posSpeed);
 
-		// Calculate left props and right props considering the direction vector
-		// To evaluate which side is each propulsor morph, it suffices to evaluate the dot product
-		//  between the direction vector rotated -90° and the position vector of the morph into the ship.
-		Vect3D rotatedCopy = new Vect3D(steeringForce);
-		rotatedCopy.rotate(-90);
-
-		List<PropulsorMorph> leftMorphs = new ArrayList<PropulsorMorph>();
-		List<PropulsorMorph> rightMorphs = new ArrayList<PropulsorMorph>();
-		Vect3D v = new Vect3D();
-		for (PropulsorMorph m : activePropulsorMorphs) {
-			v.copy(m.getPosInWorld());
-			v.substract(comInWorld);
-			float prodScal = rotatedCopy.prodScal(v);
-			if (prodScal >= 0) {
-				leftMorphs.add(m);
-			} else if (prodScal < 0) {
-				rightMorphs.add(m);
-			}
-		}
-
-		// Now that we have the left and right morphs, let's evaluate the total rotational moment of each collection.
-		float leftMoment = 0;
-		float rightMoment = 0;
-		Vect3D moment = new Vect3D();
-		for (PropulsorMorph m : leftMorphs) {
-			moment.copy(m.getPosInWorld());
-			moment.substract(comInWorld);
-			leftMoment += moment.prodVectOnZ(steeringForce);
-		}
-		for (PropulsorMorph m : rightMorphs) {
-			moment.copy(m.getPosInWorld());
-			moment.substract(comInWorld);
-			rightMoment -= moment.prodVectOnZ(steeringForce);
-		}
-
-		float leftThrust = 1;
-		float rightThrust = 1;
-		if (leftMoment != 0 && rightMoment != 0) {
-			if (leftMoment < rightMoment) {
-				rightThrust = leftMoment / rightMoment;
-			} else {
-				leftThrust = rightMoment / leftMoment;
-			}
-		}
-//		leftThrust = rightMoment * rightMoment / (leftMoment * leftMoment + rightMoment * rightMoment);
-//		rightThrust = 1 - leftThrust;
-
 		// We balance forces of both sides
 		// and adjust thrust according to max_accel, max_speed and distanceToTarget
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			// Adjust thrust for moments
 			float thrust = steeringForce.modulus() / ship.maxSpeed;
-			if (leftMorphs.contains(m)) {
-				thrust *= leftThrust;
-			} else if (rightMorphs.contains(m)) {
-				thrust *= rightThrust;
-			}
-
-				m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
-				m.getPropulsingBehavior().setThrustPercentage(thrust);
+			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
+			m.getPropulsingBehavior().setThrustPercentage(thrust);
 
 			m.activate();
 		}
@@ -138,23 +91,32 @@ public class FixedPositionTracker implements IA {
 
 	public boolean done() {
 
-//		float distanceToTarget = ship.pos.distance(targetPos);
-//		float shipSpeed = ship.posSpeed.modulus();
-//		if (distanceToTarget < 50 && shipSpeed < 0.001) {
-//			return true;
-//		}
-//		// Detect if we are close enough to the target point
-//		if (ship.pos.distance(targetPos) < 20 && ship.posSpeed.modulus() < 0.1) {
-//			// should only suppress its own forces.
-//			ship.ownForceList.clear();
-//			return true;
-//		}
-//
-//		// Dectect if all the propulsors are out of energy
-//		if (activePropulsorMorphs.size() == 0) {
-//			return true;
-//		}
+		// The direction vector points in the direction the ship should try to go
+		// Calculate center of mass in world
+		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
+		ship.transformShipToWorldCoords(comInWorld);
+		Vect3D comToTarget = new Vect3D(targetPos);
+		comToTarget.substract(comInWorld);
+		float distanceToTarget = comToTarget.modulus();
 
+		if (distanceToTarget < 15 && ship.posSpeed.modulus() < 2) {
+			done = true;
+		}
+
+		// Dectect if all the propulsors are out of energy
+		if (activePropulsorMorphs.size() == 0) {
+			done = true;
+		}
+
+		if (done) {
+			ship.ownForceList.clear();
+			ship.posAccel.copy(Vect3D.NULL);
+
+			for (PropulsorMorph morph : propulsorMorphs) {
+				morph.deactivate();
+			}
+		}
+		
 		return done;
 	}
 

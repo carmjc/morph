@@ -6,6 +6,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<properties>
 		<platform>win</platform>
+		<lwjgl-version>2.8.4</lwjgl-version>
 	</properties>
 	<build>
 		<plugins>
@@ -28,13 +29,7 @@
 		<dependency>
 			<groupId>org.lwjgl.lwjgl</groupId>
 			<artifactId>lwjgl</artifactId>
-			<version>2.7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.lwjgl.lwjgl</groupId>
-			<artifactId>lwjgl-platform</artifactId>
-			<version>2.7.0</version>
-			<classifier>natives-${platform}</classifier>
+			<version>${lwjgl-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.newdawn.slick</groupId>
@@ -44,7 +39,7 @@
 		<dependency>
 			<groupId>org.lwjgl.lwjgl</groupId>
 			<artifactId>lwjgl_util</artifactId>
-			<version>2.7.0</version>
+			<version>${lwjgl-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -55,6 +50,11 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
 		</dependency>
 	</dependencies>
 </project>

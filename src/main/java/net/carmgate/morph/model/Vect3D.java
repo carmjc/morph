@@ -2,6 +2,12 @@ package net.carmgate.morph.model;
 
 /**
  * A vector class holding some common vector operations.
+ * 
+ * Base :
+ *   -1
+ * -1   0   +1
+ *        +1
+ * 
  * @author Carm
  */
 public class Vect3D {

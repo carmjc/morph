@@ -4,8 +4,8 @@ import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.Emitting;
-import net.carmgate.morph.model.morph.EmitterMorph;
 import net.carmgate.morph.model.morph.Morph;
+import net.carmgate.morph.model.morph.old.EmitterMorph;
 import net.carmgate.morph.model.ship.Ship;
 
 public class WorldPositionFirer implements IA {

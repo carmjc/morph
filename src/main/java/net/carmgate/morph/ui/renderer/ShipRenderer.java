@@ -3,21 +3,29 @@ package net.carmgate.morph.ui.renderer;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.Emitting;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.morph.Morph;
+import net.carmgate.morph.model.morph.MorphUtil;
+import net.carmgate.morph.model.morph.StemMorph;
 import net.carmgate.morph.model.ship.Ship;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.EmittingRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
@@ -67,6 +75,39 @@ public class ShipRenderer implements Renderer<Ship> {
 		GL11.glRotatef(ship.rot, 0, 0, 1);
 
 		// Do whatever is necessary to draw the ship except sub items
+
+		// Add this to a StemMorphRenderer
+		// Draw the morphs surrounding ship's selected morphs
+		List<Morph> selectedMorphList = new ArrayList<Morph>(ship.getSelectedMorphList());
+		CollectionUtils.filter(selectedMorphList, new Predicate() {
+			
+			public boolean evaluate(Object object) {
+				return object instanceof StemMorph;
+			}
+		});
+		if (World.getWorld().getSelectedShip() == ship
+				&& !selectedMorphList.isEmpty()) {
+			int i = 0;
+			
+			for (Morph m : MorphUtil.createSurroundingMorphs(selectedMorphList)) {
+				// Make them not selectable by default
+				if (glMode == GL11.GL_SELECT) {
+					GL11.glPushName(ship.getMorphList().size() + i++);
+				}
+				
+				// Draw the morph
+				GL11.glTranslatef(m.getPosInShip().x, m.getPosInShip().y, m.getPosInShip().z);
+				GL11.glRotatef(m.getRotInShip(), 0, 0, 1);
+				currentMorphRenderer.render(glMode, renderStyle, m);
+				GL11.glRotatef(-m.getRotInShip(), 0, 0, 1);
+				GL11.glTranslatef(-m.getPosInShip().x, -m.getPosInShip().y, -m.getPosInShip().z);
+
+				// Selection names management
+				if (glMode == GL11.GL_SELECT) {
+					GL11.glPopName();
+				}
+			}
+		}
 
 		// Draw the morphs
 		int selectionId = 0;
@@ -118,8 +159,11 @@ public class ShipRenderer implements Renderer<Ship> {
 		// Render ship speed
 		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
 		ship.transformShipToWorldCoords(comInWorld);
-		forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posSpeed);
-		forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posAccel, 100);
+
+		if (renderStyle == RenderStyle.DEBUG) {
+			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posSpeed, new float[] {1.0f, 0.5f, 0.5f});
+			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posAccel, 100, new float[] {0.5f, 1.0f, 0.5f});
+		}
 	}
 
 	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior) {

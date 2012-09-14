@@ -17,10 +17,12 @@ import org.apache.log4j.Logger;
 public abstract class Ship {
 
 	private static final Logger logger = Logger.getLogger(Ship.class);
+	
+	public static final float newMassPerSecond = 0.0001f;
 
 	/** The ship max speed. */
-	public float maxSpeed = 200;
-	public float slowingDistance = 400;
+	public float maxSpeed = 250;
+	public float slowingDistance = 1000;
 
 	/** The ship position in the world. */
 	public Vect3D pos;
@@ -34,6 +36,9 @@ public abstract class Ship {
 
 	/** The drag factor. The lower, the more it's dragged. */
 	public float dragFactor = 0.990f;
+	
+	/** The rotation drag factor. The lower, the more it's dragged. */
+	public float rotDragFactor = 0.5f;
 
 	/** Under that speed, the ship stops completely. */
 	public static final float MIN_SPEED = 0.00001f;
@@ -110,7 +115,7 @@ public abstract class Ship {
 			// the tangential element of the force generates a rotation of the ship
 			// with intensity proportional to the force moment
 			forceTarget.copy(f.target.getPosInWorld());
-			forceTarget.substract(pos);
+			forceTarget.substract(comInWorld);
 			rotAccel += forceTarget.prodVectOnZ(forceVector) / morphList.size() * 0.05f;
 
 		}
@@ -260,8 +265,6 @@ public abstract class Ship {
 
 		applyForces();
 
-		logger.debug(posAccel.modulus());
-
 		posSpeed.x += posAccel.x * secondsSinceLastUpdate;
 		posSpeed.y += posAccel.y * secondsSinceLastUpdate;
 		posSpeed.z += posAccel.z * secondsSinceLastUpdate;
@@ -278,7 +281,9 @@ public abstract class Ship {
 
 		rotSpeed += rotAccel * secondsSinceLastUpdate;
 
-		rotSpeed = Math.abs(rotSpeed * reducedDragFactor) > MIN_SPEED ? rotSpeed * reducedDragFactor : 0;
+		// The drag factor is reduced to take into account the fact that we update the position since last TS and not from a full second ago.
+		float reducedRotDragFactor = 1 - (1 - rotDragFactor) * secondsSinceLastUpdate;
+		rotSpeed = Math.abs(rotSpeed * reducedRotDragFactor * 0.995f) > MIN_SPEED ? rotSpeed * reducedRotDragFactor * 0.995f : 0;
 
 		rot = (rot + rotSpeed * secondsSinceLastUpdate) % 360;
 
@@ -286,17 +291,19 @@ public abstract class Ship {
 	}
 
 	private void updateMorphs() {
+		// Count the number of suboptimally massive morphs
+		int nbMorphsNeedingMass = 0;
 		for (Morph m : morphList) {
-			// Position of the morph in the referential centered on the ship (the central one has coords (0, 0).
-//			m.getPosInShip().x = m.shipGridPos.x * World.GRID_SIZE + m.shipGridPos.y * World.GRID_SIZE / 2;
-//			m.getPosInShip().y = (float) (m.shipGridPos.y * World.GRID_SIZE * Math.sqrt(3)/2);
+			if (m.mass < 1) {
+				nbMorphsNeedingMass++;
+			}
+		}
 
-			// Adding the rotation around the center of the ship
-//			m.getPosInShip().rotate(rot);
-
-			// Adding the position of the ship's inertia center
-//			m.getPosInShip().add(pos);
-
+		for (Morph m : morphList) {
+			
+			// Updating the mass of the ship's morph if it's evolving
+			m.mass = Math.min(m.mass + newMassPerSecond / nbMorphsNeedingMass, m.maxMass);
+			
 			// Disabling if necessary
 			if (m.mass < m.disableMass && !m.disabled) {
 				logger.debug("Disabling morph");

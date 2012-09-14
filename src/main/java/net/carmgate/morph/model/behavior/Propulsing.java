@@ -51,9 +51,6 @@ public class Propulsing extends Behavior<Morph> {
 		force.vector.copy(Vect3D.NORTH);
 //		force.vector.rotate(getOwner().getRotInWorld());
 		force.vector.normalize(propulsingForceModulusAtFullThrust * thrustPercentage);
-		if (thrustPercentage > 1) {
-			logger.debug("<1");
-		}
 
 		// energy loss
 		getOwner().energy -= energyConsumptionAtFullThrust

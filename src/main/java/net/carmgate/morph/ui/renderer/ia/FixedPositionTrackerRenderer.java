@@ -36,20 +36,21 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 			FixedPositionTracker tracker) {
 		Vect3D targetPos = tracker.getTargetPos();
 
-		GL11.glTranslatef(targetPos.x, targetPos.y, targetPos.z);
-		texture.bind();
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(- texture.getTextureWidth() / 2, - texture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(texture.getTextureWidth() / 2, - texture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 1);
-		GL11.glVertex2f(texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
-		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(- texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
-		GL11.glEnd();
-		GL11.glTranslatef(-targetPos.x, -targetPos.y, -targetPos.z);
-
+		if (drawType == RenderStyle.DEBUG) {
+			GL11.glTranslatef(targetPos.x, targetPos.y, targetPos.z);
+			texture.bind();
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0, 0);
+			GL11.glVertex2f(- texture.getTextureWidth() / 2, - texture.getTextureWidth() / 2);
+			GL11.glTexCoord2f(1, 0);
+			GL11.glVertex2f(texture.getTextureWidth() / 2, - texture.getTextureWidth() / 2);
+			GL11.glTexCoord2f(1, 1);
+			GL11.glVertex2f(texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
+			GL11.glTexCoord2f(0, 1);
+			GL11.glVertex2f(- texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
+			GL11.glEnd();
+			GL11.glTranslatef(-targetPos.x, -targetPos.y, -targetPos.z);
+		}
 	}
 
 }

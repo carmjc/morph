@@ -1,7 +1,7 @@
 package net.carmgate.morph.model.behavior;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.morph.EmitterMorph;
+import net.carmgate.morph.model.morph.old.EmitterMorph;
 
 public class Emitting extends Behavior<EmitterMorph> {
 

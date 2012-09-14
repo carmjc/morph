@@ -94,9 +94,6 @@ public class World {
 	public void init() {
 		TestShip ship = new TestShip(0, 0, 0);
 		shipList.add(ship);
-		ship = new TestShip(500, 200, 0);
-		ship.rot = 60;
-		shipList.add(ship);
 	}
 
 	public void setSelectedShip(int index) {
