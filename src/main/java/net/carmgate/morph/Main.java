@@ -163,10 +163,6 @@ public class Main {
 			System.exit(0);
 		}
 
-		// enable texturing
-		// GL11.glEnable(GL11.GL_TEXTURE_2D);
-		// It seems it's not needed, but I do not understand why ...
-
 		// set clear color - Wont be needed once we have a background
 		GL11.glClearColor(0.2f, 0.2f, 0.2f, 0);
 
@@ -288,6 +284,7 @@ public class Main {
 			// Get mouse position in world coordinates
 			Vect3D worldMousePos = new Vect3D(MorphMouse.getX(), MorphMouse.getY(), 0);
 			// Get mouse position in pixels on the display.
+			// We will use this later to detect interaction with the 2D part of the GUI
 			Vect3D mousePos = new Vect3D(Mouse.getX(), Mouse.getY(), 0);
 
 			// Handling world moving around by drag and dropping the world.
@@ -336,7 +333,7 @@ public class Main {
 					}
 				}
 
-				// Event button == 0 : Right button related event
+				// Event button == 1 : Right button related event
 				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectionModel().getSelectedShips().size() > 0 && !World.combat) {
 					// Right mouse button has been released and a ship is selected
 					// Activate or deactivate the morph under mouse pointer.
