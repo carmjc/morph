@@ -1,7 +1,7 @@
 package net.carmgate.morph.ui.renderer;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.model.virtual.physics.Force;
 
 import org.lwjgl.opengl.GL11;
 

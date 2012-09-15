@@ -7,8 +7,8 @@ import java.util.Map;
 
 import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.morph.SurroundingMorph;
 import net.carmgate.morph.model.morph.Morph.MorphType;
+import net.carmgate.morph.model.morph.SurroundingMorph;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -37,16 +37,25 @@ public class MorphRenderer implements Renderer<Morph> {
 		try {
 			// load texture from PNG file
 			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath()));
-			textures.put(MorphType.BASIC, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
-			textures.put(MorphType.EMITTER, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
-			textures.put(MorphType.PROPULSOR, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
-			textures.put(MorphType.SHIELD, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
+			textures.put(MorphType.BASIC,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+			textures.put(MorphType.EMITTER,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
+			textures.put(MorphType.PROPULSOR,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
+			textures.put(MorphType.SHIELD,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
 			textures.put(MorphType.STEM, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
-			debugTextures.put(MorphType.BASIC, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
-			debugTextures.put(MorphType.EMITTER, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
-			debugTextures.put(MorphType.PROPULSOR, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
-			debugTextures.put(MorphType.SHIELD, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
-			debugTextures.put(MorphType.STEM, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
+			debugTextures.put(MorphType.BASIC,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+			debugTextures.put(MorphType.EMITTER,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
+			debugTextures.put(MorphType.PROPULSOR,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
+			debugTextures.put(MorphType.SHIELD,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
+			debugTextures.put(MorphType.STEM,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -63,7 +72,12 @@ public class MorphRenderer implements Renderer<Morph> {
 	public void render(int glMode, RenderStyle drawType, Morph morph) {
 		float alphaLevel = 1f;
 		GL11.glScalef(MORPH_SCALE_FACTOR, MORPH_SCALE_FACTOR, MORPH_SCALE_FACTOR);
-		
+
+		// make current morph selectable
+		if (glMode == GL11.GL_SELECT) {
+			GL11.glPushName(morph.getId());
+		}
+
 		// Surrounding Morphs are just basic morphs with half transparency
 		if (morph instanceof SurroundingMorph) {
 			alphaLevel *= 0.2f;
@@ -75,13 +89,13 @@ public class MorphRenderer implements Renderer<Morph> {
 		baseTexture.bind();
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(- baseTexture.getTextureWidth() / 2, - baseTexture.getTextureWidth() / 2);
+		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
 		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, - baseTexture.getTextureWidth() / 2);
+		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
 		GL11.glTexCoord2f(1, 1);
 		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
 		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(- baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
+		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
 		GL11.glEnd();
 		alphaLevel /= 0.3f;
 		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
@@ -94,9 +108,9 @@ public class MorphRenderer implements Renderer<Morph> {
 			} else {
 				GL11.glColor4f(1f - energyPercent, energyPercent, 0, alphaLevel);
 			}
-		} else if (morph.getShip().getSelectedMorphList().contains(morph)) {
+		} else if (World.getWorld().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
 			GL11.glColor4f(1, 0.7f, 0.7f, alphaLevel);
-		} else if (World.getWorld().getSelectedShip() == morph.getShip()) {
+		} else if (World.getWorld().getSelectionModel().getSelectedShips().values().contains(morph.getShip())) {
 			GL11.glColor4f(0.7f, 0.7f, 1, alphaLevel);
 		} else if (morph.getShip().getActiveMorphList().contains(morph)) {
 			GL11.glColor4f(1, 1, 1, alphaLevel);
@@ -104,9 +118,9 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glColor4f(0.7f, 0.7f, 0.7f, alphaLevel);
 		}
 
-//		if (World.getWorld().getSelectedShip() == morph.getShip()) {
-//			GL11.glColor3f(0.7f, 0.7f, 0.7f);
-//		}
+		// if (World.getWorld().getSelectedShip() == morph.getShip()) {
+		// GL11.glColor3f(0.7f, 0.7f, 0.7f);
+		// }
 
 		GL11.glScalef(1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR);
 		float size = MORPH_SCALE_FACTOR * morph.mass / morph.maxMass;
@@ -134,6 +148,10 @@ public class MorphRenderer implements Renderer<Morph> {
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glScalef(1 / size, 1 / size, 1 / size);
 
+		// Selection names management
+		if (glMode == GL11.GL_SELECT) {
+			GL11.glPopName();
+		}
 	}
 
 }

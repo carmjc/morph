@@ -56,7 +56,7 @@ public class MorphUtil {
 		for (Iterator<Morph> i = surroundingMorphs.iterator(); i.hasNext(); ) {
 			Morph m = i.next();
 			
-			if (m.getShip().getMorphList().contains(m)) {
+			if (m.getShip().getMorphs().values().contains(m)) {
 				i.remove();
 			}
 		}

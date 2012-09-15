@@ -31,7 +31,7 @@ public class FixedPositionTracker implements IA {
 		done = false;
 
 		// extract every morph that can make the ship move.
-		for (Morph m : ship.getMorphList()) {
+		for (Morph m : ship.getMorphs().values()) {
 			if (m instanceof PropulsorMorph) {
 				propulsorMorphs.add((PropulsorMorph) m);
 			}

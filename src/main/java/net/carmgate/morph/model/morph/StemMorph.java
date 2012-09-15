@@ -7,7 +7,7 @@ public class StemMorph extends BasicMorph {
 
 	public StemMorph(Ship ship, float x, float y, float z) {
 		super(ship, x, y, z);
-		activableBehaviorList.add(new Stemming(this));
+		getActivableBehaviorList().add(new Stemming(this));
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public class EmitterMorph extends BasicMorph {
 
 	public EmitterMorph(Ship ship, float x, float y, float z) {
 		super(ship, x, y, z);
-		activableBehaviorList.add(new Emitting(this, 1, 0, null));
+		getActivableBehaviorList().add(new Emitting(this, 1, 0, null));
 	}
 
 	@Override

@@ -39,7 +39,7 @@ public class Main {
 
 	private static Logger LOGGER = Logger.getLogger(Main.class);
 
-	//	public static final float SCALE_FACTOR = 1f;
+	// public static final float SCALE_FACTOR = 1f;
 	public static final int HEIGHT = 768;
 	public static final int WIDTH = 1024;
 
@@ -50,7 +50,8 @@ public class Main {
 		Main sample = new Main();
 		sample.start();
 	}
-	private final Vect3D worldOrigin = new Vect3D(0, 0, 0);//new Point3D(-196, -196, 0);
+
+	private final Vect3D worldOrigin = new Vect3D(0, 0, 0);// new Point3D(-196, -196, 0);
 	private final Vect3D worldRotation = new Vect3D(0, 0, 0);
 	private World world;
 
@@ -64,6 +65,86 @@ public class Main {
 	private final ToggleDebugAction toggleDebugAction = new ToggleDebugAction();
 	private final ToggleCombatMode toggleCombatMode = new ToggleCombatMode();
 	private final ToggleFreezeAction toggleFreezeAction = new ToggleFreezeAction();
+
+	/**
+	 * @param selectBuf
+	 * @return
+	 */
+	private Morph getPickedMorph(IntBuffer selectBuf) {
+		Ship ship = getPickedShip(selectBuf);
+		int selectedMorphId = selectBuf.get(4);
+		Morph morph = ship.getMorphs().get(selectedMorphId);
+		return morph;
+	}
+
+	/**
+	 * @param selectBuf
+	 * @return
+	 */
+	private Ship getPickedShip(IntBuffer selectBuf) {
+		int selectedShipId = selectBuf.get(3);
+		Ship selectedShip = world.getShips().get(selectedShipId);
+		return selectedShip;
+	}
+
+	/**
+	 * @param selectBuf
+	 * @return
+	 */
+	private String getSelectBufferDebugString(IntBuffer selectBuf) {
+		int[] dst = new int[selectBuf.remaining()];
+		selectBuf.get(dst);
+		String dstStr = "[";
+		int index = 0;
+		for (int i : dst) {
+			dstStr += (index != 0 ? ", " : "") + i;
+			index++;
+		}
+		dstStr += "]";
+		return dstStr;
+	}
+
+	/**
+	 * @param x
+	 * @param y
+	 * @param selectBuf
+	 * @return
+	 */
+	private int glPick(int x, int y, IntBuffer selectBuf) {
+		GL11.glSelectBuffer(selectBuf);
+
+		LOGGER.debug("Picking at " + x + " " + y);
+		if (world.getSelectionModel().getSelectedShips().size() > 0) {
+			LOGGER.debug("Selected ship: " + world.getSelectionModel().getSelectedShips().values().iterator().next().pos);
+		}
+
+		// get viewport
+		IntBuffer viewport = BufferUtils.createIntBuffer(16);
+		GL11.glGetInteger(GL11.GL_VIEWPORT, viewport);
+		GL11.glClear(GL11.GL_VIEWPORT);
+
+		GL11.glRenderMode(GL11.GL_SELECT);
+
+		GL11.glInitNames();
+
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glPushMatrix();
+		GL11.glLoadIdentity();
+		// GL11.glScalef(SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR);
+		float pickMatrixX = x; // SCALE_FACTOR;
+		float pickMatrixY = y; // SCALE_FACTOR;
+		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 5.0f, 5.0f, viewport);
+		GLU.gluOrtho2D(0, WIDTH, 0, HEIGHT);
+
+		worldRenderer.render(GL11.GL_SELECT, null, world);
+
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glPopMatrix();
+		GL11.glFlush();
+
+		int hits = GL11.glRenderMode(GL11.GL_RENDER);
+		return hits;
+	}
 
 	/**
 	 * Initialise the GL display
@@ -83,7 +164,7 @@ public class Main {
 		}
 
 		// enable texturing
-		//		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		// GL11.glEnable(GL11.GL_TEXTURE_2D);
 		// It seems it's not needed, but I do not understand why ...
 
 		// set clear color - Wont be needed once we have a background
@@ -106,58 +187,33 @@ public class Main {
 
 	public void pick(int x, int y) {
 
-		LOGGER.debug("Picking at " + x + " " + y);
-		if (World.getWorld().getSelectedShip() != null) {
-			LOGGER.debug("Selected ship: " + World.getWorld().getSelectedShip().pos);
-		}
-
-		// get viewport
-		IntBuffer viewport = BufferUtils.createIntBuffer(16);
-		GL11.glGetInteger(GL11.GL_VIEWPORT, viewport);
-
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
-		GL11.glSelectBuffer(selectBuf);
-		GL11.glRenderMode(GL11.GL_SELECT);
+		int hits = glPick(x, y, selectBuf);
+		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
-		GL11.glInitNames();
-		GL11.glPushName(-1);
-
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glPushMatrix();
-		GL11.glLoadIdentity();
-		//		GL11.glScalef(SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR);
-		float pickMatrixX = x; // SCALE_FACTOR;
-		float pickMatrixY = y; // SCALE_FACTOR;
-		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 6.0f, 6.0f, viewport);
-		GLU.gluOrtho2D(0, WIDTH, 0, HEIGHT);
-
-		worldRenderer.render(GL11.GL_SELECT, null, world);
-
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glPopMatrix();
-		GL11.glFlush();
-
-		int hits = GL11.glRenderMode(GL11.GL_RENDER);
-
+		// if there was no hit, we need to deselect everything
 		if (hits == 0) {
-			if (world.getSelectedShip() != null) {
-				world.getSelectedShip().setSelectedMorph(-1);
-			}
-			world.setSelectedShip(-1);
+			world.getSelectionModel().clearAllSelections();
 			return;
 		}
 
-		int j = 0;
-		Ship lastSelectedShip = world.getSelectedShip();
-		int index = selectBuf.get(j + 4);
-		world.setSelectedShip(index);
-		if (lastSelectedShip != null && lastSelectedShip == world.getSelectedShip()) {
-			int selectedMorphIndexInShip = selectBuf.get(j + 5);
-			LOGGER.debug(selectedMorphIndexInShip);
-			if (selectedMorphIndexInShip < world.getSelectedShip().getMorphList().size()) {
-				world.getSelectedShip().toggleSelectedMorph(selectedMorphIndexInShip);
+		// Add the picked ship to the list of selected ships
+		// We add the ship after handling morph selection to avoid it tempering
+		// with morph selection.
+		Ship selectedShip = getPickedShip(selectBuf);
+		if (world.getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
+
+			// Add the selected morph if it wasn't
+			// Remove it if it was already selected
+			Morph morph = getPickedMorph(selectBuf);
+			if (!world.getSelectionModel().getSelectedMorphs().values().contains(morph)) {
+				world.getSelectionModel().addMorphToSelection(morph);
+			} else {
+				world.getSelectionModel().removeMorphFromSelection(morph);
 			}
 		}
+		// Add the ship to the selection
+		world.getSelectionModel().addShipToSelection(selectedShip);
 	}
 
 	/**
@@ -187,7 +243,7 @@ public class Main {
 		world.update();
 
 		// udpate IAs
-		for (Ship ship : world.getShipList()) {
+		for (Ship ship : world.getShips().values()) {
 			List<IA> iasToRemove = new ArrayList<IA>();
 			for (IA ia : ship.getIAList()) {
 				if (ia != null) {
@@ -237,7 +293,8 @@ public class Main {
 			// Handling world moving around by drag and dropping the world.
 			// This portion of code is meant to allow the engine to show the world while it's being dragged.
 			if (holdWorldMousePos != null) {
-				if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG || Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
+				if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG
+						|| Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
 					WorldRenderer.focalPoint.add(holdWorldMousePos);
 					WorldRenderer.focalPoint.substract(worldMousePos);
 					GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -259,7 +316,8 @@ public class Main {
 				if (Mouse.getEventButton() == 0) {
 					// if event button state is false, the button is being released
 					if (!Mouse.getEventButtonState()) {
-						if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG || Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
+						if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > MIN_MOVE_FOR_DRAG
+								|| Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > MIN_MOVE_FOR_DRAG) {
 							WorldRenderer.focalPoint.add(holdWorldMousePos);
 							WorldRenderer.focalPoint.substract(worldMousePos);
 							GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -269,7 +327,7 @@ public class Main {
 									WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2,
 									WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2);
 						} else {
-							pick(MorphMouse.getX(),MorphMouse.getY());
+							pick(MorphMouse.getX(), MorphMouse.getY());
 						}
 						holdWorldMousePos = null;
 					} else {
@@ -279,10 +337,10 @@ public class Main {
 				}
 
 				// Event button == 0 : Right button related event
-				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectedShip() != null && !World.combat) {
+				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectionModel().getSelectedShips().size() > 0 && !World.combat) {
 					// Right mouse button has been released and a ship is selected
 					// Activate or deactivate the morph under mouse pointer.
-					for (Morph morph : world.getSelectedShip().getSelectedMorphList()) {
+					for (Morph morph : world.getSelectionModel().getSelectedMorphs().values()) {
 						if (morph.getShip().toggleActiveMorph(morph)) {
 							if (!morph.disabled) {
 								morph.activate();
@@ -293,30 +351,34 @@ public class Main {
 					}
 
 					// If no morph is selected, the right click should be understood as a moveto order.
-					if (world.getSelectedShip().getSelectedMorphList().isEmpty()) {
-						List<IA> iaList = world.getSelectedShip().getIAList();
+					if (world.getSelectionModel().getSelectedMorphs().isEmpty()) {
+						for (Ship selectedShip : world.getSelectionModel().getSelectedShips().values()) {
+							List<IA> iaList = selectedShip.getIAList();
 
-						// Look for existing tracker
-						for (IA ia : iaList) {
-							if (ia instanceof FixedPositionTracker) {
-								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+							// Look for existing tracker
+							for (IA ia : iaList) {
+								if (ia instanceof FixedPositionTracker) {
+									((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+								}
 							}
-						}
 
-						iaList.add(new FixedPositionTracker(world.getSelectedShip(), worldMousePos));
+							iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
+						}
 					}
 				}
 
 				// Handling shoot
-				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectedShip() != null && World.combat) {
-					world.getSelectedShip().getIAList().add(new WorldPositionFirer(world.getSelectedShip(), worldMousePos));
+				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && !world.getSelectionModel().getSelectedShips().isEmpty() && World.combat) {
+					for (Ship selectedShip : world.getSelectionModel().getSelectedShips().values()) {
+						selectedShip.getIAList().add(new WorldPositionFirer(selectedShip, worldMousePos));
+					}
 				}
 
-				//				int dWheel = Mouse.getDWheel();
-				//				if (dWheel != 0) {
-				//					float scale = (float) (Math.pow(1 + Math.pow(4, -5 + Math.abs(dWheel / 120)), Math.signum(dWheel)));
-				//					GL11.glScalef(scale, scale, scale);
-				//				}
+				// int dWheel = Mouse.getDWheel();
+				// if (dWheel != 0) {
+				// float scale = (float) (Math.pow(1 + Math.pow(4, -5 + Math.abs(dWheel / 120)), Math.signum(dWheel)));
+				// GL11.glScalef(scale, scale, scale);
+				// }
 			}
 
 			if (Keyboard.next()) {

@@ -3,8 +3,8 @@ package net.carmgate.morph.ui.renderer;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.WorldArea;
-import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.ship.Ship;
+import net.carmgate.morph.model.virtual.physics.Force;
 import net.carmgate.morph.ui.MorphMouse;
 
 import org.lwjgl.opengl.GL11;
@@ -93,19 +93,10 @@ public class WorldRenderer implements Renderer<World> {
 	 * @param world the world whose ships should be rendered.
 	 */
 	private void renderShips(int glMode, RenderStyle drawType, World world) {
-		for (Ship ship : world.getShipList()) {
-
-			// Selection names management
-			if (glMode == GL11.GL_SELECT) {
-				GL11.glPushName(selectionId++);
-			}
+		for (Ship ship : world.getShips().values()) {
 
 			currentShipRenderer.render(glMode, drawType, ship);
 
-			// Selection names management
-			if (glMode == GL11.GL_SELECT) {
-				GL11.glPopName();
-			}
 		}
 	}
 

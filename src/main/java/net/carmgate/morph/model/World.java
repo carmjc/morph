@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.ship.Ship;
 import net.carmgate.morph.model.ship.TestShip;
+import net.carmgate.morph.model.virtual.physics.Force;
 
 /**
  * The world has a list of world areas, a ships list, a forces list and a currently selected ship (for now).
@@ -43,13 +43,13 @@ public class World {
 	private final Map<Vect3D, WorldArea> worldAreas = new HashMap<Vect3D, WorldArea>();
 
 	/** the list of all ships in game. */
-	private final List<Ship> shipList = new ArrayList<Ship>();
+	private final Map<Integer, Ship> ships = new HashMap<Integer, Ship>();
 
 	/** A list of forces to show. */
 	private final List<Force> forceList = new ArrayList<Force>();
 
-	//	private int selectedShipId = -1;
-	private Ship selectedShip;
+	/** The selection model. */
+	private final SelectionModel selectionModel = new SelectionModel();
 
 	private World() {
 		// privatized constructor
@@ -66,12 +66,12 @@ public class World {
 		return forceList;
 	}
 
-	public Ship getSelectedShip() {
-		return selectedShip;
+	public SelectionModel getSelectionModel() {
+		return selectionModel;
 	}
 
-	public List<Ship> getShipList() {
-		return shipList;
+	public Map<Integer, Ship> getShips() {
+		return ships;
 	}
 
 	/**
@@ -93,15 +93,7 @@ public class World {
 
 	public void init() {
 		TestShip ship = new TestShip(0, 0, 0);
-		shipList.add(ship);
-	}
-
-	public void setSelectedShip(int index) {
-		if (index >= 0 && index < shipList.size()) {
-			selectedShip = shipList.get(index);
-		} else {
-			selectedShip = null;
-		}
+		getShips().put(ship.getId(), ship);
 	}
 
 	/**
@@ -116,7 +108,7 @@ public class World {
 		msec = new Date().getTime() - gameStartMsec;
 
 		// update ships
-		for (Ship ship : shipList) {
+		for (Ship ship : getShips().values()) {
 			ship.update();
 		}
 	}

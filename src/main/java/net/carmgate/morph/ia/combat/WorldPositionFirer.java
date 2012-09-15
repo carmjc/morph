@@ -8,6 +8,7 @@ import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.morph.old.EmitterMorph;
 import net.carmgate.morph.model.ship.Ship;
 
+@Deprecated
 public class WorldPositionFirer implements IA {
 
 	private final Ship firerShip;
@@ -16,9 +17,9 @@ public class WorldPositionFirer implements IA {
 	public WorldPositionFirer(Ship firerShip, Vect3D target) {
 		this.firerShip = firerShip;
 		this.target = target;
-		for (Morph morph : firerShip.getMorphList()) {
+		for (Morph morph : firerShip.getMorphs().values()) {
 			if (morph instanceof EmitterMorph) {
-				for (Behavior<?> behavior : morph.activableBehaviorList) {
+				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
 					if (behavior instanceof Emitting) {
 						Emitting emitting = (Emitting) behavior;
 						emitting.target = new Vect3D(target);

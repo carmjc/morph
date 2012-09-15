@@ -25,19 +25,19 @@ public class PropulsorMorph extends BasicMorph {
 
 		//Behaviors
 		propulsingBehavior = new Propulsing(this, energyConsumptionAtFullThrust, propulsingForceModulusAtFullThrust);
-		activableBehaviorList.add(propulsingBehavior);
+		getActivableBehaviorList().add(propulsingBehavior);
 	}
 
 	@Override
 	public void afterActivate() {
-		for (Behavior<?> b : activableBehaviorList) {
+		for (Behavior<?> b : getActivableBehaviorList()) {
 			b.tryToActivate();
 		}
 	}
 
 	@Override
 	public void afterDeactivate() {
-		for (Behavior<?> b : activableBehaviorList) {
+		for (Behavior<?> b : getActivableBehaviorList()) {
 			b.tryToDeactivate();
 		}
 	}

@@ -1,4 +1,4 @@
-package net.carmgate.morph.model.physics;
+package net.carmgate.morph.model.virtual.physics;
 
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.morph.Morph;

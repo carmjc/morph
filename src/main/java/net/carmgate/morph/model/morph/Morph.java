@@ -1,6 +1,5 @@
 package net.carmgate.morph.model.morph;
 
-import java.awt.GridBagConstraints;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public abstract class Morph {
 		EMITTER,
 		PROPULSOR,
 		SHIELD,
-		SPREADER, 
+		SPREADER,
 		STEM;
 	}
 
@@ -33,7 +32,13 @@ public abstract class Morph {
 	/** These behaviors are always active. */
 	public List<Behavior<?>> alwaysActiveBehaviorList = new ArrayList<Behavior<?>>();
 	/** These behaviors are active when the morph is active. */
-	public List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
+	private final List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
+
+	/** The last ID assigned to a morph. */
+	static private int lastId = 0;
+
+	/** Each and every morph must have a single ID. */
+	private int id;
 
 	/** Morph mass. */
 	public float mass = 0.5f;
@@ -45,9 +50,9 @@ public abstract class Morph {
 	public float disableMass = 0;
 
 	public float reenableMass = 1;
+
 	/** if true, the morph is disabled. */
 	public boolean disabled = false;
-
 	/** The morph position in the world referential. */
 	private Vect3D posInShip = new Vect3D(0, 0, 0);
 
@@ -75,7 +80,9 @@ public abstract class Morph {
 
 	// Activity
 	public long activeMsec;
+
 	public boolean active = false;
+
 	/**
 	 * Initializes morph position
 	 * @param x
@@ -83,6 +90,10 @@ public abstract class Morph {
 	 * @param z
 	 */
 	public Morph(Ship ship, float x, float y, float z) {
+		// update last id and affect it
+		id = ++lastId;
+
+		// set position in ship
 		shipGridPos = new Vect3D(x, y, z);
 
 		// Position and rotation in ship and world
@@ -93,12 +104,7 @@ public abstract class Morph {
 		// energy
 		energy = getMaxEnergy();
 	}
-	public void updatePosFromGridPos() {
-		setPosInShip(new Vect3D(
-				shipGridPos.x * World.GRID_SIZE + shipGridPos.y * World.GRID_SIZE / 2,
-				(float) (shipGridPos.y * World.GRID_SIZE * Math.sqrt(3)/2),
-				0));
-	}
+
 	public abstract boolean activable();
 
 	public final void activate() {
@@ -135,6 +141,24 @@ public abstract class Morph {
 		}
 
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Morph morph = (Morph) obj;
+		return shipGridPos.x == morph.shipGridPos.x &&
+				shipGridPos.y == morph.shipGridPos.y &&
+				shipGridPos.z == morph.shipGridPos.z &&
+				getShip() == morph.getShip();
+	}
+
+	public List<Behavior<?>> getActivableBehaviorList() {
+		return activableBehaviorList;
+	}
+
+	public int getId() {
+		return id;
+	}
+
 	/** the maximum energy that this kind of morph can store. */
 	public abstract float getMaxEnergy();
 
@@ -187,6 +211,11 @@ public abstract class Morph {
 	 */
 	public abstract MorphType getType();
 
+	@Override
+	public int hashCode() {
+		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500) + ship.hashCode();
+	}
+
 	// TODO Unit test
 	public void setPosInShip(Vect3D posInShip) {
 		this.posInShip.copy(posInShip);
@@ -234,6 +263,11 @@ public abstract class Morph {
 		rotInWorld = ship.rot;
 	}
 
+	@Override
+	public String toString() {
+		return "posInShip:" + getPosInShip().x + "," + getPosInShip().y;
+	}
+
 	/**
 	 * Executes behaviors of the morph
 	 */
@@ -248,31 +282,19 @@ public abstract class Morph {
 			behavior.tryToExecute();
 		}
 
-		//		// then execute the behaviors that have been temporarily added to the morph
-		//		for (Behavior<?> behavior : temporaryBehaviorList) {
-		//			behavior.tryToExecute();
-		//		}
+		// // then execute the behaviors that have been temporarily added to the morph
+		// for (Behavior<?> behavior : temporaryBehaviorList) {
+		// behavior.tryToExecute();
+		// }
 
 		// Update last update msec
 		lastUpdateTS = World.getWorld().getCurrentTS();
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		Morph morph = (Morph) obj;
-		return shipGridPos.x == morph.shipGridPos.x && 
-				shipGridPos.y == morph.shipGridPos.y && 
-						shipGridPos.z == morph.shipGridPos.z && 
-				getShip() == morph.getShip();
-	}
-	
-	@Override
-	public int hashCode() {
-		return (int) (((100 + (long) shipGridPos.x * 500) + (long) shipGridPos.y * 500) + (long) shipGridPos.z * 500) + ship.hashCode();
-	}
-	
-	@Override
-	public String toString() {
-		return "posInShip:" + getPosInShip().x + "," + getPosInShip().y;
+	public void updatePosFromGridPos() {
+		setPosInShip(new Vect3D(
+				shipGridPos.x * World.GRID_SIZE + shipGridPos.y * World.GRID_SIZE / 2,
+				(float) (shipGridPos.y * World.GRID_SIZE * Math.sqrt(3) / 2),
+				0));
 	}
 }
