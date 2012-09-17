@@ -61,17 +61,20 @@ public class FixedPositionTracker implements IA {
 		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
 		ship.transformShipToWorldCoords(comInWorld);
 
-		// The direction vector points in the direction the ship should try to go
+		// the vector from the ship's center of mass to the target
 		Vect3D comToTarget = new Vect3D(targetPos);
 		comToTarget.substract(comInWorld);
+
 		float distanceToTarget = comToTarget.modulus();
-		float nbSecondsToBreak = ship.getPosSpeed().modulus() / (PropulsorMorph.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
+		float nbSecondsToBreak = ship.getPosSpeed().modulus()
+				/ (PropulsorMorph.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
 		float distanceToBreak = ship.getPosSpeed().modulus() * nbSecondsToBreak;
 		LOGGER.debug("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
-		float rampedSpeed = Ship.MAX_SPEED * distanceToTarget / distanceToBreak;// ship.slowingDistance;
+		float rampedSpeed = Ship.MAX_SPEED * (distanceToTarget - distanceToBreak) / distanceToBreak;// ship.slowingDistance;
 		float clippedSpeed = Math.min(rampedSpeed, Ship.MAX_SPEED);
 		Vect3D desiredVelocity = new Vect3D(comToTarget);
 		desiredVelocity.normalize(clippedSpeed);
+		LOGGER.debug("DesiredVelocity: " + desiredVelocity.modulus());
 
 		Vect3D steeringForce = new Vect3D(desiredVelocity);
 		steeringForce.substract(ship.getPosSpeed());
@@ -99,7 +102,7 @@ public class FixedPositionTracker implements IA {
 		comToTarget.substract(comInWorld);
 		float distanceToTarget = comToTarget.modulus();
 
-		if (distanceToTarget < 15 && ship.getPosSpeed().modulus() < 2) {
+		if (distanceToTarget < 20 && ship.getPosSpeed().modulus() < 30) {
 			done = true;
 		}
 
@@ -111,6 +114,7 @@ public class FixedPositionTracker implements IA {
 		if (done) {
 			ship.getOwnForceList().clear();
 			ship.getPosAccel().copy(Vect3D.NULL);
+			ship.getPosSpeed().copy(Vect3D.NULL);
 
 			for (PropulsorMorph morph : propulsorMorphs) {
 				morph.deactivate();
