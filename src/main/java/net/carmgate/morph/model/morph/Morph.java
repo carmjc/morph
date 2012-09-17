@@ -30,7 +30,7 @@ public abstract class Morph {
 	private static final Logger logger = Logger.getLogger(Morph.class);
 
 	/** These behaviors are always active. */
-	public List<Behavior<?>> alwaysActiveBehaviorList = new ArrayList<Behavior<?>>();
+	private List<Behavior<?>> alwaysActiveBehaviorList = new ArrayList<Behavior<?>>();
 	/** These behaviors are active when the morph is active. */
 	private final List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
 
@@ -41,18 +41,18 @@ public abstract class Morph {
 	private int id;
 
 	/** Morph mass. */
-	public float mass = 0.5f;
+	private float mass = 0.5f;
 
 	/** Morph max mass. */
-	public float maxMass = 1;
+	private float maxMass = 1;
 
 	/** Morph minimum mass before being enable to fulfill its mission. */
-	public float disableMass = 0;
+	private float disableMass = 0;
 
-	public float reenableMass = 1;
+	private float reenableMass = 1;
 
 	/** if true, the morph is disabled. */
-	public boolean disabled = false;
+	private boolean disabled = false;
 	/** The morph position in the world referential. */
 	private Vect3D posInShip = new Vect3D(0, 0, 0);
 
@@ -60,7 +60,7 @@ public abstract class Morph {
 	private Vect3D posInWorld = new Vect3D(0, 0, 0);
 
 	/** The morph position in the ship hex grid. */
-	public Vect3D shipGridPos;
+	private Vect3D shipGridPos;
 
 	/** The morph orientation in the ship referential. */
 	private float rotInShip;
@@ -73,15 +73,15 @@ public abstract class Morph {
 	private Ship ship;
 
 	/** the energy stored by the morph. */
-	public float energy;
+	private float energy;
 
 	/** The timestamp of last time the morph was updated. */
-	public long lastUpdateTS;
+	private long lastUpdateTS;
 
 	// Activity
-	public long activeMsec;
+	private long activeMsec;
 
-	public boolean active = false;
+	private boolean active = false;
 
 	/**
 	 * Initializes morph position
@@ -155,12 +155,32 @@ public abstract class Morph {
 		return activableBehaviorList;
 	}
 
+	public List<Behavior<?>> getAlwaysActiveBehaviorList() {
+		return alwaysActiveBehaviorList;
+	}
+
+	public float getDisableMass() {
+		return disableMass;
+	}
+
+	public float getEnergy() {
+		return energy;
+	}
+
 	public int getId() {
 		return id;
 	}
 
+	public float getMass() {
+		return mass;
+	}
+
 	/** the maximum energy that this kind of morph can store. */
 	public abstract float getMaxEnergy();
+
+	public float getMaxMass() {
+		return maxMass;
+	}
 
 	/**
 	 * TODO This is suboptimal. We should not calculate the neighbours each time we need them.
@@ -191,19 +211,27 @@ public abstract class Morph {
 		return posInWorld;
 	}
 
+	public float getReenableMass() {
+		return reenableMass;
+	}
+
 	public float getRotInShip() {
 		return rotInShip;
 	}
 
 	public float getRotInWorld() {
 		if (ship != null) {
-			rotInWorld = ship.rot + rotInShip;
+			rotInWorld = ship.getRot() + rotInShip;
 		}
 		return rotInWorld;
 	}
 
 	public Ship getShip() {
 		return ship;
+	}
+
+	public Vect3D getShipGridPos() {
+		return shipGridPos;
 	}
 
 	/**
@@ -216,13 +244,37 @@ public abstract class Morph {
 		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500) + ship.hashCode();
 	}
 
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	public void setDisableMass(float disableMass) {
+		this.disableMass = disableMass;
+	}
+
+	public void setEnergy(float energy) {
+		this.energy = energy;
+	}
+
+	public void setMass(float mass) {
+		this.mass = mass;
+	}
+
+	public void setMaxMass(float maxMass) {
+		this.maxMass = maxMass;
+	}
+
 	// TODO Unit test
 	public void setPosInShip(Vect3D posInShip) {
 		this.posInShip.copy(posInShip);
 		if (getShip() != null) {
 			posInWorld.copy(posInShip);
-			posInWorld.rotate(getShip().rot);
-			posInWorld.add(getShip().pos);
+			posInWorld.rotate(getShip().getRot());
+			posInWorld.add(getShip().getPos());
 		}
 	}
 
@@ -231,23 +283,27 @@ public abstract class Morph {
 		this.posInWorld.copy(posInWorld);
 		if (getShip() != null) {
 			posInShip.copy(posInWorld);
-			posInShip.substract(getShip().pos);
-			posInShip.rotate(-getShip().rot);
+			posInShip.substract(getShip().getPos());
+			posInShip.rotate(-getShip().getRot());
 
 		}
+	}
+
+	public void setReenableMass(float reenableMass) {
+		this.reenableMass = reenableMass;
 	}
 
 	public void setRotInShip(float rotInShip) {
 		this.rotInShip = rotInShip;
 		if (ship != null) {
-			rotInWorld = ship.rot + rotInShip;
+			rotInWorld = ship.getRot() + rotInShip;
 		}
 	}
 
 	public void setRotInWorld(float rotInWorld) {
 		this.rotInWorld = rotInWorld;
 		if (ship != null) {
-			rotInShip = rotInWorld - ship.rot;
+			rotInShip = rotInWorld - ship.getRot();
 		}
 	}
 
@@ -260,7 +316,7 @@ public abstract class Morph {
 
 		// Reset orientation
 		rotInShip = 0;
-		rotInWorld = ship.rot;
+		rotInWorld = ship.getRot();
 	}
 
 	@Override

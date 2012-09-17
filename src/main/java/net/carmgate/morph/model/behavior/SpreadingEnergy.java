@@ -13,9 +13,9 @@ public class SpreadingEnergy extends NoActivationBehavior<Morph> {
 	@Override
 	protected void execute() {
 		for (Morph neighbour : getOwner().getNeighbours()) {
-			if (neighbour != null && neighbour.energy / neighbour.getMaxEnergy() < getOwner().energy / getOwner().getMaxEnergy()) {
-				neighbour.energy += ENERGY_TRANSFER_PER_SEC;
-				getOwner().energy -= ENERGY_TRANSFER_PER_SEC;
+			if (neighbour != null && neighbour.getEnergy() / neighbour.getMaxEnergy() < getOwner().getEnergy() / getOwner().getMaxEnergy()) {
+				neighbour.setEnergy(neighbour.getEnergy() + ENERGY_TRANSFER_PER_SEC);
+				getOwner().setEnergy(getOwner().getEnergy() - ENERGY_TRANSFER_PER_SEC);
 			}
 		}
 	}

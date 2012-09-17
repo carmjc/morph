@@ -12,19 +12,20 @@ public class PropulsorMorph extends BasicMorph {
 
 	/** Energy Consumption per millis at full thrust. */
 	private final static float energyConsumptionAtFullThrust = 0.000001f;
-	public final static float propulsingForceModulusAtFullThrust = 100f;
+	public final static float PROPULSING_FORCE_MODULUS_AT_FULL_THRUST = 100f;
 
 	/** The default activable behavior of this morph. */
 	private final Propulsing propulsingBehavior;
 
 	public PropulsorMorph(Ship ship, float x, float y, float z) {
 		super(ship, x, y, z);
-		maxMass = mass = 500;
-		disableMass = 100;
-		reenableMass = 200;
+		setMaxMass(500);
+		setMass(500);
+		setDisableMass(100);
+		setReenableMass(200);
 
-		//Behaviors
-		propulsingBehavior = new Propulsing(this, energyConsumptionAtFullThrust, propulsingForceModulusAtFullThrust);
+		// Behaviors
+		propulsingBehavior = new Propulsing(this, energyConsumptionAtFullThrust, PROPULSING_FORCE_MODULUS_AT_FULL_THRUST);
 		getActivableBehaviorList().add(propulsingBehavior);
 	}
 

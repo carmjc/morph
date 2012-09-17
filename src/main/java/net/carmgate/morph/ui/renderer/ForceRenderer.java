@@ -8,11 +8,25 @@ import org.lwjgl.opengl.GL11;
 public class ForceRenderer implements Renderer<Force> {
 
 	public void render(int glMode, RenderStyle drawType, Force force) {
-		Vect3D forceVector = new Vect3D(force.vector);
-		forceVector.rotate(force.target.getRotInShip() + force.target.getShip().rot);
-		Vect3D targetPos = new Vect3D(force.target.getPosInShip());
+		Vect3D forceVector = new Vect3D(force.getVector());
+		forceVector.rotate(force.getTarget().getRotInShip() + force.getTarget().getShip().getRot());
+		Vect3D targetPos = new Vect3D(force.getTarget().getPosInShip());
 
 		renderVector(glMode, drawType, targetPos, forceVector, null);
+	}
+
+	/**
+	 * Renders an arrow given an origine and a normalized vector
+	 * @param glMode
+	 * @param drawType
+	 * @param origin
+	 * @param forceVector
+	 * @param modulus
+	 */
+	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector, float modulus, float[] color) {
+		Vect3D normFoVect = new Vect3D(forceVector);
+		normFoVect.normalize(modulus);
+		renderVector(glMode, drawType, origin, normFoVect, color);
 	}
 
 	/**
@@ -24,12 +38,12 @@ public class ForceRenderer implements Renderer<Force> {
 	 */
 	public void renderVector(int glMode, RenderStyle drawType, Vect3D orig, Vect3D forceVector, float[] color) {
 		if (color == null) {
-			color = new float[] {1.0f, 1.0f, 1.0f};
+			color = new float[] { 1.0f, 1.0f, 1.0f };
 		}
-		
+
 		Vect3D origin = new Vect3D(orig);
 		Vect3D vector = new Vect3D(forceVector);
-//		vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
+		// vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
 
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glLineWidth(2.0f);
@@ -55,23 +69,8 @@ public class ForceRenderer implements Renderer<Force> {
 		GL11.glVertex3f(origin.x, origin.y, origin.z);
 		GL11.glVertex3f(origin.x - vector.x, origin.y - vector.y, origin.z - vector.z);
 
-
 		GL11.glEnd();
 		GL11.glColor3f(0.7f, 0.7f, 0.7f);
-	}
-
-	/**
-	 * Renders an arrow given an origine and a normalized vector
-	 * @param glMode
-	 * @param drawType
-	 * @param origin
-	 * @param forceVector
-	 * @param modulus
-	 */
-	public void renderVector(int glMode, RenderStyle drawType, Vect3D origin, Vect3D forceVector, float modulus, float[] color) {
-		Vect3D normFoVect = new Vect3D(forceVector);
-		normFoVect.normalize(modulus);
-		renderVector(glMode, drawType, origin, normFoVect, color);
 	}
 
 }

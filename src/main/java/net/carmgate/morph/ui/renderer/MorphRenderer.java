@@ -23,7 +23,7 @@ public class MorphRenderer implements Renderer<Morph> {
 	private static final float MORPH_SCALE_FACTOR = 0.97f;
 
 	/** The texture under the morph image. */
-	public static Texture baseTexture;
+	private static Texture baseTexture;
 
 	/** The map of the morph texture. */
 	private static Map<MorphType, Texture> textures;
@@ -102,7 +102,7 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		// morph texture
 		if (WorldRenderer.debugDisplay) {
-			float energyPercent = morph.energy / morph.getMaxEnergy();
+			float energyPercent = morph.getEnergy() / morph.getMaxEnergy();
 			if (energyPercent <= 0) {
 				GL11.glColor4f(0.1f, 0.1f, 0.1f, alphaLevel);
 			} else {
@@ -123,7 +123,7 @@ public class MorphRenderer implements Renderer<Morph> {
 		// }
 
 		GL11.glScalef(1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR);
-		float size = MORPH_SCALE_FACTOR * morph.mass / morph.maxMass;
+		float size = MORPH_SCALE_FACTOR * morph.getMass() / morph.getMaxMass();
 		GL11.glScalef(size, size, size);
 
 		// morph texture

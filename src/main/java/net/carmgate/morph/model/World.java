@@ -18,7 +18,7 @@ public class World {
 	public static final int GRID_SIZE = 64; // Main.SCALE_FACTOR);
 
 	/** World singleton instance. */
-	public static World worldInstance;
+	private static World worldInstance;
 
 	/** number of millis since game start. */
 	private long msec = 0;

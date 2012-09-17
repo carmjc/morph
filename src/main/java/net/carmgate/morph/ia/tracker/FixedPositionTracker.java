@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  */
 public class FixedPositionTracker implements IA {
 
-	private static final Logger logger = Logger.getLogger(FixedPositionTracker.class);
+	private static final Logger LOGGER = Logger.getLogger(FixedPositionTracker.class);
 
 	private final List<PropulsorMorph> propulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
@@ -39,10 +39,10 @@ public class FixedPositionTracker implements IA {
 
 		// initializes the list of active propulsors
 		// this is mandatory so that done() does not considers the ship can't move
-		//  after initialization
+		// after initialization
 		activePropulsorMorphs.clear();
 		for (PropulsorMorph m : propulsorMorphs) {
-			if (!m.disabled) {
+			if (!m.isDisabled()) {
 				activePropulsorMorphs.add(m);
 			}
 		}
@@ -52,7 +52,7 @@ public class FixedPositionTracker implements IA {
 		// update the list of active propulsors
 		activePropulsorMorphs.clear();
 		for (PropulsorMorph m : propulsorMorphs) {
-			if (!m.disabled) {
+			if (!m.isDisabled()) {
 				activePropulsorMorphs.add(m);
 			}
 		}
@@ -65,22 +65,22 @@ public class FixedPositionTracker implements IA {
 		Vect3D comToTarget = new Vect3D(targetPos);
 		comToTarget.substract(comInWorld);
 		float distanceToTarget = comToTarget.modulus();
-		float nbSecondsToBreak = ship.posSpeed.modulus() / (PropulsorMorph.propulsingForceModulusAtFullThrust * activePropulsorMorphs.size());
-		float distanceToBreak = ship.posSpeed.modulus() * nbSecondsToBreak;
-		logger.debug("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
-		float rampedSpeed = ship.maxSpeed * distanceToTarget / distanceToBreak;//ship.slowingDistance;
-		float clippedSpeed = Math.min(rampedSpeed, ship.maxSpeed);
+		float nbSecondsToBreak = ship.getPosSpeed().modulus() / (PropulsorMorph.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
+		float distanceToBreak = ship.getPosSpeed().modulus() * nbSecondsToBreak;
+		LOGGER.debug("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
+		float rampedSpeed = Ship.MAX_SPEED * distanceToTarget / distanceToBreak;// ship.slowingDistance;
+		float clippedSpeed = Math.min(rampedSpeed, Ship.MAX_SPEED);
 		Vect3D desiredVelocity = new Vect3D(comToTarget);
 		desiredVelocity.normalize(clippedSpeed);
 
 		Vect3D steeringForce = new Vect3D(desiredVelocity);
-		steeringForce.substract(ship.posSpeed);
+		steeringForce.substract(ship.getPosSpeed());
 
 		// We balance forces of both sides
 		// and adjust thrust according to max_accel, max_speed and distanceToTarget
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			// Adjust thrust for moments
-			float thrust = steeringForce.modulus() / ship.maxSpeed;
+			float thrust = steeringForce.modulus() / Ship.MAX_SPEED;
 			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
 			m.getPropulsingBehavior().setThrustPercentage(thrust);
 
@@ -99,7 +99,7 @@ public class FixedPositionTracker implements IA {
 		comToTarget.substract(comInWorld);
 		float distanceToTarget = comToTarget.modulus();
 
-		if (distanceToTarget < 15 && ship.posSpeed.modulus() < 2) {
+		if (distanceToTarget < 15 && ship.getPosSpeed().modulus() < 2) {
 			done = true;
 		}
 
@@ -109,14 +109,14 @@ public class FixedPositionTracker implements IA {
 		}
 
 		if (done) {
-			ship.ownForceList.clear();
-			ship.posAccel.copy(Vect3D.NULL);
+			ship.getOwnForceList().clear();
+			ship.getPosAccel().copy(Vect3D.NULL);
 
 			for (PropulsorMorph morph : propulsorMorphs) {
 				morph.deactivate();
 			}
 		}
-		
+
 		return done;
 	}
 

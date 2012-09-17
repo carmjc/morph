@@ -115,7 +115,7 @@ public class Main {
 
 		LOGGER.debug("Picking at " + x + " " + y);
 		if (world.getSelectionModel().getSelectedShips().size() > 0) {
-			LOGGER.debug("Selected ship: " + world.getSelectionModel().getSelectedShips().values().iterator().next().pos);
+			LOGGER.debug("Selected ship: " + world.getSelectionModel().getSelectedShips().values().iterator().next().getPos());
 		}
 
 		// get viewport
@@ -339,7 +339,7 @@ public class Main {
 					// Activate or deactivate the morph under mouse pointer.
 					for (Morph morph : world.getSelectionModel().getSelectedMorphs().values()) {
 						if (morph.getShip().toggleActiveMorph(morph)) {
-							if (!morph.disabled) {
+							if (!morph.isDisabled()) {
 								morph.activate();
 							}
 						} else {

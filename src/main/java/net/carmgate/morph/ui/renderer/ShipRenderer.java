@@ -25,7 +25,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 
 public class ShipRenderer implements Renderer<Ship> {
 
-	public static final Logger logger = Logger.getLogger(ShipRenderer.class);
+	private static final Logger LOGGER = Logger.getLogger(ShipRenderer.class);
 	private MorphRenderer currentMorphRenderer;
 	private static Texture comTexture;
 	/** This vector is used as temp vector wherever it's not necessary to keep the value long instead of instanciating a new object. */
@@ -35,9 +35,9 @@ public class ShipRenderer implements Renderer<Ship> {
 		try {
 			comTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("com32.png").getPath()));
 		} catch (FileNotFoundException e) {
-			logger.error("Texture file not found", e);
+			LOGGER.error("Texture file not found", e);
 		} catch (IOException e) {
-			logger.error("Texture file loading error", e);
+			LOGGER.error("Texture file loading error", e);
 		}
 	}
 
@@ -68,8 +68,8 @@ public class ShipRenderer implements Renderer<Ship> {
 			GL11.glPushName(ship.getId());
 		}
 
-		GL11.glTranslatef(ship.pos.x, ship.pos.y, ship.pos.z);
-		GL11.glRotatef(ship.rot, 0, 0, 1);
+		GL11.glTranslatef(ship.getPos().x, ship.getPos().y, ship.getPos().z);
+		GL11.glRotatef(ship.getRot(), 0, 0, 1);
 
 		// Do whatever is necessary to draw the ship except sub items
 
@@ -85,8 +85,8 @@ public class ShipRenderer implements Renderer<Ship> {
 
 		}
 
-		GL11.glRotatef(-ship.rot, 0, 0, 1);
-		GL11.glTranslatef(-ship.pos.x, -ship.pos.y, -ship.pos.z);
+		GL11.glRotatef(-ship.getRot(), 0, 0, 1);
+		GL11.glTranslatef(-ship.getPos().x, -ship.getPos().y, -ship.getPos().z);
 
 		renderShipCenterOfMass(glMode, renderStyle, ship);
 		renderShipIAs(glMode, renderStyle, ship);
@@ -169,7 +169,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	private void renderShipMorphBehaviors(int glMode, RenderStyle renderStyle, Ship ship) {
 		for (Morph morph : ship.getMorphs().values()) {
 			if (glMode == GL11.GL_RENDER) {
-				for (Behavior<?> behavior : morph.alwaysActiveBehaviorList) {
+				for (Behavior<?> behavior : morph.getAlwaysActiveBehaviorList()) {
 					renderBehavior(glMode, renderStyle, behavior);
 				}
 				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
@@ -191,8 +191,8 @@ public class ShipRenderer implements Renderer<Ship> {
 		ship.transformShipToWorldCoords(comInWorld);
 
 		if (renderStyle == RenderStyle.DEBUG) {
-			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posSpeed, new float[] { 1.0f, 0.5f, 0.5f });
-			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.posAccel, 100, new float[] { 0.5f, 1.0f, 0.5f });
+			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.getPosSpeed(), new float[] { 1.0f, 0.5f, 0.5f });
+			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.getPosAccel(), 100, new float[] { 0.5f, 1.0f, 0.5f });
 		}
 	}
 

@@ -7,7 +7,7 @@ public class Emitting extends Behavior<EmitterMorph> {
 
 	private final float minimalEnergy;
 	private float coolDownTimer;
-	public Vect3D target;
+	private Vect3D target;
 	private final float coolDown;
 
 	/**
@@ -24,7 +24,7 @@ public class Emitting extends Behavior<EmitterMorph> {
 
 	@Override
 	protected boolean activate() {
-		if (getOwner().energy > minimalEnergy) {
+		if (getOwner().getEnergy() > minimalEnergy) {
 			System.out.println("activated");
 			return true;
 		}
@@ -59,6 +59,10 @@ public class Emitting extends Behavior<EmitterMorph> {
 
 	public Vect3D getTarget() {
 		return target;
+	}
+
+	public void setTarget(Vect3D target) {
+		this.target = target;
 	}
 
 }

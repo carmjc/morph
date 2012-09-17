@@ -22,7 +22,7 @@ public class WorldPositionFirer implements IA {
 				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
 					if (behavior instanceof Emitting) {
 						Emitting emitting = (Emitting) behavior;
-						emitting.target = new Vect3D(target);
+						emitting.setTarget(new Vect3D(target));
 						emitting.tryToActivate();
 					}
 				}
