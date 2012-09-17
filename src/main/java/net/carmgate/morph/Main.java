@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.carmgate.morph.ia.IA;
-import net.carmgate.morph.ia.combat.WorldPositionFirer;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
@@ -113,9 +112,9 @@ public class Main {
 	private int glPick(int x, int y, IntBuffer selectBuf) {
 		GL11.glSelectBuffer(selectBuf);
 
-		LOGGER.debug("Picking at " + x + " " + y);
+		LOGGER.trace("Picking at " + x + " " + y);
 		if (world.getSelectionModel().getSelectedShips().size() > 0) {
-			LOGGER.debug("Selected ship: " + world.getSelectionModel().getSelectedShips().values().iterator().next().getPos());
+			LOGGER.trace("Selected ship: " + world.getSelectionModel().getSelectedShips().values().iterator().next().getPos());
 		}
 
 		// get viewport
@@ -185,7 +184,7 @@ public class Main {
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
 		int hits = glPick(x, y, selectBuf);
-		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
+		LOGGER.trace("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
 		// if there was no hit, we need to deselect everything
 		if (hits == 0) {
@@ -335,17 +334,19 @@ public class Main {
 
 				// Event button == 1 : Right button related event
 				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectionModel().getSelectedShips().size() > 0 && !World.combat) {
+
+					// The following has been commented because we should not activate a morph like that.
 					// Right mouse button has been released and a ship is selected
 					// Activate or deactivate the morph under mouse pointer.
-					for (Morph morph : world.getSelectionModel().getSelectedMorphs().values()) {
-						if (morph.getShip().toggleActiveMorph(morph)) {
-							if (!morph.isDisabled()) {
-								morph.activate();
-							}
-						} else {
-							morph.deactivate();
-						}
-					}
+					// for (Morph morph : world.getSelectionModel().getSelectedMorphs().values()) {
+					// if (morph.getShip().toggleActiveMorph(morph)) {
+					// if (!morph.isDisabled()) {
+					// morph.activate();
+					// }
+					// } else {
+					// morph.deactivate();
+					// }
+					// }
 
 					// If no morph is selected, the right click should be understood as a moveto order.
 					if (world.getSelectionModel().getSelectedMorphs().isEmpty()) {
@@ -353,24 +354,33 @@ public class Main {
 							List<IA> iaList = selectedShip.getIAList();
 
 							// Look for existing tracker
+							// If we find one, update it's target
+							boolean foundATracker = false;
 							for (IA ia : iaList) {
 								if (ia instanceof FixedPositionTracker) {
 									((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+									foundATracker = true;
 								}
 							}
 
-							iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
+							// If we found no tracker, create a new one and add it to this ship's
+							// IA list
+							if (!foundATracker) {
+								iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
+							}
 						}
 					}
 				}
 
+				// Commented because it should be reworked
 				// Handling shoot
-				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && !world.getSelectionModel().getSelectedShips().isEmpty() && World.combat) {
-					for (Ship selectedShip : world.getSelectionModel().getSelectedShips().values()) {
-						selectedShip.getIAList().add(new WorldPositionFirer(selectedShip, worldMousePos));
-					}
-				}
+				// if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && !world.getSelectionModel().getSelectedShips().isEmpty() && World.combat) {
+				// for (Ship selectedShip : world.getSelectionModel().getSelectedShips().values()) {
+				// selectedShip.getIAList().add(new WorldPositionFirer(selectedShip, worldMousePos));
+				// }
+				// }
 
+				// TODO Should be reworked
 				// int dWheel = Mouse.getDWheel();
 				// if (dWheel != 0) {
 				// float scale = (float) (Math.pow(1 + Math.pow(4, -5 + Math.abs(dWheel / 120)), Math.signum(dWheel)));

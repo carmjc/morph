@@ -1,5 +1,8 @@
 package net.carmgate.morph.model.behavior;
 
+import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.annotation.BehaviorInfo;
+import net.carmgate.morph.model.morph.Morph;
 
 /**
  * Allows to define any behavior on any element of the model.
@@ -9,7 +12,8 @@ package net.carmgate.morph.model.behavior;
  * unless there are very good reasons to bare some Morph to get the behavior.
  * @param <T> the type of owner of the behavior.
  */
-public abstract class Behavior<T> {
+@BehaviorInfo
+public abstract class Behavior<T extends Morph> {
 	public static enum State {
 		ACTIVE,
 		INACTIVE
@@ -21,8 +25,10 @@ public abstract class Behavior<T> {
 	/** Number of millis before next deactivation, counting from last update. */
 	private long msecBeforeNextDeactivation = 0;
 	private State state;
-	/** number of milliseconds from game start of the last behavior update. */
-	private long lastUpdateMsec;
+	/** number of milliseconds from game start of the last behavior execution. */
+	private long lastExecutionTS;
+	/** activation TS. */
+	private long activationTS;
 
 	public Behavior(T owner) {
 		this(owner, State.INACTIVE);
@@ -33,28 +39,35 @@ public abstract class Behavior<T> {
 		state = initialState;
 	}
 
-	@Deprecated
+	/**
+	 * Implement this method to activate the behavior.
+	 * This method won't be called if cool down timers prevent the behavior from being activated.
+	 * @return true if the activation was successful.
+	 */
 	protected abstract boolean activate();
 
-	@Deprecated
-	protected abstract boolean deactivate();
+	/**
+	 * Implement this method to deactivate the behavior.
+	 * This method won't be called if cool down timers prevent the behavior from being deactivated.
+	 * @param forced true if the deactivation was forced
+	 * @return true if the deactivation was successful.
+	 */
+	protected abstract boolean deactivate(boolean forced);
 
+	/**
+	 * Implement this method to "execute" the behavior.
+	 * This method will be called regularly to allow the behavior to have an effect on it's owner,
+	 * its owner's ship or the rest of the world. 
+	 * @return true if the deactivation was successful.
+	 */
 	protected abstract void execute();
 
-	/**
-	 * @return the time to wait before activation is available after deactivation (in millis)
-	 */
-	@Deprecated
-	protected abstract int getActivationCoolDownTime();
+	public long getActivationTS() {
+		return activationTS;
+	}
 
-	/**
-	 * @return the time to wait before deactivation is available after activation (in millis)
-	 */
-	@Deprecated
-	protected abstract int getDeactivationCoolDownTime();
-
-	public long getLastUpdateMsec() {
-		return lastUpdateMsec;
+	public long getLastExecutionTS() {
+		return lastExecutionTS;
 	}
 
 	public T getOwner() {
@@ -67,46 +80,90 @@ public abstract class Behavior<T> {
 
 	/**
 	 * Tries to activate the behavior.
-	 * If the cool down timer has expired, the behavior is activated
+	 * If the cool down timer has expired, the behavior is activated.
+	 * This method do not execute the behavior, thus, there will be no direct tangible
+	 * effect of the activation besides the fact that, if activated, it is possible to execute it.
+	 * It is strongly discouraged to override this method.
+	 * @return the behavior {@link State} after the call
 	 */
-	public void tryToActivate() {
+	public final State tryToActivate() {
 		if (state == State.ACTIVE) {
 			// Cannot activate an active behavior
-			return;
+			return state;
 		}
 
 		if (msecBeforeNextActivation == 0 && activate()) {
 			state = State.ACTIVE;
-			msecBeforeNextDeactivation = getDeactivationCoolDownTime();
+			activationTS = World.getWorld().getCurrentTS();
+			msecBeforeNextDeactivation = getClass().getAnnotation(BehaviorInfo.class).deactivationCoolDownTime();
 		} else {
 			msecBeforeNextActivation--;
 		}
+
+		return state;
 	}
 
 	/**
 	 * Tries to deactivate the behavior.
-	 * If the cool down timer has expired, the behavior is deactivated
+	 * If the deactivation cool down timer has expired, the behavior is deactivated
+	 * Thus, the behavior might be prevented from deactivating.
+	 * It is strongly discouraged to override this method.
+	 * @return the behavior {@link State} after the call
 	 */
-	public void tryToDeactivate() {
-		if (state == State.INACTIVE) {
-			// Cannot deactivate an inactive behavior
-			return;
-		}
-
-		if (msecBeforeNextDeactivation == 0 && deactivate()) {
-			state = State.INACTIVE;
-			msecBeforeNextActivation = getActivationCoolDownTime();
-		} else {
-			msecBeforeNextDeactivation--;
-		}
+	public final State tryToDeactivate() {
+		return tryToDeactivate(false);
 	}
 
 	/**
-	 * @param msec the number of milliseconds from game start
+	 * Tries to deactivate the behavior.
+	 * If the deactivation cool down timer has expired, the behavior is deactivated
+	 * Thus, the behavior might be prevented from deactivating.
+	 * It is strongly discouraged to override this method.
+	 * If the deactivation has been forced, the result of the {@link Behavior#deactivate()} method
+	 * will be disregarded and deactivation will be completed whatever its value.
+	 * @param forced true to force deactivation regardless of cool down.
+	 * @return the behavior {@link State} after the call
 	 */
-	public void tryToExecute() {
+	public final State tryToDeactivate(boolean forced) {
+		if (state == State.INACTIVE) {
+			// Cannot deactivate an inactive behavior
+			return state;
+		}
+
+		if (forced) {
+			deactivate(forced);
+			state = State.INACTIVE;
+			msecBeforeNextActivation = getClass().getAnnotation(BehaviorInfo.class).activationCoolDownTime();
+		} else if (msecBeforeNextDeactivation == 0 && deactivate(forced)) {
+			state = State.INACTIVE;
+			msecBeforeNextActivation = getClass().getAnnotation(BehaviorInfo.class).activationCoolDownTime();
+		} else {
+			msecBeforeNextDeactivation--;
+		}
+
+		return state;
+	}
+
+	/**
+	 * Execute the behavior.
+	 * Activating a behavior just enables us to execute it, but it does nothing per se.
+	 * Executing, on the contrary, really cause the behavior to do something.
+	 * It is strongly discouraged to override this method.
+	 * @param msec the number of milliseconds from game start.
+	 * @return true if the behavior was successfully executed.
+	 */
+	public final boolean tryToExecute() {
+		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
+		if (getOwner().isDisabled()) {
+			return false;
+		}
+
 		if (state == State.ACTIVE) {
 			execute();
+			lastExecutionTS = World.getWorld().getCurrentTS();
+			return true;
 		}
+
+		return false;
 	}
 }

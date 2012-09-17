@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.behavior;
 
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.morph.Morph;
 
 public class SpreadingEnergy extends NoActivationBehavior<Morph> {
@@ -13,7 +14,9 @@ public class SpreadingEnergy extends NoActivationBehavior<Morph> {
 	@Override
 	protected void execute() {
 		for (Morph neighbour : getOwner().getNeighbours()) {
-			if (neighbour != null && neighbour.getEnergy() / neighbour.getMaxEnergy() < getOwner().getEnergy() / getOwner().getMaxEnergy()) {
+			if (neighbour != null
+					&& neighbour.getEnergy() / neighbour.getClass().getAnnotation(MorphInfo.class).maxEnergy() < getOwner().getEnergy()
+							/ getOwner().getClass().getAnnotation(MorphInfo.class).maxEnergy()) {
 				neighbour.setEnergy(neighbour.getEnergy() + ENERGY_TRANSFER_PER_SEC);
 				getOwner().setEnergy(getOwner().getEnergy() - ENERGY_TRANSFER_PER_SEC);
 			}

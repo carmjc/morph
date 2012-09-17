@@ -9,37 +9,17 @@ public class Stemming extends Behavior<StemMorph> {
 	}
 
 	@Override
-	@Deprecated
 	protected boolean activate() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
-	@Deprecated
-	protected boolean deactivate() {
-		// TODO Auto-generated method stub
-		return false;
+	protected boolean deactivate(boolean forced) {
+		return true;
 	}
 
 	@Override
 	protected void execute() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	@Deprecated
-	protected int getActivationCoolDownTime() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	@Deprecated
-	protected int getDeactivationCoolDownTime() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 }

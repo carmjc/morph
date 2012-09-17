@@ -2,6 +2,7 @@ package net.carmgate.morph.model.behavior;
 
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.virtual.physics.Force;
 
@@ -28,51 +29,34 @@ public class Propulsing extends Behavior<Morph> {
 	}
 
 	@Override
-	@Deprecated
 	protected boolean activate() {
 		return true;
 	}
 
 	@Override
-	@Deprecated
-	protected boolean deactivate() {
+	protected boolean deactivate(boolean forced) {
 		return true;
 	}
 
 	@Override
 	protected void execute() {
 
-		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
-		if (getOwner().isDisabled()) {
-			return;
-		}
-
 		// update force
 		force.getVector().copy(Vect3D.NORTH);
 		// force.vector.rotate(getOwner().getRotInWorld());
 		force.getVector().normalize(propulsingForceModulusAtFullThrust * thrustPercentage);
 
-		// energy loss
-		getOwner().setEnergy(getOwner().getEnergy() - energyConsumptionAtFullThrust
-				* getOwner().getMaxEnergy()
-				* thrustPercentage
-				* (World.getWorld().getCurrentTS() - getLastUpdateMsec()) / 1000);
+		// energy loss if we can calculate a value
+		if (getLastExecutionTS() != 0 && getActivationTS() != 0) {
+			float energyCost = getOwner().getEnergy() - energyConsumptionAtFullThrust
+					* getOwner().getClass().getAnnotation(MorphInfo.class).maxEnergy()
+					* thrustPercentage
+					* (World.getWorld().getCurrentTS() - getLastExecutionTS()) / 1000;
+			LOGGER.trace(energyCost);
+			getOwner().setEnergy(energyCost);
+		}
 
 		getOwner().getShip().getOwnForceList().add(force);
-	}
-
-	@Override
-	@Deprecated
-	protected int getActivationCoolDownTime() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	@Deprecated
-	protected int getDeactivationCoolDownTime() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	public Force getForce() {

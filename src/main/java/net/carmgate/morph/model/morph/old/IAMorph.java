@@ -10,10 +10,4 @@ public class IAMorph extends BasicMorph {
 		super(ship, x, y, z);
 	}
 
-	@Override
-	public MorphType getType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

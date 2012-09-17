@@ -8,6 +8,7 @@ import java.util.Map;
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.morph.MorphUtil;
 import net.carmgate.morph.model.morph.StemMorph;
@@ -407,21 +408,23 @@ public abstract class Ship {
 		for (Morph m : getMorphs().values()) {
 
 			// Updating the mass of the ship's morph if it's evolving
-			m.setMass(Math.min(m.getMass() + NEW_MASS_PER_SECOND / nbMorphsNeedingMass, m.getMaxMass()));
+			if (nbMorphsNeedingMass > 0) {
+				m.setMass(Math.min(m.getMass() + NEW_MASS_PER_SECOND / nbMorphsNeedingMass, m.getClass().getAnnotation(MorphInfo.class).maxMass()));
+			}
 
-			// Disabling if necessary
-			if (m.getMass() < m.getDisableMass() && !m.isDisabled()) {
+			// Disabling if necessary (not enough mass)
+			if (m.getMass() < m.getClass().getAnnotation(MorphInfo.class).disableMass() && !m.isDisabled()) {
 				LOGGER.debug("Disabling morph");
-				m.setDisabled(true);
+				m.disable();
 			}
 
 			// Reenable the morph if possible
-			if (m.getMass() >= m.getReenableMass() && m.isDisabled() && m.getEnergy() > 0) {
-				m.setDisabled(false);
+			if (m.getMass() >= m.getClass().getAnnotation(MorphInfo.class).reEnableMass() && m.isDisabled() && m.getEnergy() > 0) {
+				m.enable();
 			}
 
 			// Regaining mass if disabled
-			if (m.isDisabled() && m.getMass() < m.getMaxMass()) {
+			if (m.isDisabled() && m.getMass() < m.getClass().getAnnotation(MorphInfo.class).maxMass()) {
 				m.setMass(m.getMass() + 0.1f);
 			}
 		}

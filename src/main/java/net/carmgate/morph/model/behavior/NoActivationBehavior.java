@@ -1,7 +1,10 @@
 package net.carmgate.morph.model.behavior;
 
+import net.carmgate.morph.model.annotation.BehaviorInfo;
+import net.carmgate.morph.model.morph.Morph;
 
-public abstract class NoActivationBehavior<T> extends Behavior<T> {
+@BehaviorInfo(activationCoolDownTime = 0, deactivationCoolDownTime = 0, reactivationCoolDownTime = 0)
+public abstract class NoActivationBehavior<T extends Morph> extends Behavior<T> {
 
 	public NoActivationBehavior(T owner) {
 		super(owner);
@@ -13,36 +16,11 @@ public abstract class NoActivationBehavior<T> extends Behavior<T> {
 	}
 
 	@Override
-	protected final boolean deactivate() {
+	protected final boolean deactivate(boolean forced) {
 		return true;
 	}
 
 	@Override
 	protected abstract void execute();
-
-	@Override
-	protected final int getActivationCoolDownTime() {
-		return 0;
-	}
-
-	@Override
-	protected final int getDeactivationCoolDownTime() {
-		return 0;
-	}
-
-	@Override
-	public void tryToActivate() {
-		activate();
-	}
-
-	@Override
-	public void tryToDeactivate() {
-		deactivate();
-	}
-
-	@Override
-	public void tryToExecute() {
-		execute();
-	}
 
 }

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.morph.Morph.MorphType;
 import net.carmgate.morph.model.morph.SurroundingMorph;
@@ -17,7 +18,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 
 public class MorphRenderer implements Renderer<Morph> {
 
-	private static final Logger logger = Logger.getLogger(MorphRenderer.class);
+	private static final Logger LOGGER = Logger.getLogger(MorphRenderer.class);
 
 	/** Morph scale factor. */
 	private static final float MORPH_SCALE_FACTOR = 0.97f;
@@ -45,7 +46,8 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
 			textures.put(MorphType.SHIELD,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
-			textures.put(MorphType.STEM, TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
+			textures.put(MorphType.STEM_MORPH,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
 			debugTextures.put(MorphType.BASIC,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
 			debugTextures.put(MorphType.EMITTER,
@@ -54,7 +56,7 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
 			debugTextures.put(MorphType.SHIELD,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
-			debugTextures.put(MorphType.STEM,
+			debugTextures.put(MorphType.STEM_MORPH,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -102,7 +104,7 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		// morph texture
 		if (WorldRenderer.debugDisplay) {
-			float energyPercent = morph.getEnergy() / morph.getMaxEnergy();
+			float energyPercent = morph.getEnergy() / morph.getClass().getAnnotation(MorphInfo.class).maxEnergy();
 			if (energyPercent <= 0) {
 				GL11.glColor4f(0.1f, 0.1f, 0.1f, alphaLevel);
 			} else {
@@ -123,13 +125,14 @@ public class MorphRenderer implements Renderer<Morph> {
 		// }
 
 		GL11.glScalef(1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR);
-		float size = MORPH_SCALE_FACTOR * morph.getMass() / morph.getMaxMass();
+		float size = MORPH_SCALE_FACTOR * morph.getMass() / morph.getClass().getAnnotation(MorphInfo.class).maxMass();
+		LOGGER.trace(morph.getClass() + " current mass: " + morph.getMass());
 		GL11.glScalef(size, size, size);
 
 		// morph texture
-		Texture morphTexture = textures.get(morph.getType());
+		Texture morphTexture = textures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
 		if (drawType == RenderStyle.DEBUG) {
-			morphTexture = debugTextures.get(morph.getType());
+			morphTexture = debugTextures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
 		}
 		if (morphTexture != null) {
 			morphTexture.bind();

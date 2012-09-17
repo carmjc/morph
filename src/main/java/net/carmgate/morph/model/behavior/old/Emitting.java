@@ -1,8 +1,10 @@
-package net.carmgate.morph.model.behavior;
+package net.carmgate.morph.model.behavior.old;
 
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.morph.old.EmitterMorph;
 
+@Deprecated
 public class Emitting extends Behavior<EmitterMorph> {
 
 	private final float minimalEnergy;
@@ -32,7 +34,7 @@ public class Emitting extends Behavior<EmitterMorph> {
 	}
 
 	@Override
-	protected boolean deactivate() {
+	protected boolean deactivate(boolean forced) {
 		return true;
 	}
 
@@ -45,16 +47,6 @@ public class Emitting extends Behavior<EmitterMorph> {
 		} else {
 			coolDownTimer--;
 		}
-	}
-
-	@Override
-	protected int getActivationCoolDownTime() {
-		return 0;
-	}
-
-	@Override
-	protected int getDeactivationCoolDownTime() {
-		return 0;
 	}
 
 	public Vect3D getTarget() {

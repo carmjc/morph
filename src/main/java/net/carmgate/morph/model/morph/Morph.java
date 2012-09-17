@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.ship.Ship;
 
@@ -13,6 +14,7 @@ import org.apache.log4j.Logger;
 /**
  * The generic class for morphs.
  */
+@MorphInfo
 public abstract class Morph {
 
 	/**
@@ -24,13 +26,14 @@ public abstract class Morph {
 		PROPULSOR,
 		SHIELD,
 		SPREADER,
-		STEM;
+		STEM_MORPH;
 	}
 
-	private static final Logger logger = Logger.getLogger(Morph.class);
+	private static final Logger LOGGER = Logger.getLogger(Morph.class);
 
 	/** These behaviors are always active. */
 	private List<Behavior<?>> alwaysActiveBehaviorList = new ArrayList<Behavior<?>>();
+
 	/** These behaviors are active when the morph is active. */
 	private final List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
 
@@ -42,14 +45,6 @@ public abstract class Morph {
 
 	/** Morph mass. */
 	private float mass = 0.5f;
-
-	/** Morph max mass. */
-	private float maxMass = 1;
-
-	/** Morph minimum mass before being enable to fulfill its mission. */
-	private float disableMass = 0;
-
-	private float reenableMass = 1;
 
 	/** if true, the morph is disabled. */
 	private boolean disabled = false;
@@ -76,12 +71,9 @@ public abstract class Morph {
 	private float energy;
 
 	/** The timestamp of last time the morph was updated. */
-	private long lastUpdateTS;
+	// private long lastUpdateTS; // It seems it's not used
 
-	// Activity
-	private long activeMsec;
-
-	private boolean active = false;
+	// private boolean active = false; // It seems it's not used
 
 	/**
 	 * Initializes morph position
@@ -102,44 +94,62 @@ public abstract class Morph {
 		setRotInShip(0);
 
 		// energy
-		energy = getMaxEnergy();
+		energy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
+
+		// set initialMass
+		setMass(getClass().getAnnotation(MorphInfo.class).initialMass());
+		LOGGER.trace(getClass() + " initial mass: " + getMass());
 	}
 
-	public abstract boolean activable();
+	/**
+	 * Returns true if the morph can be activated.
+	 * @return
+	 */
+	protected boolean activable() {
+		boolean activable = true;
 
-	public final void activate() {
-
-		beforeActivate();
-		if (activable()) {
-			// Activate
-			active = true;
-			activeMsec = 0;
-
-			afterActivate();
+		// can not activate if energy insufficient
+		if (getEnergy() <= 0) {
+			LOGGER.debug("no more energy");
+			disable();
+			activable = false;
 		}
 
+		return activable;
 	}
 
-	public abstract void afterActivate();
+	/**
+	 * Called to activate the morph and its behaviors.
+	 */
+	protected abstract void activate();
 
-	public abstract void afterDeactivate();
+	/**
+	 * Returns true if the morph can be deactivated.
+	 * @return
+	 */
+	protected boolean deactivable() {
+		return true;
+	}
 
-	public abstract void beforeActivate();
+	/**
+	 * Called to activate the morph and its behaviors.
+	 */
+	protected abstract void deactivate();
 
-	public abstract void beforeDeactivate();
+	/**
+	 * Disables a morph.
+	 * This automatically forces the morph's deactivation.
+	 */
+	public final void disable() {
+		disabled = true;
+		tryToDeactivate(true);
+	}
 
-	public abstract boolean deactivable();
-
-	public final void deactivate() {
-
-		beforeDeactivate();
-		if (deactivable()) {
-			// Activate
-			active = false;
-
-			afterDeactivate();
-		}
-
+	/**
+	 * Enables the morph
+	 */
+	public final void enable() {
+		disabled = false;
 	}
 
 	@Override
@@ -159,10 +169,6 @@ public abstract class Morph {
 		return alwaysActiveBehaviorList;
 	}
 
-	public float getDisableMass() {
-		return disableMass;
-	}
-
 	public float getEnergy() {
 		return energy;
 	}
@@ -173,13 +179,6 @@ public abstract class Morph {
 
 	public float getMass() {
 		return mass;
-	}
-
-	/** the maximum energy that this kind of morph can store. */
-	public abstract float getMaxEnergy();
-
-	public float getMaxMass() {
-		return maxMass;
 	}
 
 	/**
@@ -211,10 +210,6 @@ public abstract class Morph {
 		return posInWorld;
 	}
 
-	public float getReenableMass() {
-		return reenableMass;
-	}
-
 	public float getRotInShip() {
 		return rotInShip;
 	}
@@ -234,11 +229,6 @@ public abstract class Morph {
 		return shipGridPos;
 	}
 
-	/**
-	 * @return this morph's type.
-	 */
-	public abstract MorphType getType();
-
 	@Override
 	public int hashCode() {
 		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500) + ship.hashCode();
@@ -248,24 +238,12 @@ public abstract class Morph {
 		return disabled;
 	}
 
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
-	}
-
-	public void setDisableMass(float disableMass) {
-		this.disableMass = disableMass;
-	}
-
 	public void setEnergy(float energy) {
 		this.energy = energy;
 	}
 
 	public void setMass(float mass) {
 		this.mass = mass;
-	}
-
-	public void setMaxMass(float maxMass) {
-		this.maxMass = maxMass;
 	}
 
 	// TODO Unit test
@@ -287,10 +265,6 @@ public abstract class Morph {
 			posInShip.rotate(-getShip().getRot());
 
 		}
-	}
-
-	public void setReenableMass(float reenableMass) {
-		this.reenableMass = reenableMass;
 	}
 
 	public void setRotInShip(float rotInShip) {
@@ -325,6 +299,51 @@ public abstract class Morph {
 	}
 
 	/**
+	 * Activate a morph.
+	 * Also activate activable behaviors of the morph.
+	 * Make careful use of this method.
+	 * What it really does is not specified by this contract.
+	 * It is the specific morph responsability to document what is done upon activation.
+	 */
+	public final void tryToActivate() {
+
+		// can not activate if energy insufficient
+		if (getEnergy() <= 0) {
+			LOGGER.debug("no more energy");
+			disable();
+		} else {
+			activate();
+		}
+
+	}
+
+	/**
+	 * De-activate a morph.
+	 * Make careful use of this method.
+	 * What it really does is not specified by this contract.
+	 * It is the specific morph responsability to document what is done upon activation.
+	 */
+	public final void tryToDeactivate() {
+		tryToDeactivate(false);
+	}
+
+	/**
+	 * De-activate a morph.
+	 * Make careful use of this method.
+	 * What it really does is not specified by this contract.
+	 * It is the specific morph responsability to document what is done upon activation.
+	 * Deactivation might be forced for instance if the morph is disabled.
+	 * @param forced set to true to force deactivation
+	 */
+	private final void tryToDeactivate(boolean forced) {
+
+		if (!forced || deactivable()) {
+			deactivate();
+		}
+
+	}
+
+	/**
 	 * Executes behaviors of the morph
 	 */
 	public final void update() {
@@ -344,7 +363,7 @@ public abstract class Morph {
 		// }
 
 		// Update last update msec
-		lastUpdateTS = World.getWorld().getCurrentTS();
+		// lastUpdateTS = World.getWorld().getCurrentTS();
 	}
 
 	public void updatePosFromGridPos() {
