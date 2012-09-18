@@ -1,7 +1,6 @@
 package net.carmgate.morph.model.morph;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.Propulsing;
 import net.carmgate.morph.model.morph.Morph.MorphType;
 import net.carmgate.morph.model.ship.Ship;
@@ -26,20 +25,6 @@ public class PropulsorMorph extends BasicMorph {
 		// Behaviors
 		propulsingBehavior = new Propulsing(this, ENERGY_CONSUMPTION_AT_FULL_THRUST, PROPULSING_FORCE_MODULUS_AT_FULL_THRUST);
 		getActivableBehaviorList().add(propulsingBehavior);
-	}
-
-	@Override
-	public void activate() {
-		for (Behavior<?> b : getActivableBehaviorList()) {
-			b.tryToActivate();
-		}
-	}
-
-	@Override
-	public void deactivate() {
-		for (Behavior<?> b : getActivableBehaviorList()) {
-			b.tryToDeactivate();
-		}
 	}
 
 	public Propulsing getPropulsingBehavior() {

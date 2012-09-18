@@ -3,7 +3,9 @@ package net.carmgate.morph.ui.renderer;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.ia.IA;
@@ -74,7 +76,9 @@ public class ShipRenderer implements Renderer<Ship> {
 		// Do whatever is necessary to draw the ship except sub items
 
 		// Draw the morphs
-		for (Morph morph : ship.getMorphs().values()) {
+		// TODO We clone the list to avoid ConcurrentModificationExceptions. We should try to improve this.
+		List<Morph> shipMorphs = new ArrayList<Morph>(ship.getMorphs().values());
+		for (Morph morph : shipMorphs) {
 			morph.update();
 
 			GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);

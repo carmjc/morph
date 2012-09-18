@@ -1,6 +1,7 @@
 package net.carmgate.morph.model.ship;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,13 +11,9 @@ import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.morph.MorphUtil;
-import net.carmgate.morph.model.morph.StemMorph;
-import net.carmgate.morph.model.selection.SelectionAdapter;
-import net.carmgate.morph.model.selection.SelectionEvent;
+import net.carmgate.morph.model.morph.stem.StemMorph;
 import net.carmgate.morph.model.virtual.physics.Force;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.log4j.Logger;
 
@@ -48,7 +45,7 @@ public abstract class Ship {
 
 	private static final Logger LOGGER = Logger.getLogger(Ship.class);
 
-	public static final float NEW_MASS_PER_SECOND = 0.0001f;
+	public static final float NEW_MASS_PER_SECOND = 0.1f;
 
 	/** the last id affected to a ship. */
 	private static int lastId = 0;
@@ -128,44 +125,56 @@ public abstract class Ship {
 		// Add a listener to the morph selection model listeners.
 		// If one of the morph of this ship is selected, we might have to
 		// show virtual morphs (for instance for stem morphs)
-		World.getWorld().getSelectionModel().addSelectionListener(new SelectionAdapter() {
-			/** 
-			 * When a new morph is selected, add the corresponding virtual morphs
-			 * as needed.
-			 */
-			@Override
-			public void morphSelected(SelectionEvent selectionEvent) {
-
-				// Get the list of morph to add surrounding morphs for
-				List<Morph> selectedMorphList = new ArrayList<Morph>(World.getWorld().getSelectionModel().getSelectedMorphs().values());
-				CollectionUtils.filter(selectedMorphList, new IsStemMorphPredicate());
-				CollectionUtils.filter(selectedMorphList, new IsPartOfShipPredicate(Ship.this));
-
-				LOGGER.debug(selectedMorphList.size());
-
-				// Add surrounding morphs
-				if (World.getWorld().getSelectionModel().getSelectedShips().values().contains(Ship.this)
-						&& !selectedMorphList.isEmpty()) {
-					int i = 0;
-
-					for (Morph m : MorphUtil.createSurroundingMorphs(selectedMorphList)) {
-						if (!getMorphs().containsValue(m)) {
-							getMorphs().put(m.getId(), m);
-						}
-						// if (!surroundingSelectedMorphs.containsValue(m)) {
-						// surroundingSelectedMorphs.put(m.getId(), m);
-						// }
-					}
-				}
-
-			}
-		});
+		// World.getWorld().getSelectionModel().addSelectionListener(new SelectionAdapter() {
+		// /**
+		// * When a new morph is selected, add the corresponding virtual morphs
+		// * as needed.
+		// */
+		// @Override
+		// public void morphSelected(SelectionEvent selectionEvent) {
+		//
+		// // Get the list of morph to add surrounding morphs for
+		// List<Morph> selectedMorphList = new ArrayList<Morph>(World.getWorld().getSelectionModel().getSelectedMorphs().values());
+		// CollectionUtils.filter(selectedMorphList, new IsStemMorphPredicate());
+		// CollectionUtils.filter(selectedMorphList, new IsPartOfShipPredicate(Ship.this));
+		//
+		// LOGGER.debug(selectedMorphList.size());
+		//
+		// // Add surrounding morphs
+		// if (World.getWorld().getSelectionModel().getSelectedShips().values().contains(Ship.this)
+		// && !selectedMorphList.isEmpty()) {
+		// int i = 0;
+		//
+		// for (Morph m : MorphUtil.createSurroundingMorphs(selectedMorphList, SurroundingMorph.class)) {
+		// if (!getMorphs().containsValue(m)) {
+		// getMorphs().put(m.getId(), m);
+		// }
+		// // if (!surroundingSelectedMorphs.containsValue(m)) {
+		// // surroundingSelectedMorphs.put(m.getId(), m);
+		// // }
+		// }
+		// }
+		//
+		// }
+		// });
 	}
 
 	public void addMorph(Morph morph) {
 		morph.setShip(this);
 		getMorphs().put(morph.getId(), morph);
+		LOGGER.trace("morph added: " + morph);
 		calculateCOM();
+		LOGGER.trace("COM(" + centerOfMass + ")");
+	}
+
+	public void addMorphs(Collection<? extends Morph> morphs) {
+		for (Morph m : morphs) {
+			m.setShip(this);
+			getMorphs().put(m.getId(), m);
+			LOGGER.trace("morph added: " + m);
+		}
+		calculateCOM();
+		LOGGER.trace("COM(" + centerOfMass + ")");
 	}
 
 	public void applyForces() {
@@ -207,7 +216,9 @@ public abstract class Ship {
 	private void calculateCOM() {
 		centerOfMass.copy(Vect3D.NULL);
 		for (Morph m : getMorphs().values()) {
-			centerOfMass.add(m.getPosInShip());
+			Vect3D weightedPosInShip = new Vect3D(m.getPosInShip());
+			weightedPosInShip.normalize(m.getMass());
+			centerOfMass.add(weightedPosInShip);
 		}
 		centerOfMass.normalize(centerOfMass.modulus() / getMorphs().size());
 	}
@@ -312,6 +323,18 @@ public abstract class Ship {
 		activeMorphList.remove(morph);
 	}
 
+	public void removeMorph(Morph morph) {
+		removeActiveMorph(morph);
+		getMorphs().remove(morph);
+	}
+
+	public void removeMorphs(Collection<? extends Morph> morphs) {
+		for (Morph morph : morphs) {
+			removeActiveMorph(morph);
+			getMorphs().remove(morph.getId());
+		}
+	}
+
 	public void setCenterOfMassInWorld(Vect3D centerOfMass) {
 		this.centerOfMass = centerOfMass;
 	}
@@ -400,7 +423,7 @@ public abstract class Ship {
 		// Count the number of suboptimally massive morphs
 		int nbMorphsNeedingMass = 0;
 		for (Morph m : getMorphs().values()) {
-			if (m.getMass() < 1) {
+			if (m.getMass() < m.getClass().getAnnotation(MorphInfo.class).maxMass()) {
 				nbMorphsNeedingMass++;
 			}
 		}
@@ -414,7 +437,7 @@ public abstract class Ship {
 
 			// Disabling if necessary (not enough mass)
 			if (m.getMass() < m.getClass().getAnnotation(MorphInfo.class).disableMass() && !m.isDisabled()) {
-				LOGGER.debug("Disabling morph");
+				LOGGER.trace("Disabling morph");
 				m.disable();
 			}
 

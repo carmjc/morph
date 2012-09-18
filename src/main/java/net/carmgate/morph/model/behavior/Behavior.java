@@ -14,11 +14,6 @@ import net.carmgate.morph.model.morph.Morph;
  */
 @BehaviorInfo
 public abstract class Behavior<T extends Morph> {
-	public static enum State {
-		ACTIVE,
-		INACTIVE
-	}
-
 	private final T owner;
 	/** Number of millis before next activation, counting from last update. */
 	private long msecBeforeNextActivation = 0;
@@ -42,17 +37,23 @@ public abstract class Behavior<T extends Morph> {
 	/**
 	 * Implement this method to activate the behavior.
 	 * This method won't be called if cool down timers prevent the behavior from being activated.
+	 * This implementation does nothing and returns true.
 	 * @return true if the activation was successful.
 	 */
-	protected abstract boolean activate();
+	protected boolean activate() {
+		return true;
+	}
 
 	/**
 	 * Implement this method to deactivate the behavior.
 	 * This method won't be called if cool down timers prevent the behavior from being deactivated.
+	 * This implementation does nothing and returns true.
 	 * @param forced true if the deactivation was forced
 	 * @return true if the deactivation was successful.
 	 */
-	protected abstract boolean deactivate(boolean forced);
+	protected boolean deactivate(boolean forced) {
+		return true;
+	}
 
 	/**
 	 * Implement this method to "execute" the behavior.

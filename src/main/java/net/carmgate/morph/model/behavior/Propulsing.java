@@ -29,16 +29,6 @@ public class Propulsing extends Behavior<Morph> {
 	}
 
 	@Override
-	protected boolean activate() {
-		return true;
-	}
-
-	@Override
-	protected boolean deactivate(boolean forced) {
-		return true;
-	}
-
-	@Override
 	protected void execute() {
 
 		// update force

@@ -1,6 +1,6 @@
 package net.carmgate.morph.ui.renderer.behavior;
 
-import net.carmgate.morph.model.behavior.Behavior.State;
+import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.old.Emitting;
 
 import org.lwjgl.opengl.GL11;

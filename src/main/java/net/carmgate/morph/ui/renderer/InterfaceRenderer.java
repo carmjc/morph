@@ -7,11 +7,14 @@ import net.carmgate.morph.model.World;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 
+import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 
 public class InterfaceRenderer {
+
+	private static final Logger LOGGER = Logger.getLogger(InterfaceRenderer.class);
 
 	private TrueTypeFont font;
 
@@ -22,6 +25,7 @@ public class InterfaceRenderer {
 	}
 
 	public void render(int glMode, RenderStyle drawType) {
+		LOGGER.trace("Rendering interface");
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
 		// Drawing console box

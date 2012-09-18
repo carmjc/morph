@@ -10,7 +10,11 @@ import net.carmgate.morph.model.selection.SelectionEvent;
 import net.carmgate.morph.model.selection.SelectionListener;
 import net.carmgate.morph.model.ship.Ship;
 
+import org.apache.log4j.Logger;
+
 public class SelectionModel {
+
+	private static final Logger LOGGER = Logger.getLogger(SelectionModel.class);
 
 	/** selected morphs. */
 	private Map<Integer, Morph> selectedMorphs = new HashMap<Integer, Morph>();
@@ -20,6 +24,10 @@ public class SelectionModel {
 
 	/** Selection Listeners. */
 	private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
+	/** Selection Listeners. */
+	private List<SelectionListener> selectionListenersDuringLocks = new ArrayList<SelectionListener>();
+
+	private static int selectionListenersLock = 0;
 
 	public SelectionModel() {
 	}
@@ -38,7 +46,11 @@ public class SelectionModel {
 	 * @param listener
 	 */
 	public void addSelectionListener(SelectionListener listener) {
-		selectionListeners.add(listener);
+		if (selectionListenersLock == 0) {
+			selectionListeners.add(listener);
+		} else {
+			selectionListenersDuringLocks.add(listener);
+		}
 	}
 
 	/**
@@ -63,7 +75,7 @@ public class SelectionModel {
 	 */
 	private void fireMorphDeselected(Morph morph) {
 		for (SelectionListener l : selectionListeners) {
-			l.morphSelected(new SelectionEvent(morph));
+			l.morphDeselected(new SelectionEvent(morph));
 		}
 	}
 
@@ -71,18 +83,23 @@ public class SelectionModel {
 	 * @param morph
 	 */
 	private void fireMorphSelected(Morph morph) {
+		lockSelectionListeners();
 		for (SelectionListener l : selectionListeners) {
 			l.morphSelected(new SelectionEvent(morph));
+			LOGGER.trace("morph selected: " + morph);
 		}
+		unlockSelectionListeners();
 	}
 
 	/**
 	 * @param ship
 	 */
 	private void fireShipSelected(Ship ship) {
+		lockSelectionListeners();
 		for (SelectionListener l : selectionListeners) {
 			l.shipSelected(new SelectionEvent(ship));
 		}
+		unlockSelectionListeners();
 	}
 
 	public Map<Integer, Morph> getSelectedMorphs() {
@@ -91,6 +108,14 @@ public class SelectionModel {
 
 	public Map<Integer, Ship> getSelectedShips() {
 		return selectedShips;
+	}
+
+	/**
+	 * Increments a counter telling how many loops are iterating over the selectionListeners list.
+	 * This is used to avoid concurrent modification exceptions
+	 */
+	private void lockSelectionListeners() {
+		selectionListenersLock++;
 	}
 
 	/**
@@ -108,6 +133,18 @@ public class SelectionModel {
 	 */
 	public void removeSelectionListener(SelectionListener listener) {
 		selectionListeners.remove(listener);
+	}
+
+	/**
+	 * Decrements a counter telling how many loops are iterating over the selectionListeners list.
+	 * This is used to avoid concurrent modification exceptions
+	 */
+	private void unlockSelectionListeners() {
+		selectionListenersLock--;
+		if (selectionListenersLock == 0) {
+			selectionListeners.addAll(selectionListenersDuringLocks);
+			selectionListenersDuringLocks.clear();
+		}
 	}
 
 }

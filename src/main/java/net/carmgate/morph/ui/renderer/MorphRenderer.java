@@ -9,7 +9,6 @@ import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.morph.Morph.MorphType;
-import net.carmgate.morph.model.morph.SurroundingMorph;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -38,7 +37,11 @@ public class MorphRenderer implements Renderer<Morph> {
 		try {
 			// load texture from PNG file
 			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath()));
+
+			// Normal textures
 			textures.put(MorphType.BASIC,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+			textures.put(MorphType.SHADOW,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
 			textures.put(MorphType.EMITTER,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
@@ -48,7 +51,11 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
 			textures.put(MorphType.STEM_MORPH,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
+
+			// Debug textures
 			debugTextures.put(MorphType.BASIC,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+			debugTextures.put(MorphType.SHADOW,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
 			debugTextures.put(MorphType.EMITTER,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
@@ -80,9 +87,9 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glPushName(morph.getId());
 		}
 
-		// Surrounding Morphs are just basic morphs with half transparency
-		if (morph instanceof SurroundingMorph) {
-			alphaLevel *= 0.2f;
+		// Shadow morphs are just basic morphs with half transparency
+		if (morph.getClass().getAnnotation(MorphInfo.class).type() == MorphType.SHADOW) {
+			alphaLevel *= 0.5f;
 		}
 
 		// sphere texture
@@ -111,13 +118,16 @@ public class MorphRenderer implements Renderer<Morph> {
 				GL11.glColor4f(1f - energyPercent, energyPercent, 0, alphaLevel);
 			}
 		} else if (World.getWorld().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
-			GL11.glColor4f(1, 0.7f, 0.7f, alphaLevel);
+			// selected morph color
+			GL11.glColor4f(1, 0.85f, 0.85f, alphaLevel);
 		} else if (World.getWorld().getSelectionModel().getSelectedShips().values().contains(morph.getShip())) {
-			GL11.glColor4f(0.7f, 0.7f, 1, alphaLevel);
+			// selected ship color
+			GL11.glColor4f(0.85f, 0.85f, 1, alphaLevel);
 		} else if (morph.getShip().getActiveMorphList().contains(morph)) {
+			// Active morph
 			GL11.glColor4f(1, 1, 1, alphaLevel);
 		} else {
-			GL11.glColor4f(0.7f, 0.7f, 0.7f, alphaLevel);
+			GL11.glColor4f(0.85f, 0.85f, 0.85f, alphaLevel);
 		}
 
 		// if (World.getWorld().getSelectedShip() == morph.getShip()) {
@@ -126,7 +136,10 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		GL11.glScalef(1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR);
 		float size = MORPH_SCALE_FACTOR * morph.getMass() / morph.getClass().getAnnotation(MorphInfo.class).maxMass();
-		LOGGER.trace(morph.getClass() + " current mass: " + morph.getMass());
+		if (size == Float.POSITIVE_INFINITY || size == 0 || Float.isNaN(size)) {
+			size = 0.01f;
+		}
+		LOGGER.trace(morph.getClass() + " current mass: " + morph.getMass() + " - size: " + size);
 		GL11.glScalef(size, size, size);
 
 		// morph texture
@@ -156,5 +169,4 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glPopName();
 		}
 	}
-
 }

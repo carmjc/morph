@@ -7,6 +7,7 @@ import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.ship.Ship;
 
 import org.apache.log4j.Logger;
@@ -26,7 +27,8 @@ public abstract class Morph {
 		PROPULSOR,
 		SHIELD,
 		SPREADER,
-		STEM_MORPH;
+		STEM_MORPH,
+		SHADOW;
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(Morph.class);
@@ -40,6 +42,8 @@ public abstract class Morph {
 	/** The last ID assigned to a morph. */
 	static private int lastId = 0;
 
+	private State state;
+
 	/** Each and every morph must have a single ID. */
 	private int id;
 
@@ -48,9 +52,9 @@ public abstract class Morph {
 
 	/** if true, the morph is disabled. */
 	private boolean disabled = false;
+
 	/** The morph position in the world referential. */
 	private Vect3D posInShip = new Vect3D(0, 0, 0);
-
 	/** The morph position in the world referential. */
 	private Vect3D posInWorld = new Vect3D(0, 0, 0);
 
@@ -69,11 +73,6 @@ public abstract class Morph {
 
 	/** the energy stored by the morph. */
 	private float energy;
-
-	/** The timestamp of last time the morph was updated. */
-	// private long lastUpdateTS; // It seems it's not used
-
-	// private boolean active = false; // It seems it's not used
 
 	/**
 	 * Initializes morph position
@@ -101,6 +100,11 @@ public abstract class Morph {
 		LOGGER.trace(getClass() + " initial mass: " + getMass());
 	}
 
+	/** The timestamp of last time the morph was updated. */
+	// private long lastUpdateTS; // It seems it's not used
+
+	// private boolean active = false; // It seems it's not used
+
 	/**
 	 * Returns true if the morph can be activated.
 	 * @return
@@ -120,8 +124,9 @@ public abstract class Morph {
 
 	/**
 	 * Called to activate the morph and its behaviors.
+	 * @return TODO
 	 */
-	protected abstract void activate();
+	protected abstract boolean activate();
 
 	/**
 	 * Returns true if the morph can be deactivated.
@@ -133,8 +138,9 @@ public abstract class Morph {
 
 	/**
 	 * Called to activate the morph and its behaviors.
+	 * @return TODO
 	 */
-	protected abstract void deactivate();
+	protected abstract boolean deactivate();
 
 	/**
 	 * Disables a morph.
@@ -154,11 +160,16 @@ public abstract class Morph {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+
 		Morph morph = (Morph) obj;
 		return shipGridPos.x == morph.shipGridPos.x &&
 				shipGridPos.y == morph.shipGridPos.y &&
 				shipGridPos.z == morph.shipGridPos.z &&
-				getShip() == morph.getShip();
+				getShip() == morph.getShip() &&
+				getClass().getName().equals(obj.getClass().getName());
 	}
 
 	public List<Behavior<?>> getActivableBehaviorList() {
@@ -229,9 +240,14 @@ public abstract class Morph {
 		return shipGridPos;
 	}
 
+	public State getState() {
+		return state;
+	}
+
 	@Override
 	public int hashCode() {
-		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500) + ship.hashCode();
+		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500 + ship.hashCode()) * 100
+				+ getClass().hashCode();
 	}
 
 	public boolean isDisabled() {
@@ -295,7 +311,7 @@ public abstract class Morph {
 
 	@Override
 	public String toString() {
-		return "posInShip:" + getPosInShip().x + "," + getPosInShip().y;
+		return "morph(id=" + id + ", posInShip:" + getPosInShip().x + "," + getPosInShip().y + ")";
 	}
 
 	/**
@@ -304,17 +320,46 @@ public abstract class Morph {
 	 * Make careful use of this method.
 	 * What it really does is not specified by this contract.
 	 * It is the specific morph responsability to document what is done upon activation.
+	 * @return TODO
 	 */
-	public final void tryToActivate() {
+	public final State tryToActivate() {
+		LOGGER.trace("Trying to activate " + getClass());
+
+		if (state == State.ACTIVE) {
+			// already inactive
+			return state;
+		}
+
+		// Initialize the expected state
+		// This will be overridden by the following code if necessary
+		state = State.ACTIVE;
 
 		// can not activate if energy insufficient
 		if (getEnergy() <= 0) {
 			LOGGER.debug("no more energy");
 			disable();
 		} else {
-			activate();
+			// activate activable behaviors
+			for (Behavior<?> b : getActivableBehaviorList()) {
+				// TODO what happen if this fails
+				if (b.tryToActivate() == State.INACTIVE) {
+					state = State.INACTIVE;
+					LOGGER.trace("Failed to activate: " + b.getClass());
+				}
+			}
+
+			if (!activate()) {
+				state = State.INACTIVE;
+				LOGGER.trace("Failed to activate: " + getClass());
+			}
 		}
 
+		// Add to the active morph list of the owning ship
+		if (state == State.ACTIVE) {
+			getShip().getActiveMorphList().add(this);
+		}
+		LOGGER.trace(getClass() + " successfully activated");
+		return state;
 	}
 
 	/**
@@ -322,9 +367,10 @@ public abstract class Morph {
 	 * Make careful use of this method.
 	 * What it really does is not specified by this contract.
 	 * It is the specific morph responsability to document what is done upon activation.
+	 * @return TODO
 	 */
-	public final void tryToDeactivate() {
-		tryToDeactivate(false);
+	public final State tryToDeactivate() {
+		return tryToDeactivate(false);
 	}
 
 	/**
@@ -334,13 +380,40 @@ public abstract class Morph {
 	 * It is the specific morph responsability to document what is done upon activation.
 	 * Deactivation might be forced for instance if the morph is disabled.
 	 * @param forced set to true to force deactivation
+	 * @return TODO
 	 */
-	private final void tryToDeactivate(boolean forced) {
-
-		if (!forced || deactivable()) {
-			deactivate();
+	private final State tryToDeactivate(boolean forced) {
+		if (state == State.INACTIVE) {
+			// already inactive
+			return state;
 		}
 
+		// Initialize the expected state
+		// This will be overridden by the following code if necessary
+		state = State.INACTIVE;
+
+		if (!forced || deactivable()) {
+			for (Behavior<?> b : getActivableBehaviorList()) {
+				// TODO what happen if this fails
+				if (b.tryToDeactivate(forced) == State.ACTIVE) {
+					// Behavior deactivation failed
+					if (!forced) {
+						state = State.ACTIVE;
+					}
+				}
+			}
+
+			if (!deactivate() && !forced) {
+				state = State.ACTIVE;
+			}
+		}
+
+		// Add to the active morph list of the owning ship
+		if (state == State.INACTIVE) {
+			getShip().getActiveMorphList().remove(this);
+		}
+		LOGGER.trace(getClass() + " state: " + state);
+		return state;
 	}
 
 	/**

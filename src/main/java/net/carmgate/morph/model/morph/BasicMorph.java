@@ -17,17 +17,19 @@ public class BasicMorph extends Morph {
 	}
 
 	/**
-	 * Empty implementation for easy use.
+	 * Default behavior : trying to activate
 	 */
 	@Override
-	public void activate() {
+	public boolean activate() {
+		return true;
 	}
 
 	/**
-	 * Empty implementation for easy use.
+	 * Default behavior : trying to deactivate behaviors
 	 */
 	@Override
-	public void deactivate() {
+	public boolean deactivate() {
+		return true;
 	}
 
 }

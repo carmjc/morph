@@ -34,11 +34,6 @@ public class Emitting extends Behavior<EmitterMorph> {
 	}
 
 	@Override
-	protected boolean deactivate(boolean forced) {
-		return true;
-	}
-
-	@Override
 	protected void execute() {
 		if (coolDownTimer <= 0) {
 			// TODO hits a random morph in the target ship
