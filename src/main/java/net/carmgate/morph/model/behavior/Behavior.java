@@ -29,9 +29,20 @@ public abstract class Behavior<T extends Morph> {
 		this(owner, State.INACTIVE);
 	}
 
+	/**
+	 * Warning : if the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * the initialState parameter of the constructor will be disregarded.
+	 * @param owner the morph owning this behavior
+	 * @param initialState {@link State#ACTIVE} or {@link State#INACTIVE}
+	 */
 	public Behavior(T owner, State initialState) {
 		this.owner = owner;
 		state = initialState;
+
+		// Override the state value if the behavior is of the always active type
+		if (getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+			state = State.ACTIVE;
+		}
 	}
 
 	/**
@@ -75,7 +86,16 @@ public abstract class Behavior<T extends Morph> {
 		return owner;
 	}
 
+	/**
+	 * Returns the state.
+	 * If the behavior has annotation parameter {@link BehaviorInfo#alwaysActive()} set to true, 
+	 * this will always return {@link State#ACTIVE}.
+	 * @return
+	 */
 	public State getState() {
+		if (getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+			return State.ACTIVE;
+		}
 		return state;
 	}
 
@@ -122,11 +142,14 @@ public abstract class Behavior<T extends Morph> {
 	 * It is strongly discouraged to override this method.
 	 * If the deactivation has been forced, the result of the {@link Behavior#deactivate()} method
 	 * will be disregarded and deactivation will be completed whatever its value.
+	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * it cannot be deactivated. 
 	 * @param forced true to force deactivation regardless of cool down.
 	 * @return the behavior {@link State} after the call
 	 */
 	public final State tryToDeactivate(boolean forced) {
-		if (state == State.INACTIVE) {
+		// if the behavior is always active, it cannot be deactivated
+		if (state == State.INACTIVE || getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			// Cannot deactivate an inactive behavior
 			return state;
 		}
@@ -142,6 +165,11 @@ public abstract class Behavior<T extends Morph> {
 			msecBeforeNextDeactivation--;
 		}
 
+		// reset last execution TS if deactivated
+		if (state == State.INACTIVE) {
+			lastExecutionTS = 0;
+		}
+
 		return state;
 	}
 
@@ -150,12 +178,14 @@ public abstract class Behavior<T extends Morph> {
 	 * Activating a behavior just enables us to execute it, but it does nothing per se.
 	 * Executing, on the contrary, really cause the behavior to do something.
 	 * It is strongly discouraged to override this method.
+	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * there is nothing to stop it from executing.
 	 * @param msec the number of milliseconds from game start.
 	 * @return true if the behavior was successfully executed.
 	 */
 	public final boolean tryToExecute() {
 		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
-		if (getOwner().isDisabled()) {
+		if (getOwner().isDisabled() && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			return false;
 		}
 

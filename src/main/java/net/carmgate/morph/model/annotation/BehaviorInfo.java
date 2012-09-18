@@ -19,6 +19,14 @@ public @interface BehaviorInfo {
 	int activationCoolDownTime() default 0;
 
 	/**
+	 * True if the behavior is always active.
+	 * This means that it cannot be deactivated, always has the ACTIVE state
+	 * and can always be executed.
+	 * @return
+	 */
+	boolean alwaysActive() default false;
+
+	/**
 	 * Used when the behavior has been activated.
 	 * Default value : 0ms.
 	 * FIXME Rename this so that it is easier to understand

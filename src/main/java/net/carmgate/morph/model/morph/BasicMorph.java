@@ -6,6 +6,10 @@ import net.carmgate.morph.model.ship.Ship;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Base class for all real physical morphs.
+ * It hads some generic behaviors.
+ */
 @MorphInfo
 public class BasicMorph extends Morph {
 
