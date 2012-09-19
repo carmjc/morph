@@ -3,6 +3,7 @@ package net.carmgate.morph.model.morph;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Propulsing;
 import net.carmgate.morph.model.morph.Morph.MorphType;
+import net.carmgate.morph.model.requirements.EnoughEnergy;
 import net.carmgate.morph.model.ship.Ship;
 
 /**
@@ -13,7 +14,7 @@ import net.carmgate.morph.model.ship.Ship;
 public class PropulsorMorph extends BasicMorph {
 
 	/** Energy Consumption per millis at full thrust. */
-	private final static float ENERGY_CONSUMPTION_AT_FULL_THRUST = 0.1f;
+	private final static float ENERGY_CONSUMPTION_AT_FULL_THRUST = 1f;
 	public final static float PROPULSING_FORCE_MODULUS_AT_FULL_THRUST = 100f;
 
 	/** The default activable behavior of this morph. */
@@ -25,6 +26,7 @@ public class PropulsorMorph extends BasicMorph {
 		// Behaviors
 		propulsingBehavior = new Propulsing(this, ENERGY_CONSUMPTION_AT_FULL_THRUST, PROPULSING_FORCE_MODULUS_AT_FULL_THRUST);
 		getActivableBehaviorList().add(propulsingBehavior);
+		getActivationRequirements().add(new EnoughEnergy(this, 1));
 	}
 
 	public Propulsing getPropulsingBehavior() {

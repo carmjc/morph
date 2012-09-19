@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 
 /**
  * All Vect3D instances are understood in the ship's referential.
+ * Warning: if all the propulsors of a ship are deactivated at any moment in time,
+ * the tracker will stop trying to direct the ship to the target.
  */
 public class FixedPositionTracker implements IA {
 
@@ -42,7 +44,7 @@ public class FixedPositionTracker implements IA {
 		// after initialization
 		activePropulsorMorphs.clear();
 		for (PropulsorMorph m : propulsorMorphs) {
-			if (!m.isDisabled()) {
+			if (m.canBeActivated()) {
 				activePropulsorMorphs.add(m);
 			}
 		}
@@ -52,7 +54,7 @@ public class FixedPositionTracker implements IA {
 		// update the list of active propulsors
 		activePropulsorMorphs.clear();
 		for (PropulsorMorph m : propulsorMorphs) {
-			if (!m.isDisabled()) {
+			if (m.canBeActivated()) {
 				activePropulsorMorphs.add(m);
 			}
 		}
@@ -107,6 +109,7 @@ public class FixedPositionTracker implements IA {
 		}
 
 		// Dectect if all the propulsors are out of energy
+		LOGGER.debug("Number of active propulsor morphs: " + activePropulsorMorphs.size());
 		if (activePropulsorMorphs.size() == 0) {
 			done = true;
 		}

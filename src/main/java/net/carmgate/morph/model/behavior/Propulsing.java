@@ -30,7 +30,6 @@ public class Propulsing extends Behavior<Morph> {
 
 	@Override
 	protected void execute() {
-
 		// update force
 		force.getVector().copy(Vect3D.NORTH);
 		// force.vector.rotate(getOwner().getRotInWorld());

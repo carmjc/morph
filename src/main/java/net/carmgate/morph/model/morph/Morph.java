@@ -8,6 +8,7 @@ import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.State;
+import net.carmgate.morph.model.requirements.Requirement;
 import net.carmgate.morph.model.ship.Ship;
 
 import org.apache.log4j.Logger;
@@ -34,7 +35,8 @@ public abstract class Morph {
 	private static final Logger LOGGER = Logger.getLogger(Morph.class);
 
 	/** These behaviors are always active. */
-	private List<Behavior<?>> alwaysActiveBehaviorList = new ArrayList<Behavior<?>>();
+	private final List<Behavior<?>> alwaysActiveBehaviorList = new ArrayList<Behavior<?>>();
+	private final List<Requirement> activationRequirements = new ArrayList<Requirement>();
 
 	/** These behaviors are active when the morph is active. */
 	private final List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
@@ -55,9 +57,9 @@ public abstract class Morph {
 
 	/** The morph position in the world referential. */
 	private Vect3D posInShip = new Vect3D(0, 0, 0);
+
 	/** The morph position in the world referential. */
 	private Vect3D posInWorld = new Vect3D(0, 0, 0);
-
 	/** The morph position in the ship hex grid. */
 	private Vect3D shipGridPos;
 
@@ -100,64 +102,56 @@ public abstract class Morph {
 		LOGGER.trace(getClass() + " initial mass: " + getMass());
 	}
 
-	/** The timestamp of last time the morph was updated. */
-	// private long lastUpdateTS; // It seems it's not used
-
-	// private boolean active = false; // It seems it's not used
-
-	/**
-	 * Returns true if the morph can be activated.
-	 * @return
-	 */
-	protected boolean activable() {
-		boolean activable = true;
-
-		// can not activate if energy insufficient
-		if (getEnergy() <= 0) {
-			LOGGER.debug("no more energy");
-			disable();
-			activable = false;
-		}
-
-		return activable;
-	}
-
 	/**
 	 * Called to activate the morph and its behaviors.
+	 * Warning: if this method returns false (meaning the activation failed), 
+	 * it is the responsability of the method implementation to assure the consistency of the morph
+	 * (a partial activation could pose problems).
 	 * @return TODO
 	 */
 	protected abstract boolean activate();
 
 	/**
-	 * Returns true if the morph can be deactivated.
-	 * @return
+	 * The default implementation of this method checks the morphs activation requirements.
+	 * Override with caution.
+	 * Overriding method should always call the inherited class method to check as well.
+	 * @return true if the morph can be activated
 	 */
-	protected boolean deactivable() {
-		return true;
+	public boolean canBeActivated() {
+		boolean canBeActivated = true;
+		for (Requirement req : getActivationRequirements()) {
+			if (!req.check()) {
+				canBeActivated = false;
+			}
+		}
+		return canBeActivated;
 	}
 
 	/**
 	 * Called to activate the morph and its behaviors.
+	 * Warning: if this method returns false (meaning the deactivation failed), 
+	 * it is the responsability of the method implementation to assure the consistency of the morph
+	 * (a partial deactivation could pose problems).
 	 * @return TODO
 	 */
 	protected abstract boolean deactivate();
 
-	/**
-	 * Disables a morph.
-	 * This automatically forces the morph's deactivation.
-	 */
-	public final void disable() {
-		disabled = true;
-		tryToDeactivate(true);
-	}
-
-	/**
-	 * Enables the morph
-	 */
-	public final void enable() {
-		disabled = false;
-	}
-
+	// /**
+	// * Disables a morph.
+	// * This automatically forces the morph's deactivation.
+	// */
+	// public final void disable() {
+	// disabled = true;
+	// tryToDeactivate(true);
+	// }
+	//
+	// /**
+	// * Enables the morph
+	// */
+	// public final void enable() {
+	// disabled = false;
+	// }
+	//
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
@@ -172,23 +166,27 @@ public abstract class Morph {
 				getClass().getName().equals(obj.getClass().getName());
 	}
 
-	public List<Behavior<?>> getActivableBehaviorList() {
+	public final List<Behavior<?>> getActivableBehaviorList() {
 		return activableBehaviorList;
 	}
 
-	public List<Behavior<?>> getAlwaysActiveBehaviorList() {
+	public final List<Requirement> getActivationRequirements() {
+		return activationRequirements;
+	}
+
+	public final List<Behavior<?>> getAlwaysActiveBehaviorList() {
 		return alwaysActiveBehaviorList;
 	}
 
-	public float getEnergy() {
+	public final float getEnergy() {
 		return energy;
 	}
 
-	public int getId() {
+	public final int getId() {
 		return id;
 	}
 
-	public float getMass() {
+	public final float getMass() {
 		return mass;
 	}
 
@@ -196,14 +194,14 @@ public abstract class Morph {
 	 * TODO This is suboptimal. We should not calculate the neighbours each time we need them.
 	 * @return null if the morph takes part in no ship.
 	 */
-	public List<Morph> getNeighbours() {
+	public final List<Morph> getNeighbours() {
 		if (ship == null) {
 			return null;
 		}
 		return ship.getNeighbours(this);
 	}
 
-	public Vect3D getPosInShip() {
+	public final Vect3D getPosInShip() {
 		if (getShip() == null) {
 			return null;
 		}
@@ -213,7 +211,7 @@ public abstract class Morph {
 	/**
 	 * @return morph pos in world
 	 */
-	public Vect3D getPosInWorld() {
+	public final Vect3D getPosInWorld() {
 		if (ship != null) {
 			posInWorld.copy(posInShip);
 			ship.transformShipToWorldCoords(posInWorld);
@@ -221,26 +219,26 @@ public abstract class Morph {
 		return posInWorld;
 	}
 
-	public float getRotInShip() {
+	public final float getRotInShip() {
 		return rotInShip;
 	}
 
-	public float getRotInWorld() {
+	public final float getRotInWorld() {
 		if (ship != null) {
 			rotInWorld = ship.getRot() + rotInShip;
 		}
 		return rotInWorld;
 	}
 
-	public Ship getShip() {
+	public final Ship getShip() {
 		return ship;
 	}
 
-	public Vect3D getShipGridPos() {
+	public final Vect3D getShipGridPos() {
 		return shipGridPos;
 	}
 
-	public State getState() {
+	public final State getState() {
 		return state;
 	}
 
@@ -248,10 +246,6 @@ public abstract class Morph {
 	public int hashCode() {
 		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500 + ship.hashCode()) * 100
 				+ getClass().hashCode();
-	}
-
-	public boolean isDisabled() {
-		return disabled;
 	}
 
 	public void setEnergy(float energy) {
@@ -330,6 +324,13 @@ public abstract class Morph {
 			return state;
 		}
 
+		// Iterate over requirements to check that the morph can be activated
+		// At this moment, state is necessarily INACTIVE
+		// If at least one of the requirements is not satisfied, it return INACTIVE
+		if (!canBeActivated()) {
+			return state;
+		}
+
 		// Initialize the expected state
 		// This will be overridden by the following code if necessary
 		state = State.ACTIVE;
@@ -337,7 +338,7 @@ public abstract class Morph {
 		// can not activate if energy insufficient
 		if (getEnergy() <= 0) {
 			LOGGER.debug("no more energy");
-			disable();
+			// disable();
 		} else {
 			// activate activable behaviors
 			for (Behavior<?> b : getActivableBehaviorList()) {
@@ -382,7 +383,7 @@ public abstract class Morph {
 	 * @param forced set to true to force deactivation
 	 * @return TODO
 	 */
-	private final State tryToDeactivate(boolean forced) {
+	public final State tryToDeactivate(boolean forced) {
 		if (state == State.INACTIVE) {
 			// already inactive
 			return state;
@@ -392,26 +393,26 @@ public abstract class Morph {
 		// This will be overridden by the following code if necessary
 		state = State.INACTIVE;
 
-		if (!forced || deactivable()) {
-			for (Behavior<?> b : getActivableBehaviorList()) {
-				// TODO what happen if this fails
-				if (b.tryToDeactivate(forced) == State.ACTIVE) {
-					// Behavior deactivation failed
-					if (!forced) {
-						state = State.ACTIVE;
-					}
+		for (Behavior<?> b : getActivableBehaviorList()) {
+			// TODO what happen if this fails
+			if (b.tryToDeactivate(forced) == State.ACTIVE) {
+				// Behavior deactivation failed
+				if (!forced) {
+					state = State.ACTIVE;
 				}
 			}
+		}
 
-			if (!deactivate() && !forced) {
-				state = State.ACTIVE;
-			}
+		// if deactivation fails and wasn't forced, we declare the morph as being still active
+		if (!deactivate() && !forced) {
+			state = State.ACTIVE;
 		}
 
 		// Add to the active morph list of the owning ship
 		if (state == State.INACTIVE) {
 			getShip().getActiveMorphList().remove(this);
 		}
+
 		LOGGER.trace(getClass() + " state: " + state);
 		return state;
 	}
@@ -420,6 +421,12 @@ public abstract class Morph {
 	 * Executes behaviors of the morph
 	 */
 	public final void update() {
+
+		// See if this morph needs to be deactivated
+		if (getMass() < getClass().getAnnotation(MorphInfo.class).disableMass()) {
+			LOGGER.trace("Disabling morph");
+			tryToDeactivate(true);
+		}
 
 		for (Behavior<?> behavior : alwaysActiveBehaviorList) {
 			behavior.tryToExecute();
@@ -430,13 +437,6 @@ public abstract class Morph {
 			behavior.tryToExecute();
 		}
 
-		// // then execute the behaviors that have been temporarily added to the morph
-		// for (Behavior<?> behavior : temporaryBehaviorList) {
-		// behavior.tryToExecute();
-		// }
-
-		// Update last update msec
-		// lastUpdateTS = World.getWorld().getCurrentTS();
 	}
 
 	public void updatePosFromGridPos() {

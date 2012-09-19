@@ -45,7 +45,7 @@ public abstract class Ship {
 
 	private static final Logger LOGGER = Logger.getLogger(Ship.class);
 
-	public static final float NEW_MASS_PER_SECOND = 0.1f;
+	public static final float NEW_MASS_PER_SECOND = 1.0f;
 
 	/** the last id affected to a ship. */
 	private static int lastId = 0;
@@ -431,25 +431,26 @@ public abstract class Ship {
 		for (Morph m : getMorphs().values()) {
 
 			// Updating the mass of the ship's morph if it's evolving
+			// TODO transform this in a behavior
 			if (nbMorphsNeedingMass > 0) {
 				m.setMass(Math.min(m.getMass() + NEW_MASS_PER_SECOND / nbMorphsNeedingMass, m.getClass().getAnnotation(MorphInfo.class).maxMass()));
 			}
 
 			// Disabling if necessary (not enough mass)
-			if (m.getMass() < m.getClass().getAnnotation(MorphInfo.class).disableMass() && !m.isDisabled()) {
-				LOGGER.trace("Disabling morph");
-				m.disable();
-			}
+			// if (m.getMass() < m.getClass().getAnnotation(MorphInfo.class).disableMass() && !m.isDisabled()) {
+			// LOGGER.trace("Disabling morph");
+			// // m.disable();
+			// }
 
 			// Reenable the morph if possible
-			if (m.getMass() >= m.getClass().getAnnotation(MorphInfo.class).reEnableMass() && m.isDisabled() && m.getEnergy() > 0) {
-				m.enable();
-			}
+			// if (m.getMass() >= m.getClass().getAnnotation(MorphInfo.class).reEnableMass() && m.isDisabled() && m.getEnergy() > 0) {
+			// // m.enable();
+			// }
 
 			// Regaining mass if disabled
-			if (m.isDisabled() && m.getMass() < m.getClass().getAnnotation(MorphInfo.class).maxMass()) {
-				m.setMass(m.getMass() + 0.1f);
-			}
+			// if (m.isDisabled() && m.getMass() < m.getClass().getAnnotation(MorphInfo.class).maxMass()) {
+			// m.setMass(m.getMass() + 0.1f);
+			// }
 		}
 	}
 }

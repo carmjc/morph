@@ -9,6 +9,7 @@ import net.carmgate.morph.model.behavior.stem.Stemming;
 import net.carmgate.morph.model.morph.BasicMorph;
 import net.carmgate.morph.model.morph.Morph.MorphType;
 import net.carmgate.morph.model.morph.MorphService;
+import net.carmgate.morph.model.requirements.EnoughMass;
 import net.carmgate.morph.model.selection.SelectionAdapter;
 import net.carmgate.morph.model.selection.SelectionEvent;
 import net.carmgate.morph.model.ship.Ship;
@@ -29,7 +30,9 @@ public class StemMorph extends BasicMorph {
 		super(ship, x, y, z);
 		stemmingBehavior = new Stemming(this);
 		getActivableBehaviorList().add(stemmingBehavior);
+		getActivationRequirements().add(new EnoughMass(this, 1));
 
+		// Adding listeners
 		World.getWorld().getSelectionModel().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void morphDeselected(SelectionEvent selectionEvent) {

@@ -113,10 +113,12 @@ public abstract class Behavior<T extends Morph> {
 			return state;
 		}
 
-		if (msecBeforeNextActivation == 0 && activate()) {
-			state = State.ACTIVE;
-			activationTS = World.getWorld().getCurrentTS();
-			msecBeforeNextDeactivation = getClass().getAnnotation(BehaviorInfo.class).deactivationCoolDownTime();
+		if (msecBeforeNextActivation == 0) {
+			if (activate()) {
+				state = State.ACTIVE;
+				activationTS = World.getWorld().getCurrentTS();
+				msecBeforeNextDeactivation = getClass().getAnnotation(BehaviorInfo.class).deactivationCoolDownTime();
+			}
 		} else {
 			msecBeforeNextActivation--;
 		}
@@ -185,7 +187,7 @@ public abstract class Behavior<T extends Morph> {
 	 */
 	public final boolean tryToExecute() {
 		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
-		if (getOwner().isDisabled() && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+		if (getOwner().getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			return false;
 		}
 
