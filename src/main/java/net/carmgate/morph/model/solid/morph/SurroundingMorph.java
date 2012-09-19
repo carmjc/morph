@@ -1,6 +1,6 @@
-package net.carmgate.morph.model.physic.morph;
+package net.carmgate.morph.model.solid.morph;
 
-import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.solid.ship.Ship;
 
 public class SurroundingMorph extends BasicMorph {
 

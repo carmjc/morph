@@ -4,9 +4,9 @@ import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.old.Emitting;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.morph.old.EmitterMorph;
-import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.old.EmitterMorph;
+import net.carmgate.morph.model.solid.ship.Ship;
 
 @Deprecated
 public class WorldPositionFirer implements IA {

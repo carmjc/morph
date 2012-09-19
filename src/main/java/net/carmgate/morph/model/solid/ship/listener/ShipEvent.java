@@ -1,6 +1,6 @@
-package net.carmgate.morph.model.physic.ship.listener;
+package net.carmgate.morph.model.solid.ship.listener;
 
-import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.solid.ship.Ship;
 
 public class ShipEvent {
 

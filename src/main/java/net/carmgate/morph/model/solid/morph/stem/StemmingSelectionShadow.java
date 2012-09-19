@@ -1,11 +1,11 @@
-package net.carmgate.morph.model.physic.morph.stem;
+package net.carmgate.morph.model.solid.morph.stem;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.stem.Stemming;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.morph.Morph.MorphType;
-import net.carmgate.morph.model.physic.ship.Ship;
-import net.carmgate.morph.model.physic.world.World;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.ship.Ship;
+import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
 import net.carmgate.morph.ui.selection.SelectionEvent;
 

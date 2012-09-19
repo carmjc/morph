@@ -2,9 +2,9 @@ package net.carmgate.morph.model.behavior.prop;
 
 import net.carmgate.morph.model.behavior.NoActivationBehavior;
 import net.carmgate.morph.model.behavior.State;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.ship.listener.ShipEvent;
-import net.carmgate.morph.model.physic.ship.listener.ShipListener;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.ship.listener.ShipEvent;
+import net.carmgate.morph.model.solid.ship.listener.ShipListener;
 
 import org.apache.log4j.Logger;
 

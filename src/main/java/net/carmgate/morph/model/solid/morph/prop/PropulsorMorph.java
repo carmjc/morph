@@ -1,12 +1,12 @@
-package net.carmgate.morph.model.physic.morph.prop;
+package net.carmgate.morph.model.solid.morph.prop;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.prop.Propulsing;
 import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
-import net.carmgate.morph.model.physic.morph.BasicMorph;
-import net.carmgate.morph.model.physic.morph.Morph.MorphType;
-import net.carmgate.morph.model.physic.ship.Ship;
 import net.carmgate.morph.model.requirements.EnoughEnergy;
+import net.carmgate.morph.model.solid.morph.BasicMorph;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.ship.Ship;
 
 import org.apache.log4j.Logger;
 

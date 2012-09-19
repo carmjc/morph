@@ -1,4 +1,4 @@
-package net.carmgate.morph.model.physic.world;
+package net.carmgate.morph.model.solid.world;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.physic.ship.Ship;
-import net.carmgate.morph.model.physic.ship.TestShip;
 import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.model.solid.ship.Ship;
+import net.carmgate.morph.model.solid.ship.TestShip;
 import net.carmgate.morph.ui.selection.SelectionModel;
 
 /**

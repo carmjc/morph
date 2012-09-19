@@ -1,8 +1,8 @@
 package net.carmgate.morph.model.behavior;
 
 import net.carmgate.morph.model.annotation.BehaviorInfo;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.world.World;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.world.World;
 
 /**
  * Allows to define any behavior on any element of the model.

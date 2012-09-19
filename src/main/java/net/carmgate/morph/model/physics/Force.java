@@ -1,7 +1,7 @@
 package net.carmgate.morph.model.physics;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.physic.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph;
 
 public class Force {
 	private Morph target;

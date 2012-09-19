@@ -5,9 +5,9 @@ import java.util.List;
 
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.morph.prop.PropulsorMorph;
-import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
+import net.carmgate.morph.model.solid.ship.Ship;
 
 import org.apache.log4j.Logger;
 

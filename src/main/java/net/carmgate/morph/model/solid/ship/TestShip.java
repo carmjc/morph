@@ -1,8 +1,8 @@
-package net.carmgate.morph.model.physic.ship;
+package net.carmgate.morph.model.solid.ship;
 
-import net.carmgate.morph.model.physic.morph.BasicMorph;
-import net.carmgate.morph.model.physic.morph.prop.PropulsorMorph;
-import net.carmgate.morph.model.physic.morph.stem.StemMorph;
+import net.carmgate.morph.model.solid.morph.BasicMorph;
+import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
+import net.carmgate.morph.model.solid.morph.stem.StemMorph;
 
 public class TestShip extends Ship {
 

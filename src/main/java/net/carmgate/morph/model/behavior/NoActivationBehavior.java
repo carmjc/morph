@@ -1,7 +1,7 @@
 package net.carmgate.morph.model.behavior;
 
 import net.carmgate.morph.model.annotation.BehaviorInfo;
-import net.carmgate.morph.model.physic.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph;
 
 @BehaviorInfo(activationCoolDownTime = 0, deactivationCoolDownTime = 0, reactivationCoolDownTime = 0)
 public abstract class NoActivationBehavior<T extends Morph> extends Behavior<T> {

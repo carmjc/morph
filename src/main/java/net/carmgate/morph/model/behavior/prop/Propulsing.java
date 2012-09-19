@@ -3,9 +3,9 @@ package net.carmgate.morph.model.behavior.prop;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.world.World;
 import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.world.World;
 
 import org.apache.log4j.Logger;
 

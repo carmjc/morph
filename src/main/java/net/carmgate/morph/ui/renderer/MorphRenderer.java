@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.physic.morph.Morph;
-import net.carmgate.morph.model.physic.morph.Morph.MorphType;
-import net.carmgate.morph.model.physic.world.World;
+import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.world.World;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;

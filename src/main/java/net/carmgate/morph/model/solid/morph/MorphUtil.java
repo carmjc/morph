@@ -1,4 +1,4 @@
-package net.carmgate.morph.model.physic.morph;
+package net.carmgate.morph.model.solid.morph;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.solid.ship.Ship;
 
 import org.apache.log4j.Logger;
 

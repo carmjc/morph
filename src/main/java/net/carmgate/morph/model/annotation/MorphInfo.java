@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.carmgate.morph.model.physic.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
