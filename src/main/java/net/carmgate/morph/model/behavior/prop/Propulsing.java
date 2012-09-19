@@ -1,8 +1,9 @@
-package net.carmgate.morph.model.behavior;
+package net.carmgate.morph.model.behavior.prop;
 
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
+import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.morph.Morph;
 import net.carmgate.morph.model.virtual.physics.Force;
 
@@ -31,6 +32,8 @@ public class Propulsing extends Behavior<Morph> {
 	@Override
 	protected void execute() {
 		// update force
+		// The propulsing force is always oriented to the north,
+		// because the morph is rotated by the trackers
 		force.getVector().copy(Vect3D.NORTH);
 		// force.vector.rotate(getOwner().getRotInWorld());
 		force.getVector().normalize(propulsingForceModulusAtFullThrust * thrustPercentage);

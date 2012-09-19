@@ -37,11 +37,10 @@ public abstract class Behavior<T extends Morph> {
 	 */
 	public Behavior(T owner, State initialState) {
 		this.owner = owner;
-		state = initialState;
 
 		// Override the state value if the behavior is of the always active type
-		if (getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
-			state = State.ACTIVE;
+		if (initialState == State.ACTIVE || getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+			state = tryToActivate();
 		}
 	}
 
@@ -182,12 +181,26 @@ public abstract class Behavior<T extends Morph> {
 	 * It is strongly discouraged to override this method.
 	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
 	 * there is nothing to stop it from executing.
-	 * @param msec the number of milliseconds from game start.
 	 * @return true if the behavior was successfully executed.
 	 */
 	public final boolean tryToExecute() {
+		return tryToExecute(false);
+	}
+
+	/**
+	 * Execute the behavior.
+	 * Activating a behavior just enables us to execute it, but it does nothing per se.
+	 * Executing, on the contrary, really cause the behavior to do something.
+	 * It is strongly discouraged to override this method.
+	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * there is nothing to stop it from executing.
+	 * @param forced true if the {@link Behavior} should be activated regardless of the activation state
+	 * of the owning morph.
+	 * @return true if the behavior was successfully executed.
+	 */
+	public final boolean tryToExecute(boolean forced) {
 		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
-		if (getOwner().getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+		if (forced || getOwner().getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			return false;
 		}
 

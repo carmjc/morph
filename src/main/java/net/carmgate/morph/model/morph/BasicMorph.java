@@ -21,7 +21,8 @@ public class BasicMorph extends Morph {
 	}
 
 	/**
-	 * Default behavior : trying to activate
+	 * Does nothing
+	 * @return true
 	 */
 	@Override
 	public boolean activate() {
@@ -29,7 +30,8 @@ public class BasicMorph extends Morph {
 	}
 
 	/**
-	 * Default behavior : trying to deactivate behaviors
+	 * Does nothing
+	 * @return true by default
 	 */
 	@Override
 	public boolean deactivate() {

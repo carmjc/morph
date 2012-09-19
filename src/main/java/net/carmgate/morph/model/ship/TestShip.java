@@ -1,7 +1,7 @@
 package net.carmgate.morph.model.ship;
 
 import net.carmgate.morph.model.morph.BasicMorph;
-import net.carmgate.morph.model.morph.PropulsorMorph;
+import net.carmgate.morph.model.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.morph.stem.StemMorph;
 
 public class TestShip extends Ship {

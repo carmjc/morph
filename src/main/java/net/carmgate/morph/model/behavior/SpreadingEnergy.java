@@ -14,7 +14,7 @@ public class SpreadingEnergy extends NoActivationBehavior<Morph> {
 
 	public SpreadingEnergy(Morph owner) {
 		super(owner);
-		LOGGER.debug("new SpreadingBehavior for " + getOwner().getClass());
+		LOGGER.trace("new SpreadingBehavior for " + getOwner().getClass());
 	}
 
 	@Override

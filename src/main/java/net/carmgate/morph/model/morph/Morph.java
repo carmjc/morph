@@ -41,6 +41,9 @@ public abstract class Morph {
 	/** These behaviors are active when the morph is active. */
 	private final List<Behavior<?>> activableBehaviorList = new ArrayList<Behavior<?>>();
 
+	/** This behaviors won't be (de)activated with Morph.tryTo(De)Active(). */
+	private final List<Behavior<?>> alternateBehaviorList = new ArrayList<Behavior<?>>();
+
 	/** The last ID assigned to a morph. */
 	static private int lastId = 0;
 
@@ -172,6 +175,10 @@ public abstract class Morph {
 
 	public final List<Requirement> getActivationRequirements() {
 		return activationRequirements;
+	}
+
+	public List<Behavior<?>> getAlternateBehaviorList() {
+		return alternateBehaviorList;
 	}
 
 	public final List<Behavior<?>> getAlwaysActiveBehaviorList() {
@@ -435,6 +442,13 @@ public abstract class Morph {
 		// then execute the behavior specific to the morph that might be active/inactive
 		for (Behavior<?> behavior : activableBehaviorList) {
 			behavior.tryToExecute();
+		}
+
+		// finally try to execute the alternate behaviors
+		// these behaviors do not depend on the activation state of their
+		// owning morph
+		for (Behavior<?> behavior : alternateBehaviorList) {
+			behavior.tryToExecute(true);
 		}
 
 	}

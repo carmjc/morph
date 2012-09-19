@@ -11,9 +11,9 @@ import net.carmgate.morph.model.ship.Ship;
 
 import org.apache.log4j.Logger;
 
-public class MorphService {
+public class MorphUtil {
 
-	private static final Logger LOGGER = Logger.getLogger(MorphService.class);
+	private static final Logger LOGGER = Logger.getLogger(MorphUtil.class);
 
 	/**
 	 * Returns a set of morphs containing a surrounding morph for each position

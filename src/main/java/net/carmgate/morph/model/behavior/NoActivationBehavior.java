@@ -10,6 +10,10 @@ public abstract class NoActivationBehavior<T extends Morph> extends Behavior<T> 
 		super(owner);
 	}
 
+	public NoActivationBehavior(T owner, State state) {
+		super(owner, state);
+	}
+
 	@Override
 	protected abstract void execute();
 

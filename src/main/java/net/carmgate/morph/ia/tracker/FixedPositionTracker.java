@@ -6,7 +6,7 @@ import java.util.List;
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.morph.PropulsorMorph;
+import net.carmgate.morph.model.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.ship.Ship;
 
 import org.apache.log4j.Logger;
@@ -108,17 +108,23 @@ public class FixedPositionTracker implements IA {
 			done = true;
 		}
 
-		// Dectect if all the propulsors are out of energy
-		LOGGER.debug("Number of active propulsor morphs: " + activePropulsorMorphs.size());
-		if (activePropulsorMorphs.size() == 0) {
-			done = true;
-		}
-
+		// This is done before checking if there is no more active morph
+		// If we don't, the speed of a ship with no more active morphs will be
+		// set to 0 although we did not reach the target
 		if (done) {
 			ship.getOwnForceList().clear();
 			ship.getPosAccel().copy(Vect3D.NULL);
 			ship.getPosSpeed().copy(Vect3D.NULL);
+		}
 
+		// Dectect if there is no more active prop morphs (for instance, if they are out of energy)
+		LOGGER.trace("Number of active propulsor morphs: " + activePropulsorMorphs.size());
+		if (activePropulsorMorphs.size() == 0) {
+			done = true;
+		}
+
+		// Whatever might be the reason, if the IA is done, we shut down the prop morphs
+		if (done) {
 			for (PropulsorMorph morph : propulsorMorphs) {
 				morph.tryToDeactivate();
 			}

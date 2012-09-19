@@ -8,7 +8,7 @@ import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.stem.Stemming;
 import net.carmgate.morph.model.morph.BasicMorph;
 import net.carmgate.morph.model.morph.Morph.MorphType;
-import net.carmgate.morph.model.morph.MorphService;
+import net.carmgate.morph.model.morph.MorphUtil;
 import net.carmgate.morph.model.requirements.EnoughMass;
 import net.carmgate.morph.model.selection.SelectionAdapter;
 import net.carmgate.morph.model.selection.SelectionEvent;
@@ -50,7 +50,7 @@ public class StemMorph extends BasicMorph {
 
 					// add the selection shadows to the ship if not already done.
 					if (stemmingSelectionShadows == null) {
-						stemmingSelectionShadows = MorphService.createSurroundingMorphs(StemMorph.this, StemmingSelectionShadow.class);
+						stemmingSelectionShadows = MorphUtil.createSurroundingMorphs(StemMorph.this, StemmingSelectionShadow.class);
 						for (StemmingSelectionShadow m : stemmingSelectionShadows) {
 							m.setStemming(stemmingBehavior);
 						}
