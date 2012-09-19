@@ -55,9 +55,6 @@ public abstract class Morph {
 	/** Morph mass. */
 	private float mass = 0.5f;
 
-	/** if true, the morph is disabled. */
-	private boolean disabled = false;
-
 	/** The morph position in the world referential. */
 	private Vect3D posInShip = new Vect3D(0, 0, 0);
 
