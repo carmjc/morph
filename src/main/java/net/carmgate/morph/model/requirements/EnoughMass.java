@@ -1,6 +1,6 @@
 package net.carmgate.morph.model.requirements;
 
-import net.carmgate.morph.model.morph.Morph;
+import net.carmgate.morph.model.physic.morph.Morph;
 
 import org.apache.log4j.Logger;
 

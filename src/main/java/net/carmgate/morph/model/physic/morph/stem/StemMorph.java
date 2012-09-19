@@ -1,18 +1,18 @@
-package net.carmgate.morph.model.morph.stem;
+package net.carmgate.morph.model.physic.morph.stem;
 
 import java.util.Set;
 
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.stem.Stemming;
-import net.carmgate.morph.model.morph.BasicMorph;
-import net.carmgate.morph.model.morph.Morph.MorphType;
-import net.carmgate.morph.model.morph.MorphUtil;
+import net.carmgate.morph.model.physic.morph.BasicMorph;
+import net.carmgate.morph.model.physic.morph.MorphUtil;
+import net.carmgate.morph.model.physic.morph.Morph.MorphType;
+import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.physic.world.World;
 import net.carmgate.morph.model.requirements.EnoughMass;
-import net.carmgate.morph.model.selection.SelectionAdapter;
-import net.carmgate.morph.model.selection.SelectionEvent;
-import net.carmgate.morph.model.ship.Ship;
+import net.carmgate.morph.ui.selection.SelectionAdapter;
+import net.carmgate.morph.ui.selection.SelectionEvent;
 
 import org.apache.log4j.Logger;
 

@@ -1,4 +1,4 @@
-package net.carmgate.morph.model.ship;
+package net.carmgate.morph.model.physic.ship;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,13 +8,13 @@ import java.util.Map;
 
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
-import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.ship.listener.ShipEvent;
-import net.carmgate.morph.model.ship.listener.ShipListener;
-import net.carmgate.morph.model.virtual.physics.Force;
+import net.carmgate.morph.model.physic.morph.Morph;
+import net.carmgate.morph.model.physic.ship.listener.ShipEvent;
+import net.carmgate.morph.model.physic.ship.listener.ShipListener;
+import net.carmgate.morph.model.physic.world.World;
+import net.carmgate.morph.model.physics.Force;
 
 import org.apache.log4j.Logger;
 

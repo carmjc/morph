@@ -1,15 +1,15 @@
-package net.carmgate.morph.model.morph;
+package net.carmgate.morph.model.physic.morph;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.State;
+import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.physic.world.World;
 import net.carmgate.morph.model.requirements.Requirement;
-import net.carmgate.morph.model.ship.Ship;
 
 import org.apache.log4j.Logger;
 

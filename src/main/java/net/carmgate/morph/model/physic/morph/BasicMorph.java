@@ -1,8 +1,8 @@
-package net.carmgate.morph.model.morph;
+package net.carmgate.morph.model.physic.morph;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
-import net.carmgate.morph.model.ship.Ship;
+import net.carmgate.morph.model.physic.ship.Ship;
 
 import org.apache.log4j.Logger;
 

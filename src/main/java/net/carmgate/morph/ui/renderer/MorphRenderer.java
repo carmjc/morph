@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.morph.Morph.MorphType;
+import net.carmgate.morph.model.physic.morph.Morph;
+import net.carmgate.morph.model.physic.morph.Morph.MorphType;
+import net.carmgate.morph.model.physic.world.World;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;

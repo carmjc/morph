@@ -1,6 +1,6 @@
 package net.carmgate.morph.ui.action;
 
-import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.physic.world.World;
 
 import org.lwjgl.input.Keyboard;
 

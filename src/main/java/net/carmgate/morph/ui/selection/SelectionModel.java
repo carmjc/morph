@@ -1,14 +1,12 @@
-package net.carmgate.morph.model;
+package net.carmgate.morph.ui.selection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.selection.SelectionEvent;
-import net.carmgate.morph.model.selection.SelectionListener;
-import net.carmgate.morph.model.ship.Ship;
+import net.carmgate.morph.model.physic.morph.Morph;
+import net.carmgate.morph.model.physic.ship.Ship;
 
 import org.apache.log4j.Logger;
 

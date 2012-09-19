@@ -3,7 +3,7 @@ package net.carmgate.morph.ui.renderer;
 import java.awt.Font;
 
 import net.carmgate.morph.Main;
-import net.carmgate.morph.model.World;
+import net.carmgate.morph.model.physic.world.World;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 

@@ -1,7 +1,7 @@
-package net.carmgate.morph.model.morph.old;
+package net.carmgate.morph.model.physic.morph.old;
 
-import net.carmgate.morph.model.morph.BasicMorph;
-import net.carmgate.morph.model.ship.Ship;
+import net.carmgate.morph.model.physic.morph.BasicMorph;
+import net.carmgate.morph.model.physic.ship.Ship;
 
 // FIXME Do not know what a spreader morph is
 @Deprecated

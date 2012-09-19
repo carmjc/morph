@@ -1,4 +1,4 @@
-package net.carmgate.morph.model;
+package net.carmgate.morph.model.physic.world;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,9 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.carmgate.morph.model.ship.Ship;
-import net.carmgate.morph.model.ship.TestShip;
-import net.carmgate.morph.model.virtual.physics.Force;
+import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.physic.ship.TestShip;
+import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.ui.selection.SelectionModel;
 
 /**
  * The world has a list of world areas, a ships list, a forces list and a currently selected ship (for now).

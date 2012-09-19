@@ -1,4 +1,4 @@
-package net.carmgate.morph.model.selection;
+package net.carmgate.morph.ui.selection;
 
 public class SelectionAdapter implements SelectionListener {
 

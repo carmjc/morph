@@ -1,11 +1,11 @@
 package net.carmgate.morph.model.behavior.prop;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.morph.Morph;
-import net.carmgate.morph.model.virtual.physics.Force;
+import net.carmgate.morph.model.physic.morph.Morph;
+import net.carmgate.morph.model.physic.world.World;
+import net.carmgate.morph.model.physics.Force;
 
 import org.apache.log4j.Logger;
 

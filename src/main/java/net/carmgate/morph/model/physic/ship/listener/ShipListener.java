@@ -1,4 +1,4 @@
-package net.carmgate.morph.model.ship.listener;
+package net.carmgate.morph.model.physic.ship.listener;
 
 public interface ShipListener {
 

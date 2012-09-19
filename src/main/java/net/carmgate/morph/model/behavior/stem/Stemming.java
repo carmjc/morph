@@ -1,11 +1,11 @@
 package net.carmgate.morph.model.behavior.stem;
 
-import net.carmgate.morph.model.World;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.morph.BasicMorph;
-import net.carmgate.morph.model.morph.stem.StemMorph;
-import net.carmgate.morph.model.morph.stem.StemmingSelectionShadow;
+import net.carmgate.morph.model.physic.morph.BasicMorph;
+import net.carmgate.morph.model.physic.morph.stem.StemMorph;
+import net.carmgate.morph.model.physic.morph.stem.StemmingSelectionShadow;
+import net.carmgate.morph.model.physic.world.World;
 
 import org.apache.log4j.Logger;
 

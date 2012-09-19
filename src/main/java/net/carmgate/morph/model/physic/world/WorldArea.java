@@ -1,4 +1,6 @@
-package net.carmgate.morph.model;
+package net.carmgate.morph.model.physic.world;
+
+import net.carmgate.morph.model.Vect3D;
 
 /**
  * A world area is a portion of space holding a varying amount of free morph mass available to gather.

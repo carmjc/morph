@@ -1,10 +1,10 @@
 package net.carmgate.morph.ui.renderer;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.World;
-import net.carmgate.morph.model.WorldArea;
-import net.carmgate.morph.model.ship.Ship;
-import net.carmgate.morph.model.virtual.physics.Force;
+import net.carmgate.morph.model.physic.ship.Ship;
+import net.carmgate.morph.model.physic.world.World;
+import net.carmgate.morph.model.physic.world.WorldArea;
+import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.ui.MorphMouse;
 
 import org.lwjgl.opengl.GL11;

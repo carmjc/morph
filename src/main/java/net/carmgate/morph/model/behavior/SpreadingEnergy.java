@@ -2,7 +2,7 @@ package net.carmgate.morph.model.behavior;
 
 import net.carmgate.morph.model.annotation.BehaviorInfo;
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.morph.Morph;
+import net.carmgate.morph.model.physic.morph.Morph;
 
 import org.apache.log4j.Logger;
 

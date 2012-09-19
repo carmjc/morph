@@ -1,6 +1,6 @@
 package net.carmgate.morph.ui.renderer;
 
-import net.carmgate.morph.model.WorldArea;
+import net.carmgate.morph.model.physic.world.WorldArea;
 
 import org.lwjgl.opengl.GL11;
 
