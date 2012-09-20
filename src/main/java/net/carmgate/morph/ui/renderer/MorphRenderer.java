@@ -26,13 +26,11 @@ public class MorphRenderer implements Renderer<Morph> {
 	private static Texture baseTexture;
 
 	/** The map of the morph texture. */
-	private static Map<MorphType, Texture> textures;
-	private static Map<MorphType, Texture> debugTextures;
+	private static Map<MorphType, Texture> textures = new HashMap<Morph.MorphType, Texture>();
+	private static Map<MorphType, Texture> debugTextures = new HashMap<Morph.MorphType, Texture>();
 
 	// loading resources
 	public static void init() {
-		textures = new HashMap<Morph.MorphType, Texture>();
-		debugTextures = new HashMap<Morph.MorphType, Texture>();
 
 		try {
 			// load texture from PNG file
@@ -66,7 +64,7 @@ public class MorphRenderer implements Renderer<Morph> {
 			debugTextures.put(MorphType.STEM_MORPH,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Error while loading morph textures.", e);
 		}
 	}
 

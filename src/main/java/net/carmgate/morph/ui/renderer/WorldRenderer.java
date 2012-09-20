@@ -2,30 +2,26 @@ package net.carmgate.morph.ui.renderer;
 
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.model.solid.energysource.EnergySource;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.solid.world.WorldArea;
 import net.carmgate.morph.ui.MorphMouse;
+import net.carmgate.morph.ui.renderer.energysource.EnergySourceRenderer;
 
 import org.lwjgl.opengl.GL11;
 
 public class WorldRenderer implements Renderer<World> {
 
-	private int selectionId = 0;
 	public static boolean debugDisplay = false;
 	public static float scale = 2;
 	public static final Vect3D focalPoint = new Vect3D(0, 0, 0);
 
 	// Renderers
-	private ShipRenderer currentShipRenderer;
-	private ForceRenderer currentForceRenderer;
-	private WorldAreaRenderer currentWorldAreaRenderer;
-
-	public WorldRenderer() {
-		currentShipRenderer = new ShipRenderer();
-		currentForceRenderer = new ForceRenderer();
-		currentWorldAreaRenderer = new WorldAreaRenderer();
-	}
+	private ShipRenderer currentShipRenderer = new ShipRenderer();
+	private ForceRenderer currentForceRenderer = new ForceRenderer();
+	private WorldAreaRenderer currentWorldAreaRenderer = new WorldAreaRenderer();
+	private EnergySourceRenderer currentEnergySourceRenderer = new EnergySourceRenderer();
 
 	/**
 	 * Renders the world.
@@ -39,7 +35,7 @@ public class WorldRenderer implements Renderer<World> {
 			renderWorldAreas(glMode, drawType, world);
 		}
 
-		selectionId = 0;
+		renderEnergySources(glMode, drawType, world);
 		renderShips(glMode, drawType, world);
 
 		if (debugDisplay && glMode == GL11.GL_RENDER) {
@@ -52,6 +48,12 @@ public class WorldRenderer implements Renderer<World> {
 
 		}
 
+	}
+
+	private void renderEnergySources(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
+		for (EnergySource e : world.getEnergySources().values()) {
+			currentEnergySourceRenderer.render(glMode, drawType, e);
+		}
 	}
 
 	/**
@@ -94,9 +96,7 @@ public class WorldRenderer implements Renderer<World> {
 	 */
 	private void renderShips(int glMode, RenderStyle drawType, World world) {
 		for (Ship ship : world.getShips().values()) {
-
 			currentShipRenderer.render(glMode, drawType, ship);
-
 		}
 	}
 
