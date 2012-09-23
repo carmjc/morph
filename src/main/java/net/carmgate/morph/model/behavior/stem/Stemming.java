@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.behavior.stem;
 
+import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.solid.morph.BasicMorph;
@@ -10,8 +11,6 @@ import net.carmgate.morph.model.solid.world.World;
 import org.apache.log4j.Logger;
 
 public class Stemming extends Behavior<StemMorph> {
-
-	private static final int CREATION_TIME = 0;
 
 	private static final Logger LOGGER = Logger.getLogger(Stemming.class);
 
@@ -43,7 +42,7 @@ public class Stemming extends Behavior<StemMorph> {
 	@Override
 	protected void execute() {
 		if (stemmingSelectedShadow != null) {
-			creationTS = World.getWorld().getCurrentTS() + CREATION_TIME;
+			creationTS = World.getWorld().getCurrentTS() + ModelConstants.CREATION_TIME;
 		}
 
 		if (stemmingSelectedShadow != null && World.getWorld().getCurrentTS() >= creationTS) {

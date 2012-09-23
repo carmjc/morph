@@ -7,8 +7,8 @@ import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.stem.Stemming;
 import net.carmgate.morph.model.requirements.EnoughMass;
 import net.carmgate.morph.model.solid.morph.BasicMorph;
-import net.carmgate.morph.model.solid.morph.MorphUtil;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.morph.MorphUtil;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
@@ -16,7 +16,7 @@ import net.carmgate.morph.ui.selection.SelectionEvent;
 
 import org.apache.log4j.Logger;
 
-@MorphInfo(type = MorphType.STEM_MORPH, initialMass = 100)
+@MorphInfo(type = MorphType.STEM_MORPH)
 public class StemMorph extends BasicMorph {
 
 	private static final Logger LOGGER = Logger.getLogger(StemMorph.class);

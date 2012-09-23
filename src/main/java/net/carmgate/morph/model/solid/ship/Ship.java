@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
@@ -25,20 +26,6 @@ public abstract class Ship {
 
 	private static final Logger LOGGER = Logger.getLogger(Ship.class);
 
-	public static final float NEW_MASS_PER_SECOND = 1.0f;
-
-	/** The drag factor initial value */
-	public static final float INITIAL_DRAG_FACTOR = 0.990f;
-
-	/** The rotation drag factor. The lower, the more it's dragged. */
-	public static final float ROT_DRAG_FACTOR = 0.5f;
-
-	/** Under that speed, the ship stops completely. */
-	public static final float MIN_SPEED = 0.00001f;
-
-	/** The ship max speed. */
-	public static final float MAX_SPEED = 250;
-
 	/** the last id affected to a ship. */
 	private static int lastId = 0;
 
@@ -53,7 +40,7 @@ public abstract class Ship {
 	private float rotAccel;
 
 	/** The drag factor. The lower, the more it's dragged. */
-	private float dragFactor = INITIAL_DRAG_FACTOR;
+	private float dragFactor = ModelConstants.INITIAL_DRAG_FACTOR;
 
 	/**
 	 * The list of the forces attached to the ship or a constituant of the ship.
@@ -159,12 +146,17 @@ public abstract class Ship {
 	 */
 	private void calculateCOM() {
 		centerOfMass.copy(Vect3D.NULL);
+		float shipMass = 0;
 		for (Morph m : getMorphs().values()) {
+			// Add the weighted pos in ship of the morph
 			Vect3D weightedPosInShip = new Vect3D(m.getPosInShip());
-			weightedPosInShip.normalize(m.getMass());
+			weightedPosInShip.prodScal(m.getMass());
 			centerOfMass.add(weightedPosInShip);
+
+			// add the morph's mass to the ship's mass
+			shipMass += m.getMass();
 		}
-		centerOfMass.normalize(centerOfMass.modulus() / getMorphs().size());
+		centerOfMass.normalize(centerOfMass.modulus() / shipMass);
 	}
 
 	/**
@@ -295,7 +287,7 @@ public abstract class Ship {
 	 * It is obviously sub-optimal.
 	 */
 	public void resetDragFactor() {
-		dragFactor = INITIAL_DRAG_FACTOR;
+		dragFactor = ModelConstants.INITIAL_DRAG_FACTOR;
 	}
 
 	public void setCenterOfMassInWorld(Vect3D centerOfMass) {
@@ -368,9 +360,9 @@ public abstract class Ship {
 
 		// The drag factor is reduced to take into account the fact that we update the position since last TS and not from a full second ago.
 		float reducedDragFactor = 1 - (1 - getDragFactor()) * secondsSinceLastUpdate;
-		posSpeed.x = Math.abs(posSpeed.x * reducedDragFactor) > MIN_SPEED ? posSpeed.x * reducedDragFactor : 0;
-		posSpeed.y = Math.abs(posSpeed.y * reducedDragFactor) > MIN_SPEED ? posSpeed.y * reducedDragFactor : 0;
-		posSpeed.z = Math.abs(posSpeed.z * reducedDragFactor) > MIN_SPEED ? posSpeed.z * reducedDragFactor : 0;
+		posSpeed.x = Math.abs(posSpeed.x * reducedDragFactor) > ModelConstants.MIN_SPEED ? posSpeed.x * reducedDragFactor : 0;
+		posSpeed.y = Math.abs(posSpeed.y * reducedDragFactor) > ModelConstants.MIN_SPEED ? posSpeed.y * reducedDragFactor : 0;
+		posSpeed.z = Math.abs(posSpeed.z * reducedDragFactor) > ModelConstants.MIN_SPEED ? posSpeed.z * reducedDragFactor : 0;
 
 		// If this ship is stopped, fire a shipStopped event
 		if (posSpeed.x == 0 && posSpeed.y == 0 && posSpeed.z == 0) {
@@ -384,8 +376,8 @@ public abstract class Ship {
 		rotSpeed += rotAccel * secondsSinceLastUpdate;
 
 		// The drag factor is reduced to take into account the fact that we update the position since last TS and not from a full second ago.
-		float reducedRotDragFactor = 1 - (1 - ROT_DRAG_FACTOR) * secondsSinceLastUpdate;
-		rotSpeed = Math.abs(rotSpeed * reducedRotDragFactor * 0.995f) > MIN_SPEED ? rotSpeed * reducedRotDragFactor * 0.995f : 0;
+		float reducedRotDragFactor = 1 - (1 - ModelConstants.ROT_DRAG_FACTOR) * secondsSinceLastUpdate;
+		rotSpeed = Math.abs(rotSpeed * reducedRotDragFactor * 0.995f) > ModelConstants.MIN_SPEED ? rotSpeed * reducedRotDragFactor * 0.995f : 0;
 
 		rot = (rot + rotSpeed * secondsSinceLastUpdate) % 360;
 
@@ -410,7 +402,8 @@ public abstract class Ship {
 			// Updating the mass of the ship's morph if it's evolving
 			// TODO transform this in a behavior
 			if (nbMorphsNeedingMass > 0) {
-				m.setMass(Math.min(m.getMass() + NEW_MASS_PER_SECOND / nbMorphsNeedingMass, m.getClass().getAnnotation(MorphInfo.class).maxMass()));
+				m.setMass(Math.min(m.getMass() + ModelConstants.NEW_MASS_PER_SECOND / nbMorphsNeedingMass, m.getClass().getAnnotation(MorphInfo.class)
+						.maxMass()));
 			}
 
 			m.update();

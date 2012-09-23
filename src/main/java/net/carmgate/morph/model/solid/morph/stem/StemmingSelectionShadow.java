@@ -11,7 +11,7 @@ import net.carmgate.morph.ui.selection.SelectionEvent;
 
 import org.apache.log4j.Logger;
 
-@MorphInfo(initialMass = 0, maxMass = 0, disableMass = -1, reEnableMass = -1, type = MorphType.SHADOW)
+@MorphInfo(initialMass = 0, maxMass = 0, disableMass = -1, reEnableMass = -1, type = MorphType.SHADOW, virtual = true)
 public class StemmingSelectionShadow extends Morph {
 
 	private static final Logger LOGGER = Logger.getLogger(StemmingSelectionShadow.class);

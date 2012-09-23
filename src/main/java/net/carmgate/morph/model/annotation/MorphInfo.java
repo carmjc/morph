@@ -42,4 +42,11 @@ public @interface MorphInfo {
 	 * Default : {@link MorphType#BASIC}
 	 */
 	MorphType type() default MorphType.BASIC;
+
+	/**
+	 * True if the morph is virtual.
+	 * Default value: false.
+	 * A virtual morph will not be considered when updating mass or energy, for instance.
+	 */
+	boolean virtual() default false;
 }

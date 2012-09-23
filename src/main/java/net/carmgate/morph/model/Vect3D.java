@@ -62,7 +62,7 @@ public class Vect3D {
 
 		float angle; // in radians
 		if (Math.abs(scal) > 0.0000001) { // the minimal value must be big enough to get rid of float rounding errors
-			angle = (float) Math.atan(vect/scal);
+			angle = (float) Math.atan(vect / scal);
 		} else {
 			angle = (float) Math.PI / 2;
 		}
@@ -143,6 +143,12 @@ public class Vect3D {
 		x = x / oldModulus * newModulus;
 		y = y / oldModulus * newModulus;
 		z = z / oldModulus * newModulus;
+	}
+
+	public void prodScal(float operand) {
+		x *= operand;
+		y *= operand;
+		z *= operand;
 	}
 
 	/**

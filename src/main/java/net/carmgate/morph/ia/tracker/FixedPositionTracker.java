@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
@@ -69,11 +70,11 @@ public class FixedPositionTracker implements IA {
 
 		float distanceToTarget = comToTarget.modulus();
 		float nbSecondsToBreak = ship.getPosSpeed().modulus()
-				/ (PropulsorMorph.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
+				/ (ModelConstants.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
 		float distanceToBreak = ship.getPosSpeed().modulus() * nbSecondsToBreak;
 		LOGGER.trace("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
-		float rampedSpeed = Ship.MAX_SPEED * (distanceToTarget - distanceToBreak) / distanceToBreak;// ship.slowingDistance;
-		float clippedSpeed = Math.min(rampedSpeed, Ship.MAX_SPEED);
+		float rampedSpeed = ModelConstants.MAX_SPEED * (distanceToTarget - distanceToBreak) / distanceToBreak;// ship.slowingDistance;
+		float clippedSpeed = Math.min(rampedSpeed, ModelConstants.MAX_SPEED);
 		Vect3D desiredVelocity = new Vect3D(comToTarget);
 		desiredVelocity.normalize(clippedSpeed);
 		LOGGER.trace("DesiredVelocity: " + desiredVelocity.modulus());
@@ -85,7 +86,7 @@ public class FixedPositionTracker implements IA {
 		// and adjust thrust according to max_accel, max_speed and distanceToTarget
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			// Adjust thrust for moments
-			float thrust = steeringForce.modulus() / Ship.MAX_SPEED;
+			float thrust = steeringForce.modulus() / ModelConstants.MAX_SPEED;
 			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
 			m.getPropulsingBehavior().setThrustPercentage(thrust);
 

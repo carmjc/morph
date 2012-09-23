@@ -110,7 +110,9 @@ public class MorphRenderer implements Renderer<Morph> {
 		// morph texture
 		if (WorldRenderer.debugDisplay) {
 			float energyPercent = morph.getEnergy() / morph.getClass().getAnnotation(MorphInfo.class).maxEnergy();
-			if (energyPercent <= 0) {
+			if (morph.getExcessEnergy() > 0) {
+				GL11.glColor4f(1f, 1f, 1f, alphaLevel);
+			} else if (energyPercent <= 0) {
 				GL11.glColor4f(0.1f, 0.1f, 0.1f, alphaLevel);
 			} else {
 				GL11.glColor4f(1f - energyPercent, energyPercent, 0, alphaLevel);

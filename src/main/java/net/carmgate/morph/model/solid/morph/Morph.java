@@ -76,6 +76,8 @@ public abstract class Morph {
 	/** the energy stored by the morph. */
 	private float energy;
 
+	private float energyDiffused;
+
 	/**
 	 * Initializes morph position
 	 * @param x
@@ -95,7 +97,8 @@ public abstract class Morph {
 		setRotInShip(0);
 
 		// energy
-		energy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
+		// energy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
+		energy = 50;
 
 		// set initialMass
 		setMass(getClass().getAnnotation(MorphInfo.class).initialMass());
@@ -186,12 +189,40 @@ public abstract class Morph {
 		return energy;
 	}
 
+	public float getEnergyDiffused() {
+		return energyDiffused;
+	}
+
+	public float getExcessEnergy() {
+		int maxEnergy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
+		if (energy > maxEnergy) {
+			return energy - maxEnergy;
+		}
+		return 0;
+	}
+
 	public final int getId() {
 		return id;
 	}
 
 	public final float getMass() {
 		return mass;
+	}
+
+	/**
+	 * Return max energy deducted from the MorphInfo annotation.
+	 * @return
+	 */
+	public float getMaxEnergy() {
+		return getClass().getAnnotation(MorphInfo.class).maxEnergy();
+	}
+
+	/**
+	 * Return max mass deducted from the MorphInfo annotation.
+	 * @return
+	 */
+	public float getMaxMass() {
+		return getClass().getAnnotation(MorphInfo.class).maxMass();
 	}
 
 	/**
@@ -252,12 +283,25 @@ public abstract class Morph {
 				+ getClass().hashCode();
 	}
 
-	public void setEnergy(float energy) {
+	/**
+	 * Warning: this method caps the energy to the maximum energy that can be put in the morph.
+	 * When there is an excess of energy, it's added to the excess energy storage in order to be re-emitted
+	 * if the morph can emit enough.
+	 * @param energy
+	 */
+	public final void setEnergy(float energy) {
+		// Update the energy
 		this.energy = energy;
 	}
 
-	public void setMass(float mass) {
+	public void setEnergyDiffused(float energyDiffused) {
+		this.energyDiffused = energyDiffused;
+	}
+
+	public final void setMass(float mass) {
+		float oldMass = this.mass;
 		this.mass = mass;
+		// TODO we must cap the mass to 0 on the bottom side
 	}
 
 	// TODO Unit test
@@ -427,6 +471,7 @@ public abstract class Morph {
 	public final void update() {
 
 		// See if this morph needs to be deactivated
+		// TODO replace with usage of requirements.
 		if (getMass() < getClass().getAnnotation(MorphInfo.class).disableMass()) {
 			LOGGER.trace("Disabling morph");
 			tryToDeactivate(true);

@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.behavior.prop;
 
+import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.behavior.NoActivationBehavior;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.solid.morph.Morph;
@@ -10,7 +11,6 @@ import org.apache.log4j.Logger;
 
 public class PropulsorsLost extends NoActivationBehavior<Morph> {
 
-	private static final float SLOW_DOWN_FACTOR = 0.1f;
 	private static final Logger LOGGER = Logger.getLogger(PropulsorsLost.class);
 
 	public PropulsorsLost(Morph owner) {
@@ -19,7 +19,7 @@ public class PropulsorsLost extends NoActivationBehavior<Morph> {
 
 	@Override
 	protected boolean activate() {
-		getOwner().getShip().setDragFactor(SLOW_DOWN_FACTOR);
+		getOwner().getShip().setDragFactor(ModelConstants.SLOW_DOWN_FACTOR);
 
 		// Add a listener so that, when the ship stops, the behavior is removed from the ship.
 		getOwner().getShip().addShipListeners(new ShipListener() {
