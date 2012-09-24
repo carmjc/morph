@@ -11,12 +11,13 @@ import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.MorphMouse;
+import net.carmgate.morph.ui.action.ShowEvolveMenuAction;
 import net.carmgate.morph.ui.action.ToggleCombatMode;
 import net.carmgate.morph.ui.action.ToggleDebugAction;
 import net.carmgate.morph.ui.action.ToggleFreezeAction;
-import net.carmgate.morph.ui.renderer.InterfaceRenderer;
 import net.carmgate.morph.ui.renderer.MorphRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
+import net.carmgate.morph.ui.renderer.UIRenderer;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -56,7 +57,7 @@ public class Main {
 
 	// Renderers
 	private WorldRenderer worldRenderer;
-	private InterfaceRenderer interfaceRenderer;
+	private UIRenderer interfaceRenderer;
 
 	private Vect3D holdWorldMousePos = null;
 
@@ -64,6 +65,7 @@ public class Main {
 	private final ToggleDebugAction toggleDebugAction = new ToggleDebugAction();
 	private final ToggleCombatMode toggleCombatMode = new ToggleCombatMode();
 	private final ToggleFreezeAction toggleFreezeAction = new ToggleFreezeAction();
+	private final ShowEvolveMenuAction showEvolveMenuAction = new ShowEvolveMenuAction();
 
 	/**
 	 * @param selectBuf
@@ -267,7 +269,7 @@ public class Main {
 		world = World.getWorld();
 		world.init();
 		worldRenderer = new WorldRenderer();
-		interfaceRenderer = new InterfaceRenderer();
+		interfaceRenderer = new UIRenderer();
 		interfaceRenderer.init();
 
 		// Rendering loop
@@ -392,6 +394,7 @@ public class Main {
 				toggleDebugAction.run();
 				toggleCombatMode.run();
 				toggleFreezeAction.run();
+				showEvolveMenuAction.run();
 			}
 
 			if (Display.isCloseRequested()) {

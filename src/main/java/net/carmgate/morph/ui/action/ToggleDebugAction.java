@@ -11,16 +11,16 @@ import org.lwjgl.input.Keyboard;
 public class ToggleDebugAction implements Runnable {
 
 	// Logger
-	private static Logger log = Logger.getLogger(ToggleDebugAction.class);
+	private static Logger LOGGER = Logger.getLogger(ToggleDebugAction.class);
 
 	public void run() {
 		if (Keyboard.getEventKey() == Keyboard.KEY_D && !Keyboard.getEventKeyState()) {
 			if (WorldRenderer.debugDisplay) {
 				WorldRenderer.debugDisplay = false;
-				log.info("Graphical debug: Off");
+				LOGGER.info("Graphical debug: Off");
 			} else {
 				WorldRenderer.debugDisplay = true;
-				log.info("Graphical debug: On");
+				LOGGER.info("Graphical debug: On");
 			}
 		}
 	}
