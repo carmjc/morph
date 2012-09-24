@@ -97,8 +97,7 @@ public abstract class Morph {
 		setRotInShip(0);
 
 		// energy
-		// energy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
-		energy = 50;
+		energy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
 
 		// set initialMass
 		setMass(getClass().getAnnotation(MorphInfo.class).initialMass());

@@ -19,7 +19,7 @@ public interface ModelConstants {
 
 	// PROPULSORS
 	/** Energy Consumption per millis at full thrust. */
-	public final static float ENERGY_CONSUMPTION_AT_FULL_THRUST = 0.5f;
+	public final static float ENERGY_CONSUMPTION_AT_FULL_THRUST = 0.1f;
 	/** Intensity of the propulsor force at full thrust. */
 	public final static float PROPULSING_FORCE_MODULUS_AT_FULL_THRUST = 100f;
 	/** The slow down factor for the PropulsorLost behavior. */
