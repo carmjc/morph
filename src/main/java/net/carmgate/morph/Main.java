@@ -74,7 +74,7 @@ public class Main {
 	private Morph getPickedMorph(IntBuffer selectBuf) {
 		Ship ship = getPickedShip(selectBuf);
 		int selectedMorphId = selectBuf.get(4);
-		Morph morph = ship.getMorphs().get(selectedMorphId);
+		Morph morph = ship.getMorphsByIds().get(selectedMorphId);
 		return morph;
 	}
 
@@ -200,13 +200,20 @@ public class Main {
 		Ship selectedShip = getPickedShip(selectBuf);
 		if (world.getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
 
-			// Add the selected morph if it wasn't
-			// Remove it if it was already selected
 			Morph morph = getPickedMorph(selectBuf);
-			if (!world.getSelectionModel().getSelectedMorphs().values().contains(morph)) {
-				world.getSelectionModel().addMorphToSelection(morph);
+			// if LSHIFT is down, add/remove to/from selection
+			// else, just replace the selection by the currently selected morph.
+			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) == true) {
+				// Add the selected morph if it wasn't
+				// Remove it if it was already selected
+				if (!world.getSelectionModel().getSelectedMorphs().values().contains(morph)) {
+					world.getSelectionModel().addMorphToSelection(morph);
+				} else {
+					world.getSelectionModel().removeMorphFromSelection(morph);
+				}
 			} else {
-				world.getSelectionModel().removeMorphFromSelection(morph);
+				world.getSelectionModel().removeAllMorphsFromSelection();
+				world.getSelectionModel().addMorphToSelection(morph);
 			}
 		}
 		// Add the ship to the selection
@@ -336,19 +343,6 @@ public class Main {
 
 				// Event button == 1 : Right button related event
 				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectionModel().getSelectedShips().size() > 0 && !World.combat) {
-
-					// The following has been commented because we should not activate a morph like that.
-					// Right mouse button has been released and a ship is selected
-					// Activate or deactivate the morph under mouse pointer.
-					// for (Morph morph : world.getSelectionModel().getSelectedMorphs().values()) {
-					// if (morph.getShip().toggleActiveMorph(morph)) {
-					// if (!morph.isDisabled()) {
-					// morph.activate();
-					// }
-					// } else {
-					// morph.deactivate();
-					// }
-					// }
 
 					// If no morph is selected, the right click should be understood as a moveto order.
 					if (world.getSelectionModel().getSelectedMorphs().isEmpty()) {

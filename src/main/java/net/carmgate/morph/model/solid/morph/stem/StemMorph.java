@@ -9,7 +9,6 @@ import net.carmgate.morph.model.requirements.EnoughMass;
 import net.carmgate.morph.model.solid.morph.BasicMorph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.morph.MorphUtil;
-import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
 import net.carmgate.morph.ui.selection.SelectionEvent;
@@ -26,8 +25,7 @@ public class StemMorph extends BasicMorph {
 
 	private Stemming stemmingBehavior;
 
-	public StemMorph(Ship ship, float x, float y, float z) {
-		super(ship, x, y, z);
+	public StemMorph() {
 		stemmingBehavior = new Stemming(this);
 		getActivableBehaviorList().add(stemmingBehavior);
 		getActivationRequirements().add(new EnoughMass(this, 1));
@@ -36,7 +34,8 @@ public class StemMorph extends BasicMorph {
 		World.getWorld().getSelectionModel().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void morphDeselected(SelectionEvent selectionEvent) {
-				if (StemMorph.this.tryToDeactivate() == State.INACTIVE) {
+				if (selectionEvent.getSource() == StemMorph.this
+						&& StemMorph.this.tryToDeactivate() == State.INACTIVE) {
 					if (stemmingSelectionShadows != null) {
 						getShip().removeMorphs(stemmingSelectionShadows);
 						stemmingSelectionShadows = null;
@@ -46,18 +45,18 @@ public class StemMorph extends BasicMorph {
 
 			@Override
 			public void morphSelected(SelectionEvent selectionEvent) {
-				if (StemMorph.this.tryToActivate() == State.ACTIVE) {
+				if (selectionEvent.getSource() == StemMorph.this
+						&& StemMorph.this.tryToActivate() == State.ACTIVE) {
 
 					// add the selection shadows to the ship if not already done.
 					if (stemmingSelectionShadows == null) {
-						stemmingSelectionShadows = MorphUtil.createSurroundingMorphs(StemMorph.this, StemmingSelectionShadow.class);
+						stemmingSelectionShadows = MorphUtil.addSurroundingMorphs(StemMorph.this, StemmingSelectionShadow.class);
 						for (StemmingSelectionShadow m : stemmingSelectionShadows) {
 							m.setStemming(stemmingBehavior);
 						}
 						LOGGER.trace(stemmingSelectionShadows);
-						getShip().addMorphs(stemmingSelectionShadows);
 
-						// TODO Add code here to limit interaction with the interface
+						// TODO Add code here to limit interaction with the interface (to make it "modal")
 					}
 				}
 			}

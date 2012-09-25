@@ -47,8 +47,7 @@ public class Stemming extends Behavior<StemMorph> {
 
 		if (stemmingSelectedShadow != null && World.getWorld().getCurrentTS() >= creationTS) {
 			// Create the new morph
-			BasicMorph newMorph = new BasicMorph(getOwner().getShip(), stemmingSelectedShadow.getShipGridPos().x, stemmingSelectedShadow.getShipGridPos().y,
-					stemmingSelectedShadow.getShipGridPos().z);
+			BasicMorph newMorph = new BasicMorph();
 
 			// Transfer mass from stem morph to new morph
 			float lossFactor = 5;
@@ -57,7 +56,8 @@ public class Stemming extends Behavior<StemMorph> {
 			getOwner().setMass(getOwner().getMass() - lossFactor * newMorphMass);
 
 			// Add new morph to ship
-			getOwner().getShip().addMorph(newMorph);
+			getOwner().getShip().addMorph(newMorph, stemmingSelectedShadow.getPosInShipGrid().x, stemmingSelectedShadow.getPosInShipGrid().y,
+					stemmingSelectedShadow.getPosInShipGrid().z);
 
 			// Deactivate the Stem morph that created it
 			World.getWorld().getSelectionModel().removeMorphFromSelection(stemmingSelectedShadow);

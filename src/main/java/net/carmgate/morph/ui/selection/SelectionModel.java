@@ -120,6 +120,17 @@ public class SelectionModel {
 	 * Removes a morph from the collection of the selected morphs
 	 * @param morph the morph to "deselect"
 	 */
+	public void removeAllMorphsFromSelection() {
+		for (Morph m : getSelectedMorphs().values()) {
+			getSelectedMorphs().remove(m.getId());
+			fireMorphDeselected(m);
+		}
+	}
+
+	/**
+	 * Removes a morph from the collection of the selected morphs
+	 * @param morph the morph to "deselect"
+	 */
 	public void removeMorphFromSelection(Morph morph) {
 		getSelectedMorphs().remove(morph.getId());
 		fireMorphDeselected(morph);

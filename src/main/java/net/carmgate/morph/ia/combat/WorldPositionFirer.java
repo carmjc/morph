@@ -17,7 +17,7 @@ public class WorldPositionFirer implements IA {
 	public WorldPositionFirer(Ship firerShip, Vect3D target) {
 		this.firerShip = firerShip;
 		this.target = target;
-		for (Morph morph : firerShip.getMorphs().values()) {
+		for (Morph morph : firerShip.getMorphsByIds().values()) {
 			if (morph instanceof EmitterMorph) {
 				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
 					if (behavior instanceof Emitting) {

@@ -3,7 +3,6 @@ package net.carmgate.morph.model.solid.morph;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -16,60 +15,77 @@ public class MorphUtil {
 	private static final Logger LOGGER = Logger.getLogger(MorphUtil.class);
 
 	/**
-	 * Returns a set of morphs containing a surrounding morph for each position
-	 * adjacent to a morph in the list.
-	 * Surrounding morphs overlapping morphs in the same ship
-	 * are removed from the result list.
-	 * @param morphList
-	 * @return
+	 * Add a new surrounding morph to the surroundingMorphs set.
+	 * This method does not add a newly created morph if it has the same position as an existing morph
+	 * in the ship (See {@link Ship#addMorph(Morph, float, float, float, boolean)}).
+	 * @param ship the ship to which the surrounding morph should be added
+	 * @param x the x coordinate in ship grid
+	 * @param y the y coordinate in ship grid
+	 * @param z the z coordinate in ship grid
+	 * @param newMorph the morph to add
+	 * @param surroundingMorphs the set of surrounding morph to which the newly created morph should be added.
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
 	 */
-	public static <T extends Morph> Set<T> createSurroundingMorphs(List<Morph> morphList, Class<T> template) {
-		Set<T> surroundingMorphs = new HashSet<T>();
+	private static <T extends Morph> void addOneSurroundingMorph(Ship ship, float x, float y, float z, T newMorph,
+			Set<T> surroundingMorphs) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		if (ship.addMorph(newMorph, x, y, z, false)) {
+			surroundingMorphs.add(newMorph);
+		}
+	}
 
-		// add the surrounding morphs of all ship's morphs.
-		// since we use a set, we won't have any duplicate
+	/**
+	 * Adds the surrounding morphs of the provided morphs to their ship.
+	 * This method does not add a newly created morph if it has the same position as an existing morph
+	 * in the ship (See {@link Ship#addMorph(Morph, float, float, float, boolean)}).
+	 * @param morphList 
+	 * @return the added surrounding morphs or an empty set if no surrounding morphs has been added.
+	 */
+	public static <T extends Morph> Set<T> addSurroundingMorphs(List<Morph> morphList, Class<T> template) {
 		for (Morph m : morphList) {
-			surroundingMorphs.addAll(internalCreateSurroundingMorphs(m, template));
+			return internalAddSurroundingMorphs(m, template);
 		}
 
-		removeAlreadyExistingMorphs(surroundingMorphs);
-		return surroundingMorphs;
+		return new HashSet<T>();
 	}
 
 	/**
-	 * Returns a set of morphs containing a surrounding morph for each position
-	 * adjacent to the provided morph.
-	 * Surrounding morphs overlapping morphs in the same ship
-	 * are removed from the result list.
+	 * Adds the surrounding morphs of the provided morph to its ship.
+	 * This method does not add a newly created morph if it has the same position as an existing morph
+	 * in the ship (See {@link Ship#addMorph(Morph, float, float, float, boolean)}).
 	 * @param morph
-	 * @return
+	 * @return the added surrounding morphs or an empty set if no surrounding morphs has been added.
 	 */
-	public static <T extends Morph> Set<T> createSurroundingMorphs(Morph morph, Class<T> template) {
+	public static <T extends Morph> Set<T> addSurroundingMorphs(Morph morph, Class<T> template) {
 		// get the surrounding morphs
-		Set<T> surroundingMorphs = new HashSet<T>(internalCreateSurroundingMorphs(morph, template));
-
-		removeAlreadyExistingMorphs(surroundingMorphs);
-		return surroundingMorphs;
+		return internalAddSurroundingMorphs(morph, template);
 	}
 
 	/**
-	 * Returns a set of basic morphs containing a morph for each position
-	 * adjacent to the given morph.
+	 * Adds the surrounding morphs of the provided morph to its ship.
+	 * This method does not add a newly created morph if it has the same position as an existing morph
+	 * in the ship (See {@link Ship#addMorph(Morph, float, float, float, boolean)}).
 	 * @param morph
-	 * @return
+	 * @return the added surrounding morphs or an empty set if no surrounding morphs has been added.
 	 */
-	private static <T extends Morph> Set<T> internalCreateSurroundingMorphs(Morph morph, Class<T> template) {
+	private static <T extends Morph> Set<T> internalAddSurroundingMorphs(Morph morph, Class<T> template) {
 		Set<T> surroundingMorphs = new HashSet<T>();
 
-		Constructor<T> templateConstructor = null;
 		try {
-			templateConstructor = template.getConstructor(Ship.class, float.class, float.class, float.class);
-			surroundingMorphs.add(templateConstructor.newInstance(morph.getShip(), morph.getShipGridPos().x - 1, morph.getShipGridPos().y, 0));
-			surroundingMorphs.add(templateConstructor.newInstance(morph.getShip(), morph.getShipGridPos().x + 1, morph.getShipGridPos().y, 0));
-			surroundingMorphs.add(templateConstructor.newInstance(morph.getShip(), morph.getShipGridPos().x, morph.getShipGridPos().y + 1, 0));
-			surroundingMorphs.add(templateConstructor.newInstance(morph.getShip(), morph.getShipGridPos().x, morph.getShipGridPos().y - 1, 0));
-			surroundingMorphs.add(templateConstructor.newInstance(morph.getShip(), morph.getShipGridPos().x + 1, morph.getShipGridPos().y - 1, 0));
-			surroundingMorphs.add(templateConstructor.newInstance(morph.getShip(), morph.getShipGridPos().x - 1, morph.getShipGridPos().y + 1, 0));
+			Constructor<T> templateConstructor = template.getConstructor();
+			addOneSurroundingMorph(morph.getShip(), morph.getPosInShipGrid().x - 1, morph.getPosInShipGrid().y, 0,
+					templateConstructor.newInstance(), surroundingMorphs);
+			addOneSurroundingMorph(morph.getShip(), morph.getPosInShipGrid().x + 1, morph.getPosInShipGrid().y, 0,
+					templateConstructor.newInstance(), surroundingMorphs);
+			addOneSurroundingMorph(morph.getShip(), morph.getPosInShipGrid().x, morph.getPosInShipGrid().y + 1, 0,
+					templateConstructor.newInstance(), surroundingMorphs);
+			addOneSurroundingMorph(morph.getShip(), morph.getPosInShipGrid().x, morph.getPosInShipGrid().y - 1, 0,
+					templateConstructor.newInstance(), surroundingMorphs);
+			addOneSurroundingMorph(morph.getShip(), morph.getPosInShipGrid().x + 1, morph.getPosInShipGrid().y - 1, 0,
+					templateConstructor.newInstance(), surroundingMorphs);
+			addOneSurroundingMorph(morph.getShip(), morph.getPosInShipGrid().x - 1, morph.getPosInShipGrid().y + 1, 0,
+					templateConstructor.newInstance(), surroundingMorphs);
 		} catch (SecurityException e) {
 			LOGGER.error("Error while creating surrounding morphs", e);
 		} catch (NoSuchMethodException e) {
@@ -86,20 +102,4 @@ public class MorphUtil {
 
 		return surroundingMorphs;
 	}
-
-	/**
-	 * @param surroundingMorphs
-	 */
-	private static <T extends Morph> void removeAlreadyExistingMorphs(Set<T> surroundingMorphs) {
-		// Iterate over the surrounding created morphs to
-		// delete those that are at the same place as ships own morphs
-		for (Iterator<T> i = surroundingMorphs.iterator(); i.hasNext();) {
-			T m = i.next();
-
-			if (m.getShip().getMorphs().values().contains(m)) {
-				i.remove();
-			}
-		}
-	}
-
 }

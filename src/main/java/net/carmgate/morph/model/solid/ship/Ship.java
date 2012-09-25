@@ -51,9 +51,15 @@ public abstract class Ship {
 	private final List<Force> ownForceList = new ArrayList<Force>();
 
 	/** The list of this ship's morphs. */
-	private final Map<Integer, Morph> morphs = new HashMap<Integer, Morph>();
+	private final Map<Integer, Morph> morphsByIds = new HashMap<Integer, Morph>();
 
-	/** List of active morphs. */
+	/** The list of this ship's morphs. */
+	private final Map<Vect3D, Morph> morphsByPositionInShip = new HashMap<Vect3D, Morph>();
+
+	/** 
+	 * List of active morphs.
+	 * TODO Is is still really useful ?
+	 */
 	private final List<Morph> activeMorphList = new ArrayList<Morph>();
 
 	/** List of ships IAs. */
@@ -86,18 +92,69 @@ public abstract class Ship {
 
 	}
 
-	public void addMorph(Morph morph) {
-		morph.setShip(this);
-		getMorphs().put(morph.getId(), morph);
-		LOGGER.trace("morph added: " + morph);
-		calculateCOM();
-		LOGGER.trace("COM(" + centerOfMass + ")");
+	/**
+	 * Adds the provided morph to the ship at the given position
+	 * The "in ship" coordinates axis are the horizontal axis (x axis) 
+	 *  and an axis from 7 o'clock to 1 o'clock (y axis)
+	 * If there already is a morph at the specified location, it is removed and replaced
+	 * by the provided morph.
+	 * @param morph the morph to add to the ship
+	 * @param x the x coordinate
+	 * @param y the y coordinate
+	 * @param z unused
+	 * @return true if the morph has been properly added to the ship
+	 */
+	public boolean addMorph(Morph morph, float x, float y, float z) {
+		return addMorph(morph, x, y, z, true);
+	}
+
+	/**
+	 * Adds the provided morph to the ship at the given position
+	 * The "in ship" coordinates axis are the horizontal axis (x axis) 
+	 *  and an axis from 7 o'clock to 1 o'clock (y axis) 
+	 * @param newMorph the morph to add to the ship
+	 * @param x the x coordinate
+	 * @param y the y coordinate
+	 * @param z unused
+	 * @param replace true if the morph should replace the morph at the given position if there is one already.
+	 * @return true if the morph has been properly added to the ship
+	 */
+	public boolean addMorph(Morph newMorph, float x, float y, float z, boolean replace) {
+		Morph existingMorph = findShipMorph(x, y, z);
+
+		if (replace || existingMorph == null) {
+
+			// if there already is a morph at this position in ship, remove it.
+			if (existingMorph != null) {
+				removeMorph(existingMorph);
+			}
+
+			// Attach the morph to the ship
+			newMorph.setShip(this);
+			// Insert it in both maps
+			getMorphsByIds().put(newMorph.getId(), newMorph);
+			getMorphsByPositionInShip().put(new Vect3D(x, y, z), newMorph);
+
+			// set position in ship
+			newMorph.setShipGridPos(new Vect3D(x, y, z));
+
+			// Position and rotation in ship and world
+			newMorph.setShip(this);
+			newMorph.updatePosFromGridPos();
+
+			// Recompute center of mass of the ship
+			calculateCOM();
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public void addMorphs(Collection<? extends Morph> morphs) {
 		for (Morph m : morphs) {
 			m.setShip(this);
-			getMorphs().put(m.getId(), m);
+			getMorphsByIds().put(m.getId(), m);
 			LOGGER.trace("morph added: " + m);
 		}
 		calculateCOM();
@@ -108,7 +165,7 @@ public abstract class Ship {
 		shipListeners.add(shipListener);
 	}
 
-	public void applyForces() {
+	private void applyForces() {
 		posAccel.copy(Vect3D.NULL);
 		rotAccel = 0;
 
@@ -130,7 +187,7 @@ public abstract class Ship {
 			// with intensity proportional to the force moment
 			forceTarget.copy(f.getTarget().getPosInWorld());
 			forceTarget.substract(comInWorld);
-			rotAccel += forceTarget.prodVectOnZ(forceVector) / getMorphs().size() * 0.05f;
+			rotAccel += forceTarget.prodVectOnZ(forceVector) / getMorphsByIds().size() * 0.05f;
 
 		}
 
@@ -147,7 +204,7 @@ public abstract class Ship {
 	private void calculateCOM() {
 		centerOfMass.copy(Vect3D.NULL);
 		float shipMass = 0;
-		for (Morph m : getMorphs().values()) {
+		for (Morph m : getMorphsByIds().values()) {
 			// Add the weighted pos in ship of the morph
 			Vect3D weightedPosInShip = new Vect3D(m.getPosInShip());
 			weightedPosInShip.prodScal(m.getMass());
@@ -157,6 +214,20 @@ public abstract class Ship {
 			shipMass += m.getMass();
 		}
 		centerOfMass.normalize(centerOfMass.modulus() / shipMass);
+	}
+
+	public Morph findShipMorph(float x, float y, float z) {
+		return findShipMorph(new Vect3D(x, y, z));
+	}
+
+	/**
+	 * Looks for the {@link Morph} at the specified position in the ship.
+	 * If there is no morph at the given position, it returns null.
+	 * @param pos the position in the ship
+	 * @return null if there is no morph at the specified location.
+	 */
+	public Morph findShipMorph(Vect3D pos) {
+		return morphsByPositionInShip.get(pos);
 	}
 
 	/**
@@ -177,7 +248,7 @@ public abstract class Ship {
 		return centerOfMass;
 	}
 
-	public float getDragFactor() {
+	private float getDragFactor() {
 		return dragFactor;
 	}
 
@@ -189,8 +260,12 @@ public abstract class Ship {
 		return id;
 	}
 
-	public Map<Integer, Morph> getMorphs() {
-		return morphs;
+	public Map<Integer, Morph> getMorphsByIds() {
+		return morphsByIds;
+	}
+
+	public Map<Vect3D, Morph> getMorphsByPositionInShip() {
+		return morphsByPositionInShip;
 	}
 
 	/**
@@ -205,12 +280,12 @@ public abstract class Ship {
 		// .1 2
 		// 3...4
 		// .5 6
-		neighbours.add(getShipMorph((int) morph.getShipGridPos().x - 1, (int) morph.getShipGridPos().y + 1, (int) morph.getShipGridPos().z));
-		neighbours.add(getShipMorph((int) morph.getShipGridPos().x, (int) morph.getShipGridPos().y + 1, (int) morph.getShipGridPos().z));
-		neighbours.add(getShipMorph((int) morph.getShipGridPos().x - 1, (int) morph.getShipGridPos().y, (int) morph.getShipGridPos().z));
-		neighbours.add(getShipMorph((int) morph.getShipGridPos().x + 1, (int) morph.getShipGridPos().y, (int) morph.getShipGridPos().z));
-		neighbours.add(getShipMorph((int) morph.getShipGridPos().x, (int) morph.getShipGridPos().y - 1, (int) morph.getShipGridPos().z));
-		neighbours.add(getShipMorph((int) morph.getShipGridPos().x + 1, (int) morph.getShipGridPos().y - 1, (int) morph.getShipGridPos().z));
+		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x - 1, (int) morph.getPosInShipGrid().y + 1, (int) morph.getPosInShipGrid().z));
+		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y + 1, (int) morph.getPosInShipGrid().z));
+		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x - 1, (int) morph.getPosInShipGrid().y, (int) morph.getPosInShipGrid().z));
+		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y, (int) morph.getPosInShipGrid().z));
+		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
+		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
 		return neighbours;
 	}
 
@@ -242,39 +317,19 @@ public abstract class Ship {
 		return rotSpeed;
 	}
 
-	public Morph getShipMorph(int x, int y, int z) {
-		for (Morph m : getMorphs().values()) {
-			if (m.getShipGridPos().x == x && m.getShipGridPos().y == y && m.getShipGridPos().z == z) {
-				return m;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Looks for the {@link Morph} at the specified position in the ship.
-	 * If there is no morph at the given position, it returns null.
-	 * @param pos the position in the ship
-	 * @return null if there is no morph at the specified location.
-	 */
-	public Morph getShipMorph(Vect3D pos) {
-		return getShipMorph((int) pos.x, (int) pos.y, (int) pos.z);
-	}
-
 	public void removeActiveMorph(Morph morph) {
 		activeMorphList.remove(morph);
 	}
 
 	public void removeMorph(Morph morph) {
 		removeActiveMorph(morph);
-		getMorphs().remove(morph);
+		getMorphsByIds().remove(morph.getId());
+		getMorphsByPositionInShip().remove(morph.getPosInShipGrid());
 	}
 
 	public void removeMorphs(Collection<? extends Morph> morphs) {
 		for (Morph morph : morphs) {
-			removeActiveMorph(morph);
-			getMorphs().remove(morph.getId());
+			removeMorph(morph);
 		}
 	}
 
@@ -308,16 +363,6 @@ public abstract class Ship {
 
 	public void setRotSpeed(float rotSpeed) {
 		this.rotSpeed = rotSpeed;
-	}
-
-	public boolean toggleActiveMorph(Morph morph) {
-		if (activeMorphList.contains(morph)) {
-			activeMorphList.remove(morph);
-			return false;
-		}
-
-		activeMorphList.add(morph);
-		return true;
 	}
 
 	@Override
@@ -387,7 +432,7 @@ public abstract class Ship {
 	private void updateMorphs() {
 		// We duplicate the collection so as to avoid ConcurrentModificationException
 		// TODO We should think about fixing this otherwise
-		Collection<Morph> morphs = new ArrayList<Morph>(getMorphs().values());
+		Collection<Morph> morphs = new ArrayList<Morph>(getMorphsByIds().values());
 
 		// Count the number of suboptimally massive morphs
 		int nbMorphsNeedingMass = 0;

@@ -151,7 +151,7 @@ public class World {
 						* energySource.getRadiatedEnergy()
 						* sinceLastUpdateTS / 1000;
 
-				for (Morph m : ship.getMorphs().values()) {
+				for (Morph m : ship.getMorphsByIds().values()) {
 					// if the morph is not virtual (selection shadows for instance)
 					// then we update it's energy
 					if (!m.getClass().getAnnotation(MorphInfo.class).virtual()) {

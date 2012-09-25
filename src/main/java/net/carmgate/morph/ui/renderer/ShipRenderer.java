@@ -77,7 +77,7 @@ public class ShipRenderer implements Renderer<Ship> {
 
 		// Draw the morphs
 		// TODO We clone the list to avoid ConcurrentModificationExceptions. We should try to improve this.
-		List<Morph> shipMorphs = new ArrayList<Morph>(ship.getMorphs().values());
+		List<Morph> shipMorphs = new ArrayList<Morph>(ship.getMorphsByIds().values());
 		for (Morph morph : shipMorphs) {
 			GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);
 			GL11.glRotatef(morph.getRotInShip(), 0, 0, 1);
@@ -169,7 +169,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	 * @param ship
 	 */
 	private void renderShipMorphBehaviors(int glMode, RenderStyle renderStyle, Ship ship) {
-		for (Morph morph : ship.getMorphs().values()) {
+		for (Morph morph : ship.getMorphsByIds().values()) {
 			if (glMode == GL11.GL_RENDER) {
 				for (Behavior<?> behavior : morph.getAlwaysActiveBehaviorList()) {
 					renderBehavior(glMode, renderStyle, behavior);

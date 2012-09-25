@@ -7,7 +7,6 @@ import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
 import net.carmgate.morph.model.requirements.EnoughEnergy;
 import net.carmgate.morph.model.solid.morph.BasicMorph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
-import net.carmgate.morph.model.solid.ship.Ship;
 
 import org.apache.log4j.Logger;
 
@@ -23,9 +22,7 @@ public class PropulsorMorph extends BasicMorph {
 	/** The default activable behavior of this morph. */
 	private final Propulsing propulsingBehavior;
 
-	public PropulsorMorph(Ship ship, float x, float y, float z) {
-		super(ship, x, y, z);
-
+	public PropulsorMorph() {
 		// Behaviors
 		propulsingBehavior = new Propulsing(this, ModelConstants.ENERGY_CONSUMPTION_AT_FULL_THRUST, ModelConstants.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST);
 		getActivableBehaviorList().add(propulsingBehavior);

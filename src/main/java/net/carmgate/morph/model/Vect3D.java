@@ -13,10 +13,12 @@ package net.carmgate.morph.model;
 public class Vect3D {
 
 	public static final Vect3D NORTH = new Vect3D(0, -1, 0);
+
 	public static final Vect3D NULL = new Vect3D(0, 0, 0);
 
 	public float x;
 	public float y;
+
 	public float z;
 
 	public Vect3D() {
@@ -100,24 +102,43 @@ public class Vect3D {
 
 	/**
 	 * A vector is considered equal to the current one if their coordinates are exactly the same.
+	 * PERFORMANCE: Rewrite this to a faster solution.
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Vect3D)) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
 			return false;
 		}
-
-		Vect3D vect3d = (Vect3D) obj;
-
-		return x == vect3d.x && y == vect3d.y && z == vect3d.z;
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Vect3D other = (Vect3D) obj;
+		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x)) {
+			return false;
+		}
+		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y)) {
+			return false;
+		}
+		if (Float.floatToIntBits(z) != Float.floatToIntBits(other.z)) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
-	 * @return x.10^10 + y.10^5 + z
+	 * PERFORMANCE: Rewrite this to a faster solution
 	 */
 	@Override
 	public int hashCode() {
-		return (int) (x * Math.pow(10, 10) + y * Math.pow(10, 5) + z);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(x);
+		result = prime * result + Float.floatToIntBits(y);
+		result = prime * result + Float.floatToIntBits(z);
+		return result;
 	}
 
 	/**

@@ -84,17 +84,9 @@ public abstract class Morph {
 	 * @param y
 	 * @param z
 	 */
-	public Morph(Ship ship, float x, float y, float z) {
+	public Morph() {
 		// update last id and affect it
 		id = ++lastId;
-
-		// set position in ship
-		shipGridPos = new Vect3D(x, y, z);
-
-		// Position and rotation in ship and world
-		this.ship = ship;
-		updatePosFromGridPos();
-		setRotInShip(0);
 
 		// energy
 		energy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
@@ -268,7 +260,7 @@ public abstract class Morph {
 		return ship;
 	}
 
-	public final Vect3D getShipGridPos() {
+	public final Vect3D getPosInShipGrid() {
 		return shipGridPos;
 	}
 
@@ -348,6 +340,10 @@ public abstract class Morph {
 		// Reset orientation
 		rotInShip = 0;
 		rotInWorld = ship.getRot();
+	}
+
+	public void setShipGridPos(Vect3D shipGridPos) {
+		this.shipGridPos = shipGridPos;
 	}
 
 	@Override
