@@ -1,10 +1,8 @@
 package net.carmgate.morph.ui.renderer;
 
 import java.awt.Font;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +14,6 @@ import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemMorph;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.MorphMouse;
-import net.carmgate.morph.ui.UIModel;
-import net.carmgate.morph.ui.UIModel.UIState;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 
 import org.apache.log4j.Logger;
@@ -25,26 +21,10 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
 public class UIRenderer {
 
 	private static final Logger LOGGER = Logger.getLogger(UIRenderer.class);
-	private static Texture[] baseTextures = new Texture[6];
-	static {
-		try {
-			for (int i = 0; i < 6; i++) {
-				baseTextures[i] = TextureLoader.getTexture("PNG",
-						new FileInputStream(ClassLoader.getSystemResource("ui/circular-menu-" + i + ".png").getPath()));
-			}
-		} catch (FileNotFoundException e) {
-			LOGGER.error("Problem loading textures.", e);
-		} catch (IOException e) {
-			LOGGER.error("Problem loading textures.", e);
-		}
-
-	}
-
 	private TrueTypeFont font;
 
 	public void init() {
@@ -58,9 +38,6 @@ public class UIRenderer {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
 		renderConsole(drawType);
-		if (UIModel.getUiModel().getUiState() == UIState.EVOLVING) {
-			renderEvolvingContextualMenu(glMode, drawType);
-		}
 	}
 
 	/**
@@ -87,67 +64,6 @@ public class UIRenderer {
 			font.drawString(Main.WIDTH - 140, -Main.HEIGHT + 10, Main.WIDTH + "x" + -Main.HEIGHT, Color.white);
 			font.drawString(-Main.WIDTH + 10, Main.HEIGHT - 190, -Main.WIDTH + "x" + Main.HEIGHT, Color.white);
 			font.drawString(Main.WIDTH - 140, Main.HEIGHT - 190, Main.WIDTH + "x" + Main.HEIGHT, Color.white);
-		}
-	}
-
-	/**
-	 * Renders the contextual menu associated with a morph.
-	 * @param glMode
-	 * @param drawType
-	 */
-	private void renderEvolvingContextualMenu(int glMode, RenderStyle drawType) {
-		Map<Integer, Morph> selectedMorphs = World.getWorld().getSelectionModel().getSelectedMorphs();
-		if (selectedMorphs.size() > 0) {
-			Morph m = selectedMorphs.values().iterator().next();
-			// TODO investigate why it is necessary to add 5 to the morph coordinates
-			// to get the proper position of the contextual menu.
-			GL11.glTranslatef(m.getPosInWorld().x + 5, m.getPosInWorld().y + 5, m.getPosInWorld().z);
-
-			List<Class<? extends Morph>> possibleMorphEvol = new ArrayList<Class<? extends Morph>>();
-			if (m.getClass().getAnnotation(MorphInfo.class).type() == MorphType.BASIC) {
-				possibleMorphEvol.add(PropulsorMorph.class);
-				possibleMorphEvol.add(StemMorph.class);
-			}
-
-			int i = 0;
-			int textureRatio = 3;
-			for (Class<? extends Morph> morphClass : possibleMorphEvol) {
-				Texture baseTexture = baseTextures[i++];
-
-				GL11.glColor4f(1f, 1f, 1f, 0.8f);
-				baseTexture.bind();
-				GL11.glBegin(GL11.GL_QUADS);
-				GL11.glTexCoord2f(0, 0);
-				GL11.glVertex2f(-baseTexture.getTextureWidth() / textureRatio, -baseTexture.getTextureWidth() / textureRatio);
-				GL11.glTexCoord2f(1, 0);
-				GL11.glVertex2f(baseTexture.getTextureWidth() / textureRatio, -baseTexture.getTextureWidth() / textureRatio);
-				GL11.glTexCoord2f(1, 1);
-				GL11.glVertex2f(baseTexture.getTextureWidth() / textureRatio, baseTexture.getTextureHeight() / textureRatio);
-				GL11.glTexCoord2f(0, 1);
-				GL11.glVertex2f(-baseTexture.getTextureWidth() / textureRatio, baseTexture.getTextureHeight() / textureRatio);
-				GL11.glEnd();
-				GL11.glColor4f(1f, 1f, 1f, 1f);
-			}
-
-			for (; i < 6; i++) {
-				Texture baseTexture = baseTextures[i];
-
-				GL11.glColor4f(1f, 1f, 1f, 0.1f);
-				baseTexture.bind();
-				GL11.glBegin(GL11.GL_QUADS);
-				GL11.glTexCoord2f(0, 0);
-				GL11.glVertex2f(-baseTexture.getTextureWidth() / textureRatio, -baseTexture.getTextureWidth() / textureRatio);
-				GL11.glTexCoord2f(1, 0);
-				GL11.glVertex2f(baseTexture.getTextureWidth() / textureRatio, -baseTexture.getTextureWidth() / textureRatio);
-				GL11.glTexCoord2f(1, 1);
-				GL11.glVertex2f(baseTexture.getTextureWidth() / textureRatio, baseTexture.getTextureHeight() / textureRatio);
-				GL11.glTexCoord2f(0, 1);
-				GL11.glVertex2f(-baseTexture.getTextureWidth() / textureRatio, baseTexture.getTextureHeight() / textureRatio);
-				GL11.glEnd();
-				GL11.glColor4f(1f, 1f, 1f, 1f);
-			}
-
-			GL11.glTranslatef(-m.getPosInWorld().x - 5, -m.getPosInWorld().y - 5, -m.getPosInWorld().z);
 		}
 	}
 }

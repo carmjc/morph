@@ -15,6 +15,9 @@ import net.carmgate.morph.ui.action.ShowEvolveMenuAction;
 import net.carmgate.morph.ui.action.ToggleCombatMode;
 import net.carmgate.morph.ui.action.ToggleDebugAction;
 import net.carmgate.morph.ui.action.ToggleFreezeAction;
+import net.carmgate.morph.ui.model.UIModel;
+import net.carmgate.morph.ui.model.menu.IWMenuItem;
+import net.carmgate.morph.ui.renderer.IWUIRenderer;
 import net.carmgate.morph.ui.renderer.MorphRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 import net.carmgate.morph.ui.renderer.UIRenderer;
@@ -31,6 +34,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
 public class Main {
+
+	private static final int NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH = 0;
+	private static final int NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS = 0;
+	private static final int NAME_STACK_LEVEL_ENERGY_SOURCES = 1;
+	private static final int NAME_STACK_LEVEL_SHIPS = 2;
+	private static final int NAME_STACK_LEVEL_MORPHS = 3;
 
 	/**
 	 * The distance (in pixels) the mouse should be dragged to trigger a world translation following the mouse pointer.
@@ -51,13 +60,12 @@ public class Main {
 		sample.start();
 	}
 
-	private final Vect3D worldOrigin = new Vect3D(0, 0, 0);// new Point3D(-196, -196, 0);
-	private final Vect3D worldRotation = new Vect3D(0, 0, 0);
 	private World world;
 
 	// Renderers
 	private WorldRenderer worldRenderer;
-	private UIRenderer interfaceRenderer;
+	private UIRenderer uiRenderer;
+	private IWUIRenderer uiInWorldRenderer;
 
 	private Vect3D holdWorldMousePos = null;
 
@@ -69,22 +77,29 @@ public class Main {
 
 	/**
 	 * @param selectBuf
-	 * @return
+	 * @return the picked in-world menu item.
+	 */
+	private IWMenuItem getPickedIWMenuItem(IntBuffer selectBuf) {
+		IWMenuItem menuItem = UIModel.getUiModel().getCurrentIWMenu().getMenuItems().get(selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
+		return menuItem;
+	}
+
+	/**
+	 * @param selectBuf
+	 * @return the picked morph
 	 */
 	private Morph getPickedMorph(IntBuffer selectBuf) {
 		Ship ship = getPickedShip(selectBuf);
-		int selectedMorphId = selectBuf.get(4);
-		Morph morph = ship.getMorphsByIds().get(selectedMorphId);
+		Morph morph = ship.getMorphsByIds().get(selectBuf.get(3 + NAME_STACK_LEVEL_MORPHS));
 		return morph;
 	}
 
 	/**
 	 * @param selectBuf
-	 * @return
+	 * @return the picked ship
 	 */
 	private Ship getPickedShip(IntBuffer selectBuf) {
-		int selectedShipId = selectBuf.get(3);
-		Ship selectedShip = world.getShips().get(selectedShipId);
+		Ship selectedShip = world.getShips().get(selectBuf.get(3 + NAME_STACK_LEVEL_SHIPS));
 		return selectedShip;
 	}
 
@@ -115,8 +130,8 @@ public class Main {
 		GL11.glSelectBuffer(selectBuf);
 
 		LOGGER.trace("Picking at " + x + " " + y);
-		if (world.getSelectionModel().getSelectedShips().size() > 0) {
-			LOGGER.trace("Selected ship: " + world.getSelectionModel().getSelectedShips().values().iterator().next().getPos());
+		if (UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0) {
+			LOGGER.trace("Selected ship: " + UIModel.getUiModel().getSelectionModel().getSelectedShips().values().iterator().next().getPos());
 		}
 
 		// get viewport
@@ -137,7 +152,14 @@ public class Main {
 		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 5.0f, 5.0f, viewport);
 		GLU.gluOrtho2D(0, WIDTH, 0, HEIGHT);
 
+		// name stack level for the ui elements
+		// the name stack for ships and morphs is handled in the ShipRenderer and the MorphRenderer
+		// make current morph selectable
+		GL11.glPushName(0);
+		uiInWorldRenderer.render(GL11.GL_SELECT, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
 		worldRenderer.render(GL11.GL_SELECT, null, world);
+		// pop name stack level for ui elements
+		GL11.glPopName();
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glPopMatrix();
@@ -190,34 +212,46 @@ public class Main {
 
 		// if there was no hit, we need to deselect everything
 		if (hits == 0) {
-			world.getSelectionModel().clearAllSelections();
+			UIModel.getUiModel().getSelectionModel().clearAllSelections();
 			return;
 		}
 
-		// Add the picked ship to the list of selected ships
-		// We add the ship after handling morph selection to avoid it tempering
-		// with morph selection.
-		Ship selectedShip = getPickedShip(selectBuf);
-		if (world.getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
+		// do not allow ship/morph selection if there is an active in-world menu
+		if (UIModel.getUiModel().getCurrentIWMenu() == null
+				&& selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > NAME_STACK_LEVEL_SHIPS
+				&& selectBuf.get(3 + NAME_STACK_LEVEL_SHIPS) > 0) {
+			// Add the picked ship to the list of selected ships
+			// We add the ship after handling morph selection to avoid it tempering
+			// with morph selection.
+			Ship selectedShip = getPickedShip(selectBuf);
+			if (UIModel.getUiModel().getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
 
-			Morph morph = getPickedMorph(selectBuf);
-			// if LSHIFT is down, add/remove to/from selection
-			// else, just replace the selection by the currently selected morph.
-			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) == true) {
-				// Add the selected morph if it wasn't
-				// Remove it if it was already selected
-				if (!world.getSelectionModel().getSelectedMorphs().values().contains(morph)) {
-					world.getSelectionModel().addMorphToSelection(morph);
+				Morph morph = getPickedMorph(selectBuf);
+				// if LCONTROL is down, add/remove to/from selection
+				// else, just replace the selection by the currently selected morph.
+				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) == true) {
+					// Add the selected morph if it wasn't
+					// Remove it if it was already selected
+					if (!UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
+						UIModel.getUiModel().getSelectionModel().addMorphToSelection(morph);
+					} else {
+						UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(morph);
+					}
 				} else {
-					world.getSelectionModel().removeMorphFromSelection(morph);
+					UIModel.getUiModel().getSelectionModel().removeAllMorphsFromSelection();
+					UIModel.getUiModel().getSelectionModel().addMorphToSelection(morph);
 				}
-			} else {
-				world.getSelectionModel().removeAllMorphsFromSelection();
-				world.getSelectionModel().addMorphToSelection(morph);
 			}
+			// Add the ship to the selection
+			UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
 		}
-		// Add the ship to the selection
-		world.getSelectionModel().addShipToSelection(selectedShip);
+
+		// pick in-world menu items
+		LOGGER.trace("Menu item: " + selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
+		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS
+				&& selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS) > 0) {
+			UIModel.getUiModel().getSelectionModel().addIWMenuItemToSelection(getPickedIWMenuItem(selectBuf));
+		}
 	}
 
 	/**
@@ -225,22 +259,18 @@ public class Main {
 	 */
 	public void render() {
 
-		GL11.glTranslatef(worldOrigin.x, worldOrigin.y, worldOrigin.z);
-		GL11.glRotatef(worldRotation.z, 0, 0, 1);
-
 		// draw world
 		RenderStyle renderStyle = RenderStyle.NORMAL;
 		if (WorldRenderer.debugDisplay) {
 			renderStyle = RenderStyle.DEBUG;
 		}
+		// go down into the stack to leave a stack level for the interface
 		worldRenderer.render(GL11.GL_RENDER, renderStyle, world);
-
-		GL11.glRotatef(-worldRotation.z, 0, 0, 1);
-		GL11.glTranslatef(-worldOrigin.x, -worldOrigin.y, -worldOrigin.z);
+		uiInWorldRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
 
 		// Interface rendering
 		GL11.glTranslatef(WorldRenderer.focalPoint.x, WorldRenderer.focalPoint.y, WorldRenderer.focalPoint.z);
-		interfaceRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
+		uiRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
 		GL11.glTranslatef(-WorldRenderer.focalPoint.x, -WorldRenderer.focalPoint.y, -WorldRenderer.focalPoint.z);
 
 		// move world
@@ -276,8 +306,9 @@ public class Main {
 		world = World.getWorld();
 		world.init();
 		worldRenderer = new WorldRenderer();
-		interfaceRenderer = new UIRenderer();
-		interfaceRenderer.init();
+		uiRenderer = new UIRenderer();
+		uiRenderer.init();
+		uiInWorldRenderer = new IWUIRenderer();
 
 		// Rendering loop
 		while (true) {
@@ -342,11 +373,13 @@ public class Main {
 				}
 
 				// Event button == 1 : Right button related event
-				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && world.getSelectionModel().getSelectedShips().size() > 0 && !World.combat) {
+				if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0
+						&& !World.combat) {
 
+					LOGGER.debug("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
 					// If no morph is selected, the right click should be understood as a moveto order.
-					if (world.getSelectionModel().getSelectedMorphs().isEmpty()) {
-						for (Ship selectedShip : world.getSelectionModel().getSelectedShips().values()) {
+					if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().isEmpty()) {
+						for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
 							List<IA> iaList = selectedShip.getIAList();
 
 							// Look for existing tracker
@@ -370,8 +403,9 @@ public class Main {
 
 				// Commented because it should be reworked
 				// Handling shoot
-				// if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && !world.getSelectionModel().getSelectedShips().isEmpty() && World.combat) {
-				// for (Ship selectedShip : world.getSelectionModel().getSelectedShips().values()) {
+				// if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && !UIModel.getUiModel().getSelectionModel().getSelectedShips().isEmpty() &&
+				// World.combat) {
+				// for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
 				// selectedShip.getIAList().add(new WorldPositionFirer(selectedShip, worldMousePos));
 				// }
 				// }

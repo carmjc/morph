@@ -1,12 +1,14 @@
 package net.carmgate.morph.ui.selection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
+import net.carmgate.morph.ui.model.menu.IWMenuItem;
 
 import org.apache.log4j.Logger;
 
@@ -15,15 +17,20 @@ public class SelectionModel {
 	private static final Logger LOGGER = Logger.getLogger(SelectionModel.class);
 
 	/** selected morphs. */
-	private Map<Integer, Morph> selectedMorphs = new HashMap<Integer, Morph>();
+	private final Map<Integer, Morph> selectedMorphs = new HashMap<Integer, Morph>();
 
 	/** selected ships. */
-	private Map<Integer, Ship> selectedShips = new HashMap<Integer, Ship>();
+	private final Map<Integer, Ship> selectedShips = new HashMap<Integer, Ship>();
+
+	/** selected in-world menu items. */
+	private final Map<Integer, IWMenuItem> selectedIWMenuItems = new HashMap<Integer, IWMenuItem>();
 
 	/** Selection Listeners. */
 	private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
-	/** Selection Listeners. */
-	private List<SelectionListener> selectionListenersDuringLocks = new ArrayList<SelectionListener>();
+
+	/** Selection Listeners during locks. */
+	private List<SelectionListener> selectionListenersAddedDuringLock = new ArrayList<SelectionListener>();
+	private List<SelectionListener> selectionListenersRemovedDuringLock = new ArrayList<SelectionListener>();
 
 	private static int selectionListenersLock = 0;
 
@@ -31,11 +38,20 @@ public class SelectionModel {
 	}
 
 	/**
+	 * Add an {@link IWMenuItem} to the selected in-world menu items.
+	 * @param iwMenuItem
+	 */
+	public void addIWMenuItemToSelection(IWMenuItem iwMenuItem) {
+		selectedIWMenuItems.put(iwMenuItem.getId(), iwMenuItem);
+		fireIWMenuItemSelected(iwMenuItem);
+	}
+
+	/**
 	 * Add a morph to the selected morph collection
 	 * @param morph
 	 */
 	public void addMorphToSelection(Morph morph) {
-		getSelectedMorphs().put(morph.getId(), morph);
+		selectedMorphs.put(morph.getId(), morph);
 		fireMorphSelected(morph);
 	}
 
@@ -47,7 +63,7 @@ public class SelectionModel {
 		if (selectionListenersLock == 0) {
 			selectionListeners.add(listener);
 		} else {
-			selectionListenersDuringLocks.add(listener);
+			selectionListenersAddedDuringLock.add(listener);
 		}
 	}
 
@@ -56,7 +72,7 @@ public class SelectionModel {
 	 * @param ship
 	 */
 	public void addShipToSelection(Ship ship) {
-		getSelectedShips().put(ship.getId(), ship);
+		selectedShips.put(ship.getId(), ship);
 		fireShipSelected(ship);
 	}
 
@@ -64,8 +80,16 @@ public class SelectionModel {
 	 * Clears all selections (ships, morphs, etc.).
 	 */
 	public void clearAllSelections() {
-		getSelectedMorphs().clear();
-		getSelectedShips().clear();
+		selectedMorphs.clear();
+		selectedShips.clear();
+	}
+
+	private void fireIWMenuItemSelected(IWMenuItem inWorldMenuItem) {
+		lockSelectionListeners();
+		for (SelectionListener l : selectionListeners) {
+			l.inWorldMenuItemSelected(new SelectionEvent(inWorldMenuItem));
+		}
+		unlockSelectionListeners();
 	}
 
 	/**
@@ -100,12 +124,16 @@ public class SelectionModel {
 		unlockSelectionListeners();
 	}
 
+	public Map<Integer, IWMenuItem> getSelectedIWMenuItems() {
+		return Collections.unmodifiableMap(selectedIWMenuItems);
+	}
+
 	public Map<Integer, Morph> getSelectedMorphs() {
-		return selectedMorphs;
+		return Collections.unmodifiableMap(selectedMorphs);
 	}
 
 	public Map<Integer, Ship> getSelectedShips() {
-		return selectedShips;
+		return Collections.unmodifiableMap(selectedShips);
 	}
 
 	/**
@@ -121,8 +149,8 @@ public class SelectionModel {
 	 * @param morph the morph to "deselect"
 	 */
 	public void removeAllMorphsFromSelection() {
-		for (Morph m : getSelectedMorphs().values()) {
-			getSelectedMorphs().remove(m.getId());
+		for (Morph m : selectedMorphs.values()) {
+			selectedMorphs.remove(m.getId());
 			fireMorphDeselected(m);
 		}
 	}
@@ -132,7 +160,7 @@ public class SelectionModel {
 	 * @param morph the morph to "deselect"
 	 */
 	public void removeMorphFromSelection(Morph morph) {
-		getSelectedMorphs().remove(morph.getId());
+		selectedMorphs.remove(morph.getId());
 		fireMorphDeselected(morph);
 	}
 
@@ -141,7 +169,11 @@ public class SelectionModel {
 	 * @param listener
 	 */
 	public void removeSelectionListener(SelectionListener listener) {
-		selectionListeners.remove(listener);
+		if (selectionListenersLock == 0) {
+			selectionListeners.remove(listener);
+		} else {
+			selectionListenersRemovedDuringLock.add(listener);
+		}
 	}
 
 	/**
@@ -151,8 +183,10 @@ public class SelectionModel {
 	private void unlockSelectionListeners() {
 		selectionListenersLock--;
 		if (selectionListenersLock == 0) {
-			selectionListeners.addAll(selectionListenersDuringLocks);
-			selectionListenersDuringLocks.clear();
+			selectionListeners.addAll(selectionListenersAddedDuringLock);
+			selectionListenersAddedDuringLock.clear();
+			selectionListeners.removeAll(selectionListenersRemovedDuringLock);
+			selectionListenersRemovedDuringLock.clear();
 		}
 	}
 

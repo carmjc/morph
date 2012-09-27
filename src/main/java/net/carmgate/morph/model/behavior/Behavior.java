@@ -1,6 +1,10 @@
 package net.carmgate.morph.model.behavior;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.carmgate.morph.model.annotation.BehaviorInfo;
+import net.carmgate.morph.model.behavior.listener.BehaviorListener;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.world.World;
 
@@ -24,6 +28,8 @@ public abstract class Behavior<T extends Morph> {
 	private long lastExecutionTS;
 	/** activation TS. */
 	private long activationTS;
+	/** behavior listeners. */
+	private final List<BehaviorListener> behaviorListeners = new ArrayList<BehaviorListener>();
 
 	public Behavior(T owner) {
 		this(owner, State.INACTIVE);
@@ -52,6 +58,10 @@ public abstract class Behavior<T extends Morph> {
 	 */
 	protected boolean activate() {
 		return true;
+	}
+
+	public void addBehaviorListener(BehaviorListener behaviorListener) {
+		behaviorListeners.add(behaviorListener);
 	}
 
 	/**
@@ -96,6 +106,10 @@ public abstract class Behavior<T extends Morph> {
 			return State.ACTIVE;
 		}
 		return state;
+	}
+
+	public void removeBehaviorListener(BehaviorListener behaviorListener) {
+		behaviorListeners.remove(behaviorListener);
 	}
 
 	/**
@@ -200,7 +214,7 @@ public abstract class Behavior<T extends Morph> {
 	 */
 	public final boolean tryToExecute(boolean forced) {
 		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
-		if (forced || getOwner().getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+		if (!forced && getOwner().getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			return false;
 		}
 

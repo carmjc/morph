@@ -35,8 +35,18 @@ public class WorldRenderer implements Renderer<World> {
 			renderWorldAreas(glMode, drawType, world);
 		}
 
+		// name stack level for the energy sources
+		// the name stack for ships and morphs is handled in the ShipRenderer and the MorphRenderer
+		// make current morph selectable
+		if (glMode == GL11.GL_SELECT) {
+			GL11.glPushName(0);
+		}
 		renderEnergySources(glMode, drawType, world);
 		renderShips(glMode, drawType, world);
+		// up into the stack
+		if (glMode == GL11.GL_SELECT) {
+			GL11.glPopName();
+		}
 
 		if (debugDisplay && glMode == GL11.GL_RENDER) {
 			GL11.glDisable(GL11.GL_TEXTURE_2D);

@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
  * A propulsor morph transforms its potential energy in cinetic energy by unknown means (we don't care)
  * A propulsor morph does not loose mass by being activated.
  */
-@MorphInfo(type = MorphType.PROPULSOR)
+@MorphInfo(type = MorphType.PROPULSOR, possibleEvolutions = { MorphType.BASIC })
 public class PropulsorMorph extends BasicMorph {
 
 	private static final Logger LOGGER = Logger.getLogger(PropulsorMorph.class);

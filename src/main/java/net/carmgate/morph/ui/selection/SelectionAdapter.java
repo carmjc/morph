@@ -2,6 +2,9 @@ package net.carmgate.morph.ui.selection;
 
 public class SelectionAdapter implements SelectionListener {
 
+	public void inWorldMenuItemSelected(SelectionEvent selectionEvent) {
+	}
+
 	public void morphDeselected(SelectionEvent selectionEvent) {
 	}
 

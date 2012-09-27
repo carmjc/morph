@@ -34,6 +34,11 @@ public @interface MorphInfo {
 	int maxMass() default 100;
 
 	/**
+	 * There is no default possible evolutions
+	 */
+	MorphType[] possibleEvolutions() default {};
+
+	/**
 	 * Default : 30
 	 */
 	int reEnableMass() default 30;

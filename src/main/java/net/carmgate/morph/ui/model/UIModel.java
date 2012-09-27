@@ -1,4 +1,7 @@
-package net.carmgate.morph.ui;
+package net.carmgate.morph.ui.model;
+
+import net.carmgate.morph.ui.model.menu.InWorldMenu;
+import net.carmgate.morph.ui.selection.SelectionModel;
 
 /**
  * This class stores any information specific to the UI.
@@ -30,11 +33,29 @@ public class UIModel {
 	 * Currently, it's not possible for the UI to be in several different states
 	 * at the same time.
 	 */
-	private UIState uiState;
+	private UIState uiState = UIState.NOOP;
 
+	/** Current menu. Null if there is no current active menu.*/
+	private InWorldMenu currentInWorldMenu;
+
+	/** The selection model. */
+	private final SelectionModel selectionModel = new SelectionModel();
+
+	/**
+	 * [SINGLETON] Privatized constructor.
+	 */
 	private UIModel() {
-		// Do nothing. This is just meant to prevent instanciation
-		// from outside of the singleton.
+	}
+
+	/**
+	 * @return the current in-world menu.
+	 */
+	public InWorldMenu getCurrentIWMenu() {
+		return currentInWorldMenu;
+	}
+
+	public SelectionModel getSelectionModel() {
+		return selectionModel;
 	}
 
 	/**
@@ -42,6 +63,13 @@ public class UIModel {
 	 */
 	public UIState getUiState() {
 		return uiState;
+	}
+
+	/**
+	 * @param inWorldMenu the current in-world menu.
+	 */
+	public void setCurrentInWorldMenu(InWorldMenu inWorldMenu) {
+		currentInWorldMenu = inWorldMenu;
 	}
 
 	/**

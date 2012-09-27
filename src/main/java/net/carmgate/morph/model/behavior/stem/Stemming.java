@@ -7,6 +7,7 @@ import net.carmgate.morph.model.solid.morph.BasicMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemmingSelectionShadow;
 import net.carmgate.morph.model.solid.world.World;
+import net.carmgate.morph.ui.model.UIModel;
 
 import org.apache.log4j.Logger;
 
@@ -60,8 +61,8 @@ public class Stemming extends Behavior<StemMorph> {
 					stemmingSelectedShadow.getPosInShipGrid().z);
 
 			// Deactivate the Stem morph that created it
-			World.getWorld().getSelectionModel().removeMorphFromSelection(stemmingSelectedShadow);
-			World.getWorld().getSelectionModel().removeMorphFromSelection(getOwner());
+			UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(stemmingSelectedShadow);
+			UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(getOwner());
 			getOwner().tryToDeactivate();
 		}
 	}

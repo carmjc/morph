@@ -4,7 +4,7 @@ import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.stem.Stemming;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
-import net.carmgate.morph.model.solid.world.World;
+import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
 import net.carmgate.morph.ui.selection.SelectionEvent;
 
@@ -18,7 +18,7 @@ public class StemmingSelectionShadow extends Morph {
 	private Stemming stemming;
 
 	public StemmingSelectionShadow() {
-		World.getWorld().getSelectionModel().addSelectionListener(new SelectionAdapter() {
+		UIModel.getUiModel().getSelectionModel().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void morphSelected(SelectionEvent selectionEvent) {
 				if (selectionEvent.getSource() == StemmingSelectionShadow.this) {

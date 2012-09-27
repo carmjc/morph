@@ -8,7 +8,7 @@ import java.util.Map;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
-import net.carmgate.morph.model.solid.world.World;
+import net.carmgate.morph.ui.model.UIModel;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -26,8 +26,12 @@ public class MorphRenderer implements Renderer<Morph> {
 	private static Texture baseTexture;
 
 	/** The map of the morph texture. */
-	private static Map<MorphType, Texture> textures = new HashMap<Morph.MorphType, Texture>();
-	private static Map<MorphType, Texture> debugTextures = new HashMap<Morph.MorphType, Texture>();
+	private final static Map<MorphType, Texture> textures = new HashMap<Morph.MorphType, Texture>();
+	private final static Map<MorphType, Texture> debugTextures = new HashMap<Morph.MorphType, Texture>();
+
+	public static Map<MorphType, Texture> getTextures() {
+		return textures;
+	}
 
 	// loading resources
 	public static void init() {
@@ -117,10 +121,10 @@ public class MorphRenderer implements Renderer<Morph> {
 			} else {
 				GL11.glColor4f(1f - energyPercent, energyPercent, 0, alphaLevel);
 			}
-		} else if (World.getWorld().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
+		} else if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
 			// selected morph color
 			GL11.glColor4f(1, 0.85f, 0.85f, alphaLevel);
-		} else if (World.getWorld().getSelectionModel().getSelectedShips().values().contains(morph.getShip())) {
+		} else if (UIModel.getUiModel().getSelectionModel().getSelectedShips().values().contains(morph.getShip())) {
 			// selected ship color
 			GL11.glColor4f(0.85f, 0.85f, 1, alphaLevel);
 		} else if (morph.getShip().getActiveMorphList().contains(morph)) {
@@ -164,9 +168,10 @@ public class MorphRenderer implements Renderer<Morph> {
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glScalef(1 / size, 1 / size, 1 / size);
 
-		// Selection names management
+		// make current morph selectable
 		if (glMode == GL11.GL_SELECT) {
 			GL11.glPopName();
 		}
+
 	}
 }

@@ -8,6 +8,8 @@ import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.requirements.Requirement;
+import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
+import net.carmgate.morph.model.solid.morph.stem.StemMorph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 
@@ -23,13 +25,31 @@ public abstract class Morph {
 	 * The list of morph types.
 	 */
 	public static enum MorphType {
-		BASIC,
-		EMITTER,
-		PROPULSOR,
-		SHIELD,
-		SPREADER,
-		STEM_MORPH,
-		SHADOW;
+		BASIC(BasicMorph.class),
+		EMITTER(null),
+		PROPULSOR(PropulsorMorph.class),
+		SHIELD(null),
+		SPREADER(null),
+		STEM_MORPH(StemMorph.class),
+		SHADOW(null);
+
+		private final Class<? extends Morph> morphClass;
+
+		/**
+		 * @param morphClass the morph class matching the morph type.
+		 * This param is only used for real morph types.
+		 */
+		private MorphType(Class<? extends Morph> morphClass) {
+			this.morphClass = morphClass;
+		}
+
+		/**
+		 * @return the morph class matching the morph type.
+		 * This param is only used for real morph types.
+		 */
+		public Class<? extends Morph> getMorphClass() {
+			return morphClass;
+		}
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(Morph.class);
@@ -234,6 +254,10 @@ public abstract class Morph {
 		return posInShip;
 	}
 
+	public final Vect3D getPosInShipGrid() {
+		return shipGridPos;
+	}
+
 	/**
 	 * @return morph pos in world
 	 */
@@ -258,10 +282,6 @@ public abstract class Morph {
 
 	public final Ship getShip() {
 		return ship;
-	}
-
-	public final Vect3D getPosInShipGrid() {
-		return shipGridPos;
 	}
 
 	public final State getState() {

@@ -15,7 +15,6 @@ import net.carmgate.morph.model.solid.energysource.Star;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.TestShip;
-import net.carmgate.morph.ui.selection.SelectionModel;
 
 import org.apache.log4j.Logger;
 
@@ -67,9 +66,6 @@ public class World {
 	/** A list of forces to show. */
 	private final List<Force> forceList = new ArrayList<Force>();
 
-	/** The selection model. */
-	private final SelectionModel selectionModel = new SelectionModel();
-
 	private World() {
 		// privatized constructor
 	}
@@ -87,10 +83,6 @@ public class World {
 
 	public List<Force> getForceList() {
 		return forceList;
-	}
-
-	public SelectionModel getSelectionModel() {
-		return selectionModel;
 	}
 
 	public Map<Integer, Ship> getShips() {

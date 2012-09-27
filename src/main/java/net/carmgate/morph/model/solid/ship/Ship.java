@@ -16,6 +16,7 @@ import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.listener.ShipEvent;
 import net.carmgate.morph.model.solid.ship.listener.ShipListener;
 import net.carmgate.morph.model.solid.world.World;
+import net.carmgate.morph.ui.model.UIModel;
 
 import org.apache.log4j.Logger;
 
@@ -322,6 +323,7 @@ public abstract class Ship {
 	}
 
 	public void removeMorph(Morph morph) {
+		UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(morph);
 		removeActiveMorph(morph);
 		getMorphsByIds().remove(morph.getId());
 		getMorphsByPositionInShip().remove(morph.getPosInShipGrid());
