@@ -7,6 +7,7 @@ import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.stem.Stemming;
 import net.carmgate.morph.model.requirements.EnoughMass;
 import net.carmgate.morph.model.solid.morph.BasicMorph;
+import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.morph.MorphUtil;
 import net.carmgate.morph.ui.model.UIModel;
@@ -15,7 +16,7 @@ import net.carmgate.morph.ui.selection.SelectionEvent;
 
 import org.apache.log4j.Logger;
 
-@MorphInfo(type = MorphType.STEM_MORPH, possibleEvolutions = { MorphType.BASIC })
+@MorphInfo(type = MorphType.STEM, possibleEvolutions = { EvolutionType.TO_BASIC })
 public class StemMorph extends BasicMorph {
 
 	private static final Logger LOGGER = Logger.getLogger(StemMorph.class);
@@ -34,8 +35,7 @@ public class StemMorph extends BasicMorph {
 		UIModel.getUiModel().getSelectionModel().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void morphDeselected(SelectionEvent selectionEvent) {
-				if (selectionEvent.getSource() == StemMorph.this
-						&& StemMorph.this.tryToDeactivate() == State.INACTIVE) {
+				if (selectionEvent.getSource() == StemMorph.this) {
 					if (stemmingSelectionShadows != null) {
 						getShip().removeMorphs(stemmingSelectionShadows);
 						stemmingSelectionShadows = null;

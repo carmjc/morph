@@ -5,6 +5,8 @@ import net.carmgate.morph.model.behavior.old.Emitting;
 
 import org.lwjgl.opengl.GL11;
 
+// This renderer most obviously won't work
+@Deprecated
 public class EmittingRenderer extends BehaviorRenderer<Emitting> {
 
 	@Override

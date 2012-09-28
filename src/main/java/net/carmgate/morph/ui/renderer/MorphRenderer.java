@@ -51,7 +51,7 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
 			textures.put(MorphType.SHIELD,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
-			textures.put(MorphType.STEM_MORPH,
+			textures.put(MorphType.STEM,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
 
 			// Debug textures
@@ -65,14 +65,11 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
 			debugTextures.put(MorphType.SHIELD,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
-			debugTextures.put(MorphType.STEM_MORPH,
+			debugTextures.put(MorphType.STEM,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
 		} catch (IOException e) {
 			LOGGER.error("Error while loading morph textures.", e);
 		}
-	}
-
-	public MorphRenderer() {
 	}
 
 	/**
@@ -174,4 +171,5 @@ public class MorphRenderer implements Renderer<Morph> {
 		}
 
 	}
+
 }

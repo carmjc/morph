@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -36,7 +37,7 @@ public @interface MorphInfo {
 	/**
 	 * There is no default possible evolutions
 	 */
-	MorphType[] possibleEvolutions() default {};
+	EvolutionType[] possibleEvolutions() default {};
 
 	/**
 	 * Default : 30

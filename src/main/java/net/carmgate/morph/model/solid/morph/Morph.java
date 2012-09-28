@@ -22,6 +22,31 @@ import org.apache.log4j.Logger;
 public abstract class Morph {
 
 	/**
+	 * The list of evolution types.
+	 */
+	public static enum EvolutionType {
+		TO_STEM(MorphType.STEM, 100),
+		TO_PROPULSOR(MorphType.PROPULSOR, 10),
+		TO_BASIC(MorphType.BASIC, 100);
+
+		private final MorphType morphType;
+		private final int durationInSeconds;
+
+		private EvolutionType(MorphType type, int durationInSeconds) {
+			morphType = type;
+			this.durationInSeconds = durationInSeconds;
+		}
+
+		public int getDurationInSeconds() {
+			return durationInSeconds;
+		}
+
+		public MorphType getMorphType() {
+			return morphType;
+		}
+	}
+
+	/**
 	 * The list of morph types.
 	 */
 	public static enum MorphType {
@@ -30,7 +55,7 @@ public abstract class Morph {
 		PROPULSOR(PropulsorMorph.class),
 		SHIELD(null),
 		SPREADER(null),
-		STEM_MORPH(StemMorph.class),
+		STEM(StemMorph.class),
 		SHADOW(null);
 
 		private final Class<? extends Morph> morphClass;
@@ -97,6 +122,8 @@ public abstract class Morph {
 	private float energy;
 
 	private float energyDiffused;
+
+	private boolean selectable = true;
 
 	/**
 	 * Initializes morph position
@@ -294,6 +321,10 @@ public abstract class Morph {
 				+ getClass().hashCode();
 	}
 
+	public boolean isSelectable() {
+		return selectable;
+	}
+
 	/**
 	 * Warning: this method caps the energy to the maximum energy that can be put in the morph.
 	 * When there is an excess of energy, it's added to the excess energy storage in order to be re-emitted
@@ -348,6 +379,10 @@ public abstract class Morph {
 		if (ship != null) {
 			rotInShip = rotInWorld - ship.getRot();
 		}
+	}
+
+	public void setSelectable(boolean selectable) {
+		this.selectable = selectable;
 	}
 
 	/**

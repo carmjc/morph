@@ -57,8 +57,7 @@ public class Stemming extends Behavior<StemMorph> {
 			getOwner().setMass(getOwner().getMass() - lossFactor * newMorphMass);
 
 			// Add new morph to ship
-			getOwner().getShip().addMorph(newMorph, stemmingSelectedShadow.getPosInShipGrid().x, stemmingSelectedShadow.getPosInShipGrid().y,
-					stemmingSelectedShadow.getPosInShipGrid().z);
+			getOwner().getShip().addMorph(newMorph, stemmingSelectedShadow.getPosInShipGrid());
 
 			// Deactivate the Stem morph that created it
 			UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(stemmingSelectedShadow);

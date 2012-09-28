@@ -13,11 +13,14 @@ import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
+import net.carmgate.morph.model.behavior.State;
+import net.carmgate.morph.model.behavior.Transforming;
 import net.carmgate.morph.model.behavior.old.Emitting;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.EmittingRenderer;
+import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
 
 import org.apache.log4j.Logger;
@@ -28,7 +31,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 public class ShipRenderer implements Renderer<Ship> {
 
 	private static final Logger LOGGER = Logger.getLogger(ShipRenderer.class);
-	private MorphRenderer currentMorphRenderer;
+	private final MorphRenderer currentMorphRenderer;
 	private static Texture comTexture;
 	/** This vector is used as temp vector wherever it's not necessary to keep the value long instead of instanciating a new object. */
 	private static Vect3D dummyVect = new Vect3D();
@@ -54,6 +57,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		// Behavior renderers map init
 		behaviorRenderersMap.put(Emitting.class, new EmittingRenderer());
 		behaviorRenderersMap.put(SpreadingEnergy.class, null);
+		behaviorRenderersMap.put(Transforming.class, new ProgressBehaviorRenderer());
 
 		// IA renderers map init
 		FixedPositionTrackerRenderer fixedPositionTrackerRenderer = new FixedPositionTrackerRenderer();
@@ -163,7 +167,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	}
 
 	/**
-	 * Render morph behavior as needed
+	 * Render morph active behaviors as needed
 	 * @param glMode
 	 * @param renderStyle
 	 * @param ship
@@ -172,10 +176,19 @@ public class ShipRenderer implements Renderer<Ship> {
 		for (Morph morph : ship.getMorphsByIds().values()) {
 			if (glMode == GL11.GL_RENDER) {
 				for (Behavior<?> behavior : morph.getAlwaysActiveBehaviorList()) {
-					renderBehavior(glMode, renderStyle, behavior);
+					if (behavior.getState() == State.ACTIVE) {
+						renderBehavior(glMode, renderStyle, behavior);
+					}
 				}
 				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
-					renderBehavior(glMode, renderStyle, behavior);
+					if (behavior.getState() == State.ACTIVE) {
+						renderBehavior(glMode, renderStyle, behavior);
+					}
+				}
+				for (Behavior<?> behavior : morph.getAlternateBehaviorList()) {
+					if (behavior.getState() == State.ACTIVE) {
+						renderBehavior(glMode, renderStyle, behavior);
+					}
 				}
 			}
 		}
@@ -196,10 +209,6 @@ public class ShipRenderer implements Renderer<Ship> {
 			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.getPosSpeed(), new float[] { 1.0f, 0.5f, 0.5f });
 			forceRenderer.renderVector(glMode, renderStyle, comInWorld, ship.getPosAccel(), 100, new float[] { 0.5f, 1.0f, 0.5f });
 		}
-	}
-
-	public void setMorphRenderer(MorphRenderer morphRenderer) {
-		currentMorphRenderer = morphRenderer;
 	}
 
 }

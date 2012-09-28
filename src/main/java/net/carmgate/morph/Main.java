@@ -16,7 +16,7 @@ import net.carmgate.morph.ui.action.ToggleCombatMode;
 import net.carmgate.morph.ui.action.ToggleDebugAction;
 import net.carmgate.morph.ui.action.ToggleFreezeAction;
 import net.carmgate.morph.ui.model.UIModel;
-import net.carmgate.morph.ui.model.menu.IWMenuItem;
+import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.IWUIRenderer;
 import net.carmgate.morph.ui.renderer.MorphRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
@@ -213,6 +213,7 @@ public class Main {
 		// if there was no hit, we need to deselect everything
 		if (hits == 0) {
 			UIModel.getUiModel().getSelectionModel().clearAllSelections();
+			UIModel.getUiModel().setCurrentInWorldMenu(null);
 			return;
 		}
 

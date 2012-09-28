@@ -1,6 +1,6 @@
 package net.carmgate.morph.ui.model;
 
-import net.carmgate.morph.ui.model.menu.InWorldMenu;
+import net.carmgate.morph.ui.model.iwmenu.IWMenu;
 import net.carmgate.morph.ui.selection.SelectionModel;
 
 /**
@@ -36,7 +36,7 @@ public class UIModel {
 	private UIState uiState = UIState.NOOP;
 
 	/** Current menu. Null if there is no current active menu.*/
-	private InWorldMenu currentInWorldMenu;
+	private IWMenu currentInWorldMenu;
 
 	/** The selection model. */
 	private final SelectionModel selectionModel = new SelectionModel();
@@ -50,7 +50,7 @@ public class UIModel {
 	/**
 	 * @return the current in-world menu.
 	 */
-	public InWorldMenu getCurrentIWMenu() {
+	public IWMenu getCurrentIWMenu() {
 		return currentInWorldMenu;
 	}
 
@@ -68,7 +68,7 @@ public class UIModel {
 	/**
 	 * @param inWorldMenu the current in-world menu.
 	 */
-	public void setCurrentInWorldMenu(InWorldMenu inWorldMenu) {
+	public void setCurrentInWorldMenu(IWMenu inWorldMenu) {
 		currentInWorldMenu = inWorldMenu;
 	}
 

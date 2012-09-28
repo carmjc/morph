@@ -152,6 +152,33 @@ public abstract class Ship {
 		return false;
 	}
 
+	/**
+	 * Adds the provided morph to the ship at the given position
+	 * The "in ship" coordinates axis are the horizontal axis (x axis) 
+	 *  and an axis from 7 o'clock to 1 o'clock (y axis)
+	 * If there already is a morph at the specified location, it is removed and replaced
+	 * by the provided morph.
+	 * @param morph the morph to add to the ship
+	 * @param posInShip the position in ship 
+	 * @return true if the morph has been properly added to the ship
+	 */
+	public boolean addMorph(Morph morph, Vect3D posInShip) {
+		return addMorph(morph, posInShip, true);
+	}
+
+	/**
+	 * Adds the provided morph to the ship at the given position
+	 * The "in ship" coordinates axis are the horizontal axis (x axis) 
+	 *  and an axis from 7 o'clock to 1 o'clock (y axis) 
+	 * @param newMorph the morph to add to the ship
+	 * @param posInShip the coordinate in ship
+	 * @param replace true if the morph should replace the morph at the given position if there is one already.
+	 * @return true if the morph has been properly added to the ship
+	 */
+	public boolean addMorph(Morph newMorph, Vect3D posInShip, boolean replace) {
+		return addMorph(newMorph, posInShip.x, posInShip.y, posInShip.z, replace);
+	}
+
 	public void addMorphs(Collection<? extends Morph> morphs) {
 		for (Morph m : morphs) {
 			m.setShip(this);

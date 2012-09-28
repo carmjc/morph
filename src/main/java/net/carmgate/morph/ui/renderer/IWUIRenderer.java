@@ -8,9 +8,9 @@ import java.util.Map;
 
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.ui.model.UIModel;
-import net.carmgate.morph.ui.model.menu.InWorldMenu;
-import net.carmgate.morph.ui.model.menu.IWMenuItem;
-import net.carmgate.morph.ui.model.menu.MorphTypeIWMenuItem;
+import net.carmgate.morph.ui.model.iwmenu.EvolutionTypeIWMenuItem;
+import net.carmgate.morph.ui.model.iwmenu.IWMenu;
+import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 
 import org.apache.log4j.Logger;
@@ -61,7 +61,7 @@ public class IWUIRenderer {
 			GL11.glTranslatef(m.getPosInWorld().x, m.getPosInWorld().y, m.getPosInWorld().z);
 
 			// Iterator<Class<? extends Morph>> iterator = UIModel.getUiModel().getPossibleMorphEvols(m).iterator();
-			InWorldMenu currentIWMenu = UIModel.getUiModel().getCurrentIWMenu();
+			IWMenu currentIWMenu = UIModel.getUiModel().getCurrentIWMenu();
 			if (currentIWMenu != null) {
 				Iterator<IWMenuItem> iterator = currentIWMenu.getMenuItems().values().iterator();
 				for (int i = 0; i < 6; i++) {
@@ -108,7 +108,7 @@ public class IWUIRenderer {
 					GL11.glColor4f(1f, 1f, 1f, 1f);
 
 					// Draw the morph matching the possible evolution
-					if (menuItem instanceof MorphTypeIWMenuItem) {
+					if (menuItem instanceof EvolutionTypeIWMenuItem) {
 						renderMorphTypeMenuItemContent(glMode, i, menuItem);
 					}
 					GL11.glRotatef(60, 0, 0, 1);
@@ -126,7 +126,7 @@ public class IWUIRenderer {
 	 */
 	private void renderMorphTypeMenuItemContent(int glMode, int menuItemIndex, IWMenuItem menuItem) {
 		if (menuItem != null && glMode != GL11.GL_SELECT) {
-			Texture evolTexture = MorphRenderer.getTextures().get(((MorphTypeIWMenuItem) menuItem).getMorphType());
+			Texture evolTexture = MorphRenderer.getTextures().get(((EvolutionTypeIWMenuItem) menuItem).getEvolutionType().getMorphType());
 			if (evolTexture != null) {
 				GL11.glTranslatef(0, -90, 0);
 				GL11.glRotatef(-60 * menuItemIndex, 0, 0, 1);

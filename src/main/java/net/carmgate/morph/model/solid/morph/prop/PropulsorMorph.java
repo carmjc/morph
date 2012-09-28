@@ -6,6 +6,7 @@ import net.carmgate.morph.model.behavior.prop.Propulsing;
 import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
 import net.carmgate.morph.model.requirements.EnoughEnergy;
 import net.carmgate.morph.model.solid.morph.BasicMorph;
+import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
 import org.apache.log4j.Logger;
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  * A propulsor morph transforms its potential energy in cinetic energy by unknown means (we don't care)
  * A propulsor morph does not loose mass by being activated.
  */
-@MorphInfo(type = MorphType.PROPULSOR, possibleEvolutions = { MorphType.BASIC })
+@MorphInfo(type = MorphType.PROPULSOR, possibleEvolutions = { EvolutionType.TO_BASIC })
 public class PropulsorMorph extends BasicMorph {
 
 	private static final Logger LOGGER = Logger.getLogger(PropulsorMorph.class);

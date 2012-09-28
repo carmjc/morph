@@ -1,13 +1,13 @@
 package net.carmgate.morph.ui.action;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.behavior.TransformingBehavior;
+import net.carmgate.morph.model.behavior.Transforming;
 import net.carmgate.morph.model.solid.morph.Morph;
-import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.UIModel.UIState;
-import net.carmgate.morph.ui.model.menu.InWorldMenu;
-import net.carmgate.morph.ui.model.menu.MorphTypeIWMenuItem;
+import net.carmgate.morph.ui.model.iwmenu.EvolutionTypeIWMenuItem;
+import net.carmgate.morph.ui.model.iwmenu.IWMenu;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
 import net.carmgate.morph.ui.selection.SelectionEvent;
 
@@ -18,11 +18,11 @@ public class ShowEvolveMenuAction implements Runnable {
 
 	private final class MenuListener extends SelectionAdapter {
 		@Override
-		public void inWorldMenuItemSelected(SelectionEvent selectionEvent) {
+		public void iwMenuItemSelected(SelectionEvent selectionEvent) {
 			hideEvolvingMenu();
-			MorphTypeIWMenuItem menuItem = (MorphTypeIWMenuItem) selectionEvent.getSource();
+			EvolutionTypeIWMenuItem menuItem = (EvolutionTypeIWMenuItem) selectionEvent.getSource();
 			Morph selectedMorph = UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().iterator().next();
-			TransformingBehavior transformBehavior = new TransformingBehavior(selectedMorph, menuItem.getMorphType());
+			Transforming transformBehavior = new Transforming(selectedMorph, menuItem.getEvolutionType());
 			selectedMorph.getAlternateBehaviorList().add(transformBehavior);
 		}
 	}
@@ -57,10 +57,10 @@ public class ShowEvolveMenuAction implements Runnable {
 	 * 
 	 */
 	private void showEvolvingMenu() {
-		InWorldMenu inWorldMenu = new InWorldMenu();
+		IWMenu inWorldMenu = new IWMenu();
 		Morph m = UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().iterator().next();
-		for (MorphType type : m.getClass().getAnnotation(MorphInfo.class).possibleEvolutions()) {
-			MorphTypeIWMenuItem menuItem = new MorphTypeIWMenuItem(type);
+		for (EvolutionType type : m.getClass().getAnnotation(MorphInfo.class).possibleEvolutions()) {
+			EvolutionTypeIWMenuItem menuItem = new EvolutionTypeIWMenuItem(type);
 			inWorldMenu.getMenuItems().put(menuItem.getId(), menuItem);
 		}
 		UIModel.getUiModel().setCurrentInWorldMenu(inWorldMenu);

@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.model.menu;
+package net.carmgate.morph.ui.model.iwmenu;
 
 public class IWMenuItem {
 

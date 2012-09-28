@@ -3,6 +3,10 @@ package net.carmgate.morph.model.behavior;
 import net.carmgate.morph.model.annotation.BehaviorInfo;
 import net.carmgate.morph.model.solid.morph.Morph;
 
+/**
+ * Behaviors not linked to a morph activation should inherit this abstract behavior.
+ * @param <T>
+ */
 @BehaviorInfo(activationCoolDownTime = 0, deactivationCoolDownTime = 0, reactivationCoolDownTime = 0)
 public abstract class NoActivationBehavior<T extends Morph> extends Behavior<T> {
 
