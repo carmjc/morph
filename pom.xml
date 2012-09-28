@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>org.newdawn.slick</groupId>
 			<artifactId>slick-util</artifactId>
-			<version>UNKNOWN</version>
+			<version>236</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lwjgl.lwjgl</groupId>
@@ -60,4 +60,10 @@
 	<scm>
 		<url>http://github.com/carmjc/morph.git</url>
 	</scm>
+	<repositories>
+		<repository>
+			<id>newdawn</id>
+			<url>http://slick2d-maven-dependencies.googlecode.com/svn/trunk/repository/</url>
+		</repository>
+	</repositories>
 </project>
