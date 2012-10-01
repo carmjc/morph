@@ -18,10 +18,10 @@ import net.carmgate.morph.ui.action.ToggleFreezeAction;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.IWUIRenderer;
-import net.carmgate.morph.ui.renderer.MorphRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 import net.carmgate.morph.ui.renderer.UIRenderer;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
+import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.BufferUtils;
@@ -378,26 +378,23 @@ public class Main {
 						&& !World.combat) {
 
 					LOGGER.debug("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
-					// If no morph is selected, the right click should be understood as a moveto order.
-					if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().isEmpty()) {
-						for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
-							List<IA> iaList = selectedShip.getIAList();
+					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
+						List<IA> iaList = selectedShip.getIAList();
 
-							// Look for existing tracker
-							// If we find one, update it's target
-							boolean foundATracker = false;
-							for (IA ia : iaList) {
-								if (ia instanceof FixedPositionTracker) {
-									((FixedPositionTracker) ia).setTargetPos(worldMousePos);
-									foundATracker = true;
-								}
+						// Look for existing tracker
+						// If we find one, update it's target
+						boolean foundATracker = false;
+						for (IA ia : iaList) {
+							if (ia instanceof FixedPositionTracker) {
+								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+								foundATracker = true;
 							}
+						}
 
-							// If we found no tracker, create a new one and add it to this ship's
-							// IA list
-							if (!foundATracker) {
-								iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
-							}
+						// If we found no tracker, create a new one and add it to this ship's
+						// IA list
+						if (!foundATracker) {
+							iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
 						}
 					}
 				}

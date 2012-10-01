@@ -21,7 +21,7 @@ import net.carmgate.morph.ui.model.UIModel;
 import org.apache.log4j.Logger;
 
 /**
- * TODO : Il faut ajouter un centre d'inertie et modifier les calculs des forces pour gérer le vrai centre d'inertie.
+ * TODO : Il faut ajouter un centre d'inertie et modifier les calculs des forces pour gÃ©rer le vrai centre d'inertie.
  */
 public abstract class Ship {
 

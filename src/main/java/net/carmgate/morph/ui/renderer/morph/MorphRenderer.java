@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.renderer;
+package net.carmgate.morph.ui.renderer.morph;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.ui.model.UIModel;
+import net.carmgate.morph.ui.renderer.Renderer;
+import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -20,7 +22,7 @@ public class MorphRenderer implements Renderer<Morph> {
 	private static final Logger LOGGER = Logger.getLogger(MorphRenderer.class);
 
 	/** Morph scale factor. */
-	private static final float MORPH_SCALE_FACTOR = 0.97f;
+	protected static final float MORPH_SCALE_FACTOR = 0.97f;
 
 	/** The texture under the morph image. */
 	private static Texture baseTexture;
@@ -130,10 +132,6 @@ public class MorphRenderer implements Renderer<Morph> {
 		} else {
 			GL11.glColor4f(0.85f, 0.85f, 0.85f, alphaLevel);
 		}
-
-		// if (World.getWorld().getSelectedShip() == morph.getShip()) {
-		// GL11.glColor3f(0.7f, 0.7f, 0.7f);
-		// }
 
 		GL11.glScalef(1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR);
 		float size = MORPH_SCALE_FACTOR * morph.getMass() / morph.getClass().getAnnotation(MorphInfo.class).maxMass();

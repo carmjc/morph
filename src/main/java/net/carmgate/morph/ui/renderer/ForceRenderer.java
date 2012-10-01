@@ -4,6 +4,7 @@ import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.physics.Force;
 
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.opengl.TextureImpl;
 
 public class ForceRenderer implements Renderer<Force> {
 
@@ -45,7 +46,7 @@ public class ForceRenderer implements Renderer<Force> {
 		Vect3D vector = new Vect3D(forceVector);
 		// vector.normalize(vector.modulus() * VISIBILITY_FACTOR);
 
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		TextureImpl.bindNone();
 		GL11.glLineWidth(2.0f);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
 		GL11.glColor3f(color[0], color[1], color[2]);

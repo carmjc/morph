@@ -1,17 +1,8 @@
 package net.carmgate.morph.ui.renderer;
 
 import java.awt.Font;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import net.carmgate.morph.Main;
-import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.solid.morph.Morph;
-import net.carmgate.morph.model.solid.morph.Morph.MorphType;
-import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
-import net.carmgate.morph.model.solid.morph.stem.StemMorph;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
@@ -20,32 +11,28 @@ import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 
 public class UIRenderer {
 
 	private static final Logger LOGGER = Logger.getLogger(UIRenderer.class);
-	private TrueTypeFont font;
+
+	public static final TrueTypeFont font;
+	static {
+		Font awtFont = new Font("Helvetica", Font.PLAIN, 26);
+		font = new TrueTypeFont(awtFont, true);
+	}
 
 	public void init() {
 		// load a default java font
-		Font awtFont = new Font("Arial", Font.PLAIN, 28);
-		font = new TrueTypeFont(awtFont, true);
 	}
 
 	public void render(int glMode, RenderStyle drawType) {
 		LOGGER.trace("Rendering interface");
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		TextureImpl.bindNone();
 
-		renderConsole(drawType);
-	}
-
-	/**
-	 * @param drawType
-	 */
-	private void renderConsole(RenderStyle drawType) {
 		// Drawing console box
-		GL11.glColor4f(0.7f, 0.7f, 0.9f, 0.9f);
+		GL11.glColor4f(0.7f, 0.7f, 0.9f, 1f);
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glVertex2f(-Main.WIDTH, Main.HEIGHT);
 		GL11.glVertex2f(Main.WIDTH, Main.HEIGHT);

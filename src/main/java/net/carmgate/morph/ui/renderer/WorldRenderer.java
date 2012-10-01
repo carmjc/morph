@@ -10,6 +10,7 @@ import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.renderer.energysource.EnergySourceRenderer;
 
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.opengl.TextureImpl;
 
 public class WorldRenderer implements Renderer<World> {
 
@@ -31,7 +32,7 @@ public class WorldRenderer implements Renderer<World> {
 	public void render(int glMode, RenderStyle drawType, World world) {
 
 		if (glMode == GL11.GL_RENDER) {
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			TextureImpl.bindNone();
 			renderWorldAreas(glMode, drawType, world);
 		}
 
@@ -49,7 +50,7 @@ public class WorldRenderer implements Renderer<World> {
 		}
 
 		if (debugDisplay && glMode == GL11.GL_RENDER) {
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			TextureImpl.bindNone();
 			renderForces(glMode, drawType, world);
 			world.getForceList().clear();
 
@@ -85,7 +86,7 @@ public class WorldRenderer implements Renderer<World> {
 	 * @param world the world whose ships should be rendered.
 	 */
 	private void renderPointer(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType) {
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		TextureImpl.bindNone();
 		GL11.glTranslatef(MorphMouse.getX(), MorphMouse.getY(), 0);
 		GL11.glColor3f(1f, 1f, 1f);
 		GL11.glBegin(GL11.GL_QUADS);

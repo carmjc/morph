@@ -16,7 +16,6 @@ public class EmittingRenderer extends BehaviorRenderer<Emitting> {
 		}
 
 		System.out.println("Shooting from " + emitting.getOwner().getPosInShip() + " at " + emitting.getTarget());
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glLineWidth(2.0f);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
 		GL11.glColor3f(0.0f, 1.0f, 1.0f);

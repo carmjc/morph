@@ -34,10 +34,13 @@ public class PropulsorMorph extends BasicMorph {
 	public boolean deactivate() {
 		LOGGER.debug("PropulsorMorph deactivated.");
 
-		// Create a new behavior to slow down the ship
-		PropulsorsLost propsLostBehavior = new PropulsorsLost(this);
-		// Add it to the ship
-		getAlternateBehaviorList().add(propsLostBehavior);
+		// If the propulsor has been stopped because of a lack of energy,
+		// create a new behavior to slow down the ship
+		if (getEnergy() < 1) {
+			PropulsorsLost propsLostBehavior = new PropulsorsLost(this);
+			// Add it to the ship
+			getAlternateBehaviorList().add(propsLostBehavior);
+		}
 
 		return true;
 	}

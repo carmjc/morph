@@ -5,6 +5,7 @@
 	<artifactId>morph</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<platform>win</platform>
 		<lwjgl-version>2.8.4</lwjgl-version>
 	</properties>

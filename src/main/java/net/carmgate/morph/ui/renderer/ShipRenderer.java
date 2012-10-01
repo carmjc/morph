@@ -18,10 +18,13 @@ import net.carmgate.morph.model.behavior.Transforming;
 import net.carmgate.morph.model.behavior.old.Emitting;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
+import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.EmittingRenderer;
 import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
+import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
+import net.carmgate.morph.ui.renderer.morph.SelectedMorphRenderer;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -31,7 +34,8 @@ import org.newdawn.slick.opengl.TextureLoader;
 public class ShipRenderer implements Renderer<Ship> {
 
 	private static final Logger LOGGER = Logger.getLogger(ShipRenderer.class);
-	private final MorphRenderer currentMorphRenderer;
+	private final MorphRenderer morphRenderer;
+	private final SelectedMorphRenderer selectedMorphRenderer;
 	private static Texture comTexture;
 	/** This vector is used as temp vector wherever it's not necessary to keep the value long instead of instanciating a new object. */
 	private static Vect3D dummyVect = new Vect3D();
@@ -52,7 +56,8 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	public ShipRenderer() {
 
-		currentMorphRenderer = new MorphRenderer();
+		morphRenderer = new MorphRenderer();
+		selectedMorphRenderer = new SelectedMorphRenderer();
 
 		// Behavior renderers map init
 		behaviorRenderersMap.put(Emitting.class, new EmittingRenderer());
@@ -85,7 +90,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		for (Morph morph : shipMorphs) {
 			GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);
 			GL11.glRotatef(morph.getRotInShip(), 0, 0, 1);
-			currentMorphRenderer.render(glMode, renderStyle, morph);
+			morphRenderer.render(glMode, renderStyle, morph);
 			GL11.glRotatef(-morph.getRotInShip(), 0, 0, 1);
 			GL11.glTranslatef(-morph.getPosInShip().x, -morph.getPosInShip().y, -morph.getPosInShip().z);
 
@@ -98,6 +103,14 @@ public class ShipRenderer implements Renderer<Ship> {
 		renderShipIAs(glMode, renderStyle, ship);
 		renderShipMorphBehaviors(glMode, renderStyle, ship);
 		renderShipSpeed(glMode, renderStyle, ship);
+
+		if (glMode != GL11.GL_SELECT) {
+			for (Morph morph : UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values()) {
+				GL11.glTranslatef(morph.getPosInWorld().x, morph.getPosInWorld().y, morph.getPosInWorld().z);
+				selectedMorphRenderer.render(glMode, renderStyle, morph);
+				GL11.glTranslatef(-morph.getPosInWorld().x, -morph.getPosInWorld().y, -morph.getPosInWorld().z);
+			}
+		}
 
 		// Selection names management
 		if (glMode == GL11.GL_SELECT) {

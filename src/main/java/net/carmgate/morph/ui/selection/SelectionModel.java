@@ -163,10 +163,12 @@ public class SelectionModel {
 	 * @param morph the morph to "deselect"
 	 */
 	public void removeAllMorphsFromSelection() {
+		selectedMorphs.lock();
 		for (Morph m : selectedMorphs.values()) {
 			selectedMorphs.remove(m.getId());
 			fireMorphDeselected(m);
 		}
+		selectedMorphs.unlock();
 	}
 
 	/**
