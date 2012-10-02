@@ -49,7 +49,7 @@ public class Main {
 
 	// public static final float SCALE_FACTOR = 1f;
 	public static final int HEIGHT = 768;
-	public static final int WIDTH = 1024;
+	public static final int WIDTH = 1280;
 
 	/**
 	 * Main Class
@@ -176,7 +176,16 @@ public class Main {
 	 */
 	private void initGL(int width, int height) {
 		try {
-			Display.setDisplayMode(new DisplayMode(width, height));
+			// Display.setFullscreen(true);
+			DisplayMode[] availableDisplayModes = Display.getAvailableDisplayModes();
+			DisplayMode displayMode = null;
+			for (DisplayMode mode : availableDisplayModes) {
+				if (mode.getBitsPerPixel() == 32 && mode.getHeight() == height && mode.getWidth() == width) {
+					displayMode = mode;
+					break;
+				}
+			}
+			Display.setDisplayMode(displayMode);
 			Display.create();
 			Display.setTitle("Morph");
 			Display.setVSyncEnabled(true);
@@ -187,6 +196,8 @@ public class Main {
 
 		// set clear color - Wont be needed once we have a background
 		GL11.glClearColor(0, 0, 0, 0);
+		GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+		GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_NICEST);
 
 		// enable alpha blending
 		GL11.glEnable(GL11.GL_BLEND);
@@ -194,10 +205,10 @@ public class Main {
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width * WorldRenderer.scale / 2,
-				WorldRenderer.focalPoint.x + width * WorldRenderer.scale / 2,
-				WorldRenderer.focalPoint.y + height * WorldRenderer.scale / 2,
-				WorldRenderer.focalPoint.y - height * WorldRenderer.scale / 2);
+		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width,
+				WorldRenderer.focalPoint.x + width,
+				WorldRenderer.focalPoint.y + height,
+				WorldRenderer.focalPoint.y - height);
 
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -258,8 +269,6 @@ public class Main {
 	 * draw a quad with the image on it
 	 */
 	public void render() {
-
-		GL11.glNormal3i(0, 0, -1);
 
 		// draw world
 		RenderStyle renderStyle = RenderStyle.NORMAL;
@@ -337,10 +346,10 @@ public class Main {
 					WorldRenderer.focalPoint.substract(worldMousePos);
 					GL11.glMatrixMode(GL11.GL_PROJECTION);
 					GL11.glLoadIdentity();
-					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH * WorldRenderer.scale / 2,
-							WorldRenderer.focalPoint.x + WIDTH * WorldRenderer.scale / 2,
-							WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2,
-							WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2);
+					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH,
+							WorldRenderer.focalPoint.x + WIDTH,
+							WorldRenderer.focalPoint.y + HEIGHT,
+							WorldRenderer.focalPoint.y - HEIGHT);
 					holdWorldMousePos.x = MorphMouse.getX();
 					holdWorldMousePos.y = MorphMouse.getY();
 
@@ -360,10 +369,10 @@ public class Main {
 							WorldRenderer.focalPoint.substract(worldMousePos);
 							GL11.glMatrixMode(GL11.GL_PROJECTION);
 							GL11.glLoadIdentity();
-							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH * WorldRenderer.scale / 2,
-									WorldRenderer.focalPoint.x + WIDTH * WorldRenderer.scale / 2,
-									WorldRenderer.focalPoint.y + HEIGHT * WorldRenderer.scale / 2,
-									WorldRenderer.focalPoint.y - HEIGHT * WorldRenderer.scale / 2);
+							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH,
+									WorldRenderer.focalPoint.x + WIDTH,
+									WorldRenderer.focalPoint.y + HEIGHT,
+									WorldRenderer.focalPoint.y - HEIGHT);
 						} else {
 							pick(MorphMouse.getX(), MorphMouse.getY());
 						}

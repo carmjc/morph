@@ -13,14 +13,15 @@ public class MorphMouse {
 	 * @return mouse X position in world coordinates.
 	 */
 	public static int getX() {
-		return (int) ((org.lwjgl.input.Mouse.getX() - Main.WIDTH / 2) * WorldRenderer.scale + WorldRenderer.focalPoint.x);
+		// return (int) ((org.lwjgl.input.Mouse.getX() - Main.WIDTH / 2) * WorldRenderer.scale + WorldRenderer.focalPoint.x);
+		return (int) ((org.lwjgl.input.Mouse.getX() - Main.WIDTH / 2) * 2 + WorldRenderer.focalPoint.x);
 	}
 
 	/**
 	 * @return mouse Y position in world coordinates.
 	 */
 	public static int getY() {
-		return (int) -((org.lwjgl.input.Mouse.getY() - Main.HEIGHT / 2) * WorldRenderer.scale - WorldRenderer.focalPoint.y);
+		return (int) -((org.lwjgl.input.Mouse.getY() - Main.HEIGHT / 2) * 2 - WorldRenderer.focalPoint.y);
 	}
 
 }
