@@ -115,7 +115,7 @@ public class World {
 
 	public void init() {
 		// Create a star
-		EnergySource star = new Star(900, -400, 0, 10f, 1000);
+		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000);
 		getEnergySources().put(star.getId(), star);
 
 		// Create a ship
@@ -129,7 +129,7 @@ public class World {
 	 */
 	private void processGettingEnergyFromEnergySource(Ship ship) {
 		for (EnergySource energySource : getEnergySources().values()) {
-			float energyGainedPerMorph = 0;
+			double energyGainedPerMorph = 0;
 			float distance = ship.getPos().distance(energySource.getPos());
 
 			// A distance of 1000 pixels to the star causes the star to give no energy to the ship
@@ -139,7 +139,7 @@ public class World {
 			double distanceSquared = distance * distance;
 
 			if (distanceSquared < minimumActingDistanceSquared) {
-				energyGainedPerMorph += (minimumActingDistanceSquared - distanceSquared) / minimumActingDistanceSquared
+				energyGainedPerMorph = (minimumActingDistanceSquared - distanceSquared) / minimumActingDistanceSquared
 						* energySource.getRadiatedEnergy()
 						* sinceLastUpdateTS / 1000;
 
@@ -148,7 +148,7 @@ public class World {
 					// then we update it's energy
 					if (!m.getClass().getAnnotation(MorphInfo.class).virtual()) {
 						// augment morph energy
-						m.setEnergy(m.getEnergy() + energyGainedPerMorph * m.getMass() / m.getClass().getAnnotation(MorphInfo.class).maxMass());
+						m.setEnergy((float) (m.getEnergy() + energyGainedPerMorph * m.getMass() / m.getClass().getAnnotation(MorphInfo.class).maxMass()));
 
 						// if there is too much excess of energy, the morph will loose a portion of its mass
 						// proportional to the amount of energy above sustainable amount of energy in excess
@@ -156,7 +156,9 @@ public class World {
 								* ModelConstants.MAX_EXCEED_ENERGY_AS_RATIO_OF_MAX_MORPH_ENERGY;
 						if (m.getExcessEnergy() > sustainableExcessEnergy) {
 							float energyAboveSustainable = m.getExcessEnergy() - sustainableExcessEnergy;
-							m.setMass(m.getMass() - energyAboveSustainable * ModelConstants.MASS_LOSS_TO_EXCESS_ENERGY_RATIO);
+							float lostMass = energyAboveSustainable * ModelConstants.MASS_LOSS_TO_EXCESS_ENERGY_RATIO;
+							m.setMass(m.getMass() - lostMass);
+							LOGGER.debug("Lost mass: " + lostMass + " - lost mass / s: " + lostMass * 1000 / World.getWorld().getSinceLastUpdateTS());
 							m.setEnergy(m.getEnergy() - energyAboveSustainable);
 						}
 					}

@@ -297,24 +297,24 @@ public abstract class Ship {
 	}
 
 	/**
-	 * Get the neighbours of the provided Morph.
+	 * Get the neighbors of the provided Morph.
 	 * Works in 2D only for now.
 	 * Should be put into MorphUtil
 	 * @param morph
 	 * @return
 	 */
-	public List<Morph> getNeighbours(Morph morph) {
-		List<Morph> neighbours = new ArrayList<Morph>();
+	public List<Morph> getNeighbors(Morph morph) {
+		List<Morph> neighbors = new ArrayList<Morph>();
 		// .1 2
 		// 3...4
 		// .5 6
-		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x - 1, (int) morph.getPosInShipGrid().y + 1, (int) morph.getPosInShipGrid().z));
-		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y + 1, (int) morph.getPosInShipGrid().z));
-		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x - 1, (int) morph.getPosInShipGrid().y, (int) morph.getPosInShipGrid().z));
-		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y, (int) morph.getPosInShipGrid().z));
-		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
-		neighbours.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
-		return neighbours;
+		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x - 1, (int) morph.getPosInShipGrid().y + 1, (int) morph.getPosInShipGrid().z));
+		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y + 1, (int) morph.getPosInShipGrid().z));
+		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x - 1, (int) morph.getPosInShipGrid().y, (int) morph.getPosInShipGrid().z));
+		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y, (int) morph.getPosInShipGrid().z));
+		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
+		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
+		return neighbors;
 	}
 
 	public List<Force> getOwnForceList() {
@@ -476,7 +476,9 @@ public abstract class Ship {
 			// Updating the mass of the ship's morph if it's evolving
 			// TODO transform this in a behavior
 			if (nbMorphsNeedingMass > 0) {
-				m.setMass(Math.min(m.getMass() + ModelConstants.NEW_MASS_PER_SECOND / nbMorphsNeedingMass, m.getClass().getAnnotation(MorphInfo.class)
+				float mass = m.getMass();
+				m.setMass(Math.min(m.getMass() + ModelConstants.NEW_MASS_PER_SECOND / nbMorphsNeedingMass / World.getWorld().getSinceLastUpdateTS(), m
+						.getClass().getAnnotation(MorphInfo.class)
 						.maxMass()));
 			}
 

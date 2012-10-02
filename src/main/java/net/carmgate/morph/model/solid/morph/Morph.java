@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.solid.morph;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +78,8 @@ public abstract class Morph {
 		}
 	}
 
+	private static final int ENERGY_FLOW_ANALYSIS_PERIOD = 3000;
+
 	private static final Logger LOGGER = Logger.getLogger(Morph.class);
 
 	/** These behaviors are always active. */
@@ -120,10 +123,16 @@ public abstract class Morph {
 
 	/** the energy stored by the morph. */
 	private float energy;
+	private float oldEnergy;
 
 	private float energyDiffused;
 
 	private boolean selectable = true;
+
+	private double energyFlow = 0;
+	private double energyFlowLastReset = World.getWorld().getCurrentTS() / ENERGY_FLOW_ANALYSIS_PERIOD;
+	private double energyFlowTab[] = new double[1000];
+	private int energyFlowIndex = 0;
 
 	/**
 	 * Initializes morph position
@@ -231,6 +240,10 @@ public abstract class Morph {
 		return energyDiffused;
 	}
 
+	public double getEnergyFlow() {
+		return energyFlow;
+	}
+
 	public float getExcessEnergy() {
 		int maxEnergy = getClass().getAnnotation(MorphInfo.class).maxEnergy();
 		if (energy > maxEnergy) {
@@ -264,14 +277,14 @@ public abstract class Morph {
 	}
 
 	/**
-	 * TODO This is suboptimal. We should not calculate the neighbours each time we need them.
+	 * TODO This is suboptimal. We should not calculate the neighbors each time we need them.
 	 * @return null if the morph takes part in no ship.
 	 */
-	public final List<Morph> getNeighbours() {
+	public final List<Morph> getNeighbors() {
 		if (ship == null) {
 			return null;
 		}
-		return ship.getNeighbours(this);
+		return ship.getNeighbors(this);
 	}
 
 	public final Vect3D getPosInShip() {
@@ -543,6 +556,31 @@ public abstract class Morph {
 			behavior.tryToExecute(true);
 		}
 
+		updateEnergyFlow();
+	}
+
+	private void updateEnergyFlow() {
+		// compute the energy flow since last update
+		double flow = (energy - oldEnergy) * 1000 / World.getWorld().getSinceLastUpdateTS();
+
+		int newIndex = 0;
+		// if we are still in the same analysis period, increment the energyFlowIndex
+		if (World.getWorld().getCurrentTS() - energyFlowLastReset < 3000) {
+			newIndex = energyFlowIndex + 1;
+		} else {
+			energyFlowLastReset = World.getWorld().getCurrentTS();
+		}
+
+		// Compute the mean energy flow
+		energyFlow = energyFlow - energyFlowTab[energyFlowIndex] + flow;
+		energyFlowTab[newIndex] = flow;
+		energyFlowIndex = newIndex;
+
+		LOGGER.trace(new DecimalFormat("0.0####").format(energyFlow) + " - " + oldEnergy + "->" + energy + " in "
+				+ World.getWorld().getSinceLastUpdateTS() + "ms (index=" + newIndex + ") " + energyFlowLastReset + "->"
+				+ World.getWorld().getCurrentTS());
+
+		oldEnergy = energy;
 	}
 
 	public void updatePosFromGridPos() {

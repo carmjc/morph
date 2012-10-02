@@ -1,5 +1,7 @@
 package net.carmgate.morph.ui.renderer.morph;
 
+import java.text.DecimalFormat;
+
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.State;
@@ -54,9 +56,11 @@ public class SelectedMorphRenderer extends MorphRenderer {
 		String[] selectedMorphInfos = new String[] {
 				"Energy: " + Math.round(morph.getEnergy()) + "/"
 						+ morph.getClass().getAnnotation(MorphInfo.class).maxEnergy(),
+				"Energy flow: in=" + new DecimalFormat("0.0####").format(morph.getEnergyFlow()),
+				"Energy in excess=" + new DecimalFormat("0.0####").format(morph.getExcessEnergy()),
 				"Mass: " + Math.round(morph.getMass()) + "/"
 						+ morph.getClass().getAnnotation(MorphInfo.class).maxMass(),
-				"Currently active behaviors: " + activeBehaviorList
+				"Currently active behaviors: " + activeBehaviorList,
 		};
 
 		int maxWidth = 0;

@@ -19,27 +19,26 @@ public class SpreadingEnergy extends NoActivationBehavior<Morph> {
 
 	@Override
 	protected void execute() {
-		float totalEnergyTransfered = 0;
-
-		for (Morph neighbour : getOwner().getNeighbours()) {
+		for (Morph neighbor : getOwner().getNeighbors()) {
 			LOGGER.trace("Transferring energy");
 
-			if (neighbour != null
-					&& neighbour.getEnergy() / neighbour.getMaxEnergy() < getOwner().getEnergy()
+			if (neighbor != null
+					&& neighbor.getEnergy() / neighbor.getMaxEnergy() < getOwner().getEnergy()
 							/ getOwner().getMaxEnergy()
-					&& neighbour.getEnergy() < neighbour.getMaxEnergy()) {
-				float transferRatio = neighbour.getMass() / neighbour.getMaxMass();
-				float energyTransferedToNeighbour = ModelConstants.ENERGY_TRANSFER_PER_SEC * transferRatio * World.getWorld().getSinceLastUpdateTS() / 1000;
-				neighbour.setEnergy(neighbour.getEnergy() + energyTransferedToNeighbour);
-				getOwner().setEnergy(getOwner().getEnergy() - energyTransferedToNeighbour);
-
-				totalEnergyTransfered += energyTransferedToNeighbour;
+					&& neighbor.getEnergy() < neighbor.getMaxEnergy()) {
+				float transferRatio = neighbor.getMass() / neighbor.getMaxMass();
+				float energyTransferedToNeighbor = ModelConstants.ENERGY_TRANSFER_PER_SEC * transferRatio * World.getWorld().getSinceLastUpdateTS() / 1000;
+				neighbor.setEnergy(neighbor.getEnergy() + energyTransferedToNeighbor);
+				getOwner().setEnergy(getOwner().getEnergy() - energyTransferedToNeighbor);
 			}
 		}
 
 		if (getOwner().getExcessEnergy() > 0) {
-			getOwner().setEnergyDiffused(ModelConstants.MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND - totalEnergyTransfered);
-			getOwner().setEnergy(getOwner().getEnergy() - ModelConstants.MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND - totalEnergyTransfered);
+			getOwner().setEnergyDiffused(ModelConstants.MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND * World.getWorld().getSinceLastUpdateTS() / 1000);
+			getOwner().setEnergy(getOwner().getEnergy()
+					- ModelConstants.MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND
+					* World.getWorld().getSinceLastUpdateTS()
+					/ 1000);
 		}
 	}
 }

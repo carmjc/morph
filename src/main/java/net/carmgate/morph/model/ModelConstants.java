@@ -9,13 +9,13 @@ public interface ModelConstants {
 	 * and the max energy that the morph can store. */
 	public static final float MAX_EXCEED_ENERGY_AS_RATIO_OF_MAX_MORPH_ENERGY = .1f;
 	/** The amount a new mass that a morph receives per second. */
-	public static final float NEW_MASS_PER_SECOND = 0.1f;
+	public static final float NEW_MASS_PER_SECOND = 1f;
 
 	// SPREADING ENERGY
 	/** The rate of the energy transfer between to adjacent morphs. */
 	public static final float ENERGY_TRANSFER_PER_SEC = 5f;
-	/** The amount of energy transfered from one morph to a neighbour during one second. */
-	public static final float MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND = 0.1f;
+	/** The amount of energy transfered from one morph to a neighbor during one second. */
+	public static final float MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND = 4f;
 
 	// PROPULSORS
 	/** Energy Consumption per millis at full thrust. */

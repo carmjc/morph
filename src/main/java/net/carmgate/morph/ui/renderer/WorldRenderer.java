@@ -29,6 +29,7 @@ public class WorldRenderer implements Renderer<World> {
 	 * In normal mode, renders the world areas and the ships.
 	 * In debug mode, renders the mouse pointer and the forces.
 	 */
+	@Override
 	public void render(int glMode, RenderStyle drawType, World world) {
 
 		if (glMode == GL11.GL_RENDER) {
@@ -36,17 +37,12 @@ public class WorldRenderer implements Renderer<World> {
 			renderWorldAreas(glMode, drawType, world);
 		}
 
-		// name stack level for the energy sources
-		// the name stack for ships and morphs is handled in the ShipRenderer and the MorphRenderer
-		// make current morph selectable
 		if (glMode == GL11.GL_SELECT) {
-			GL11.glPushName(0);
-		}
-		renderEnergySources(glMode, drawType, world);
-		renderShips(glMode, drawType, world);
-		// up into the stack
-		if (glMode == GL11.GL_SELECT) {
-			GL11.glPopName();
+			renderShips(glMode, drawType, world);
+			renderEnergySources(glMode, drawType, world);
+		} else {
+			renderEnergySources(glMode, drawType, world);
+			renderShips(glMode, drawType, world);
 		}
 
 		if (debugDisplay && glMode == GL11.GL_RENDER) {
