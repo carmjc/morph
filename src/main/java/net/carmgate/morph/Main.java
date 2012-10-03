@@ -15,6 +15,7 @@ import net.carmgate.morph.ui.action.ShowEvolveMenuAction;
 import net.carmgate.morph.ui.action.ToggleCombatMode;
 import net.carmgate.morph.ui.action.ToggleDebugAction;
 import net.carmgate.morph.ui.action.ToggleFreezeAction;
+import net.carmgate.morph.ui.action.ZoomAction;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.IWUIRenderer;
@@ -73,6 +74,7 @@ public class Main {
 	private final ToggleCombatMode toggleCombatMode = new ToggleCombatMode();
 	private final ToggleFreezeAction toggleFreezeAction = new ToggleFreezeAction();
 	private final ShowEvolveMenuAction showEvolveMenuAction = new ShowEvolveMenuAction();
+	private final ZoomAction zoomAction = new ZoomAction();
 
 	/**
 	 * @param selectBuf
@@ -211,10 +213,10 @@ public class Main {
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width / 2,
-				WorldRenderer.focalPoint.x + width / 2,
-				WorldRenderer.focalPoint.y + height / 2,
-				WorldRenderer.focalPoint.y - height / 2);
+		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width / 2 * WorldRenderer.scale,
+				WorldRenderer.focalPoint.x + width / 2 * WorldRenderer.scale,
+				WorldRenderer.focalPoint.y + height / 2 * WorldRenderer.scale,
+				WorldRenderer.focalPoint.y - height / 2 * WorldRenderer.scale);
 
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -352,10 +354,10 @@ public class Main {
 					WorldRenderer.focalPoint.substract(worldMousePos);
 					GL11.glMatrixMode(GL11.GL_PROJECTION);
 					GL11.glLoadIdentity();
-					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH / 2,
-							WorldRenderer.focalPoint.x + WIDTH / 2,
-							WorldRenderer.focalPoint.y + HEIGHT / 2,
-							WorldRenderer.focalPoint.y - HEIGHT / 2);
+					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH / 2 * WorldRenderer.scale,
+							WorldRenderer.focalPoint.x + WIDTH / 2 * WorldRenderer.scale,
+							WorldRenderer.focalPoint.y + HEIGHT / 2 * WorldRenderer.scale,
+							WorldRenderer.focalPoint.y - HEIGHT / 2 * WorldRenderer.scale);
 					holdWorldMousePos.x = MorphMouse.getX();
 					holdWorldMousePos.y = MorphMouse.getY();
 
@@ -375,10 +377,10 @@ public class Main {
 							WorldRenderer.focalPoint.substract(worldMousePos);
 							GL11.glMatrixMode(GL11.GL_PROJECTION);
 							GL11.glLoadIdentity();
-							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH / 2,
-									WorldRenderer.focalPoint.x + WIDTH / 2,
-									WorldRenderer.focalPoint.y + HEIGHT / 2,
-									WorldRenderer.focalPoint.y - HEIGHT / 2);
+							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH / 2 * WorldRenderer.scale,
+									WorldRenderer.focalPoint.x + WIDTH / 2 * WorldRenderer.scale,
+									WorldRenderer.focalPoint.y + HEIGHT / 2 * WorldRenderer.scale,
+									WorldRenderer.focalPoint.y - HEIGHT / 2 * WorldRenderer.scale);
 						} else {
 							pick(MorphMouse.getX(), MorphMouse.getY());
 						}
@@ -437,7 +439,9 @@ public class Main {
 				toggleCombatMode.run();
 				toggleFreezeAction.run();
 				showEvolveMenuAction.run();
+				zoomAction.run();
 			}
+			zoomAction.pursue();
 
 			if (Display.isCloseRequested()) {
 				Display.destroy();

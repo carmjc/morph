@@ -31,6 +31,7 @@ public class UIRenderer {
 		LOGGER.trace("Rendering interface");
 		TextureImpl.bindNone();
 
+		GL11.glScalef(WorldRenderer.scale, WorldRenderer.scale, WorldRenderer.scale);
 		// Drawing console box
 		GL11.glColor4f(0.7f, 0.7f, 0.9f, 1f);
 		GL11.glBegin(GL11.GL_QUADS);
@@ -52,5 +53,6 @@ public class UIRenderer {
 			font.drawString(-Main.WIDTH / 2 + 5, Main.HEIGHT / 2 - 99, -Main.WIDTH / 2 + "x" + Main.HEIGHT / 2, Color.white);
 			font.drawString(Main.WIDTH / 2 - 60, Main.HEIGHT / 2 - 99, Main.WIDTH / 2 + "x" + Main.HEIGHT / 2, Color.white);
 		}
+		GL11.glScalef(1 / WorldRenderer.scale, 1 / WorldRenderer.scale, 1 / WorldRenderer.scale);
 	}
 }

@@ -7,6 +7,7 @@ import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.ui.renderer.UIRenderer;
+import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
@@ -73,6 +74,7 @@ public class SelectedMorphRenderer extends MorphRenderer {
 		totalHeight -= LINE_FEED_HEIGHT - Y_PADDING;
 
 		// draw the label border
+		GL11.glScalef(WorldRenderer.scale, WorldRenderer.scale, WorldRenderer.scale);
 		GL11.glColor4f(0.9f, 0.9f, 0.9f, 0.9f);
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glVertex2f(X_START - X_PADDING, Y_START - Y_PADDING);
@@ -94,5 +96,6 @@ public class SelectedMorphRenderer extends MorphRenderer {
 			// UIRenderer.font.drawString(0, 0, selectedMorphInfo, Color.black);
 			newTotalHeight += UIRenderer.font.getHeight(selectedMorphInfo) + LINE_FEED_HEIGHT;
 		}
+		GL11.glScalef(1 / WorldRenderer.scale, 1 / WorldRenderer.scale, 1 / WorldRenderer.scale);
 	}
 }
