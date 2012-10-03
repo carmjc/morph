@@ -15,7 +15,7 @@ import org.newdawn.slick.opengl.TextureImpl;
 public class WorldRenderer implements Renderer<World> {
 
 	public static boolean debugDisplay = false;
-	public static float scale = 2;
+	public static float scale = 1;
 	public static final Vect3D focalPoint = new Vect3D(0, 0, 0);
 
 	// Renderers
