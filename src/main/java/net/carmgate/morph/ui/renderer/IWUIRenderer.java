@@ -89,24 +89,26 @@ public class IWUIRenderer {
 						}
 					}
 					baseTexture.bind();
+					GL11.glColor4f(1, 1, 1, 0.5f);
 					GL11.glBegin(GL11.GL_QUADS);
 					// We need to draw trapezoids instead of squares
 					// If we don't, we get 6 overlapping squares for the menu items and there is no way to know
 					// which one is picked when in select mode.
 					// (0, 0)
 					GL11.glTexCoord2f(243f / 512, 225f / 512);
-					GL11.glVertex2f(baseTexture.getTextureWidth() * (243 - 256) / 256 / 3, baseTexture.getTextureHeight() * (225 - 256) / 256 / 3);
+					GL11.glVertex2f(baseTexture.getTextureWidth() * (243 - 256) / 256 / 2, baseTexture.getTextureHeight() * (225 - 256) / 256 / 2);
 					// (0, 1)
 					GL11.glTexCoord2f(268f / 512, 225f / 512);
-					GL11.glVertex2f(baseTexture.getTextureWidth() * (268 - 256) / 256 / 3, baseTexture.getTextureHeight() * (225 - 256) / 256 / 3);
+					GL11.glVertex2f(baseTexture.getTextureWidth() * (268 - 256) / 256 / 2, baseTexture.getTextureHeight() * (225 - 256) / 256 / 2);
 					// (1, 1)
 					GL11.glTexCoord2f(374f / 512, 44f / 512);
-					GL11.glVertex2f(baseTexture.getTextureWidth() * (374 - 256) / 256 / 3, baseTexture.getTextureHeight() * (44 - 256) / 256 / 3);
+					GL11.glVertex2f(baseTexture.getTextureWidth() * (374 - 256) / 256 / 2, baseTexture.getTextureHeight() * (44 - 256) / 256 / 2);
 					// (1, 0)
 					GL11.glTexCoord2f(138f / 512, 44f / 512);
-					GL11.glVertex2f(baseTexture.getTextureWidth() * (138 - 256) / 256 / 3, baseTexture.getTextureHeight() * (44 - 256) / 256 / 3);
+					GL11.glVertex2f(baseTexture.getTextureWidth() * (138 - 256) / 256 / 2, baseTexture.getTextureHeight() * (44 - 256) / 256 / 2);
 					GL11.glEnd();
 					GL11.glColor4f(1f, 1f, 1f, 1f);
+					GL11.glColor4f(1, 1, 1, 1f);
 
 					// Draw the morph matching the possible evolution
 					if (menuItem instanceof EvolutionTypeIWMenuItem) {
@@ -129,7 +131,7 @@ public class IWUIRenderer {
 		if (menuItem != null && glMode != GL11.GL_SELECT) {
 			Texture evolTexture = MorphRenderer.getTextures().get(((EvolutionTypeIWMenuItem) menuItem).getEvolutionType().getMorphType());
 			if (evolTexture != null) {
-				GL11.glTranslatef(0, -90, 0);
+				GL11.glTranslatef(0, -55, 0);
 				GL11.glRotatef(-60 * menuItemIndex, 0, 0, 1);
 
 				evolTexture.bind();
@@ -145,7 +147,7 @@ public class IWUIRenderer {
 				GL11.glEnd();
 
 				GL11.glRotatef(60 * menuItemIndex, 0, 0, 1);
-				GL11.glTranslatef(0, 90, 0);
+				GL11.glTranslatef(0, 55, 0);
 			}
 		}
 	}

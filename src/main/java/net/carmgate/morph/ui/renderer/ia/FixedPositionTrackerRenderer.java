@@ -23,7 +23,7 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 
 	public void init() {
 		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("target.png").getPath()));
+			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("target-32.png").getPath()));
 		} catch (IOException e) {
 			log.error("Could not load textures", e);
 		}
@@ -31,6 +31,7 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 		forceRenderer = new ForceRenderer();
 	}
 
+	@Override
 	public void render(int glMode,
 			net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType,
 			FixedPositionTracker tracker) {
@@ -41,13 +42,13 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 			texture.bind();
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0, 0);
-			GL11.glVertex2f(- texture.getTextureWidth() / 2, - texture.getTextureWidth() / 2);
+			GL11.glVertex2f(-texture.getTextureWidth() / 2, -texture.getTextureWidth() / 2);
 			GL11.glTexCoord2f(1, 0);
-			GL11.glVertex2f(texture.getTextureWidth() / 2, - texture.getTextureWidth() / 2);
+			GL11.glVertex2f(texture.getTextureWidth() / 2, -texture.getTextureWidth() / 2);
 			GL11.glTexCoord2f(1, 1);
 			GL11.glVertex2f(texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
 			GL11.glTexCoord2f(0, 1);
-			GL11.glVertex2f(- texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
+			GL11.glVertex2f(-texture.getTextureWidth() / 2, texture.getTextureHeight() / 2);
 			GL11.glEnd();
 			GL11.glTranslatef(-targetPos.x, -targetPos.y, -targetPos.z);
 		}

@@ -22,7 +22,7 @@ public class MorphRenderer implements Renderer<Morph> {
 	private static final Logger LOGGER = Logger.getLogger(MorphRenderer.class);
 
 	/** Morph scale factor. */
-	protected static final float MORPH_SCALE_FACTOR = 0.97f;
+	protected static final float MORPH_SCALE_FACTOR = 0.90f;
 
 	/** The texture under the morph image. */
 	private static Texture baseTexture;
@@ -40,35 +40,35 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		try {
 			// load texture from PNG file
-			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath()));
+			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath()));
 
 			// Normal textures
 			textures.put(MorphType.BASIC,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
 			textures.put(MorphType.SHADOW,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
 			textures.put(MorphType.EMITTER,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
 			textures.put(MorphType.PROPULSOR,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor-32.png").getPath())));
 			textures.put(MorphType.SHIELD,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
 			textures.put(MorphType.STEM,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem-32.png").getPath())));
 
 			// Debug textures
 			debugTextures.put(MorphType.BASIC,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
 			debugTextures.put(MorphType.SHADOW,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
 			debugTextures.put(MorphType.EMITTER,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
 			debugTextures.put(MorphType.PROPULSOR,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor-32.png").getPath())));
 			debugTextures.put(MorphType.SHIELD,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
 			debugTextures.put(MorphType.STEM,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem-32.png").getPath())));
 		} catch (IOException e) {
 			LOGGER.error("Error while loading morph textures.", e);
 		}
@@ -79,6 +79,7 @@ public class MorphRenderer implements Renderer<Morph> {
 	 * The referential is center on the morph and rotated as the morph is rotated in the ship's referential or the world's referential
 	 * if the morph is not attached to a ship.
 	 */
+	@Override
 	public void render(int glMode, RenderStyle drawType, Morph morph) {
 		float alphaLevel = 1f;
 		GL11.glScalef(MORPH_SCALE_FACTOR, MORPH_SCALE_FACTOR, MORPH_SCALE_FACTOR);
@@ -150,9 +151,9 @@ public class MorphRenderer implements Renderer<Morph> {
 			morphTexture.bind();
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0, 0);
-			GL11.glVertex2f(-morphTexture.getTextureWidth() / 2, -morphTexture.getTextureWidth() / 2);
+			GL11.glVertex2f(-morphTexture.getTextureWidth() / 2, -morphTexture.getTextureHeight() / 2);
 			GL11.glTexCoord2f(1, 0);
-			GL11.glVertex2f(morphTexture.getTextureWidth() / 2, -morphTexture.getTextureWidth() / 2);
+			GL11.glVertex2f(morphTexture.getTextureWidth() / 2, -morphTexture.getTextureHeight() / 2);
 			GL11.glTexCoord2f(1, 1);
 			GL11.glVertex2f(morphTexture.getTextureWidth() / 2, morphTexture.getTextureHeight() / 2);
 			GL11.glTexCoord2f(0, 1);

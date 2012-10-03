@@ -185,6 +185,9 @@ public class Main {
 					break;
 				}
 			}
+			if (displayMode == null) {
+				throw new RuntimeException("There is no matching mode (depth=32, width=" + width + ", height=" + height + ")");
+			}
 			Display.setDisplayMode(displayMode);
 			Display.create();
 			Display.setTitle("Morph");
@@ -203,12 +206,15 @@ public class Main {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
+		// Tests
+		// GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width,
-				WorldRenderer.focalPoint.x + width,
-				WorldRenderer.focalPoint.y + height,
-				WorldRenderer.focalPoint.y - height);
+		GLU.gluOrtho2D(WorldRenderer.focalPoint.x - width / 2,
+				WorldRenderer.focalPoint.x + width / 2,
+				WorldRenderer.focalPoint.y + height / 2,
+				WorldRenderer.focalPoint.y - height / 2);
 
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -329,7 +335,7 @@ public class Main {
 
 			// updates display and sets frame rate
 			Display.update();
-			Display.sync(50);
+			Display.sync(80);
 
 			// Get mouse position in world coordinates
 			Vect3D worldMousePos = new Vect3D(MorphMouse.getX(), MorphMouse.getY(), 0);
@@ -346,10 +352,10 @@ public class Main {
 					WorldRenderer.focalPoint.substract(worldMousePos);
 					GL11.glMatrixMode(GL11.GL_PROJECTION);
 					GL11.glLoadIdentity();
-					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH,
-							WorldRenderer.focalPoint.x + WIDTH,
-							WorldRenderer.focalPoint.y + HEIGHT,
-							WorldRenderer.focalPoint.y - HEIGHT);
+					GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH / 2,
+							WorldRenderer.focalPoint.x + WIDTH / 2,
+							WorldRenderer.focalPoint.y + HEIGHT / 2,
+							WorldRenderer.focalPoint.y - HEIGHT / 2);
 					holdWorldMousePos.x = MorphMouse.getX();
 					holdWorldMousePos.y = MorphMouse.getY();
 
@@ -369,10 +375,10 @@ public class Main {
 							WorldRenderer.focalPoint.substract(worldMousePos);
 							GL11.glMatrixMode(GL11.GL_PROJECTION);
 							GL11.glLoadIdentity();
-							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH,
-									WorldRenderer.focalPoint.x + WIDTH,
-									WorldRenderer.focalPoint.y + HEIGHT,
-									WorldRenderer.focalPoint.y - HEIGHT);
+							GLU.gluOrtho2D(WorldRenderer.focalPoint.x - WIDTH / 2,
+									WorldRenderer.focalPoint.x + WIDTH / 2,
+									WorldRenderer.focalPoint.y + HEIGHT / 2,
+									WorldRenderer.focalPoint.y - HEIGHT / 2);
 						} else {
 							pick(MorphMouse.getX(), MorphMouse.getY());
 						}

@@ -73,6 +73,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		forceRenderer = new ForceRenderer();
 	}
 
+	@Override
 	public void render(int glMode, RenderStyle renderStyle, Ship ship) {
 		// Selection names management
 		if (glMode == GL11.GL_SELECT) {

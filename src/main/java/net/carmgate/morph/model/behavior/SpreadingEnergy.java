@@ -23,9 +23,9 @@ public class SpreadingEnergy extends NoActivationBehavior<Morph> {
 			LOGGER.trace("Transferring energy");
 
 			if (neighbor != null
-					&& neighbor.getEnergy() / neighbor.getMaxEnergy() < getOwner().getEnergy()
+					&& neighbor.getEnergy() / neighbor.getMaxEnergy() < getOwner().getEnergy() * 0.9
 							/ getOwner().getMaxEnergy()
-					&& neighbor.getEnergy() < neighbor.getMaxEnergy()) {
+					&& neighbor.getEnergy() < neighbor.getMaxEnergy() * 0.9) {
 				float transferRatio = neighbor.getMass() / neighbor.getMaxMass();
 				float energyTransferedToNeighbor = ModelConstants.ENERGY_TRANSFER_PER_SEC * transferRatio * World.getWorld().getSinceLastUpdateTS() / 1000;
 				neighbor.setEnergy(neighbor.getEnergy() + energyTransferedToNeighbor);

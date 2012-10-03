@@ -27,7 +27,7 @@ public class World {
 	private static final Logger LOGGER = Logger.getLogger(World.class);
 
 	/** the ratio between world x coordinates and ship grid x coordinates. **/
-	public static final int GRID_SIZE = 64;
+	public static final int GRID_SIZE = 32;
 
 	/** World singleton instance. */
 	private static World worldInstance;
@@ -158,7 +158,7 @@ public class World {
 							float energyAboveSustainable = m.getExcessEnergy() - sustainableExcessEnergy;
 							float lostMass = energyAboveSustainable * ModelConstants.MASS_LOSS_TO_EXCESS_ENERGY_RATIO;
 							m.setMass(m.getMass() - lostMass);
-							LOGGER.debug("Lost mass: " + lostMass + " - lost mass / s: " + lostMass * 1000 / World.getWorld().getSinceLastUpdateTS());
+							LOGGER.trace("Lost mass: " + lostMass + " - lost mass / s: " + lostMass * 1000 / World.getWorld().getSinceLastUpdateTS());
 							m.setEnergy(m.getEnergy() - energyAboveSustainable);
 						}
 					}

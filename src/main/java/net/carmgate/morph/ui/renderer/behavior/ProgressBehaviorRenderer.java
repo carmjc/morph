@@ -53,19 +53,19 @@ public class ProgressBehaviorRenderer extends BehaviorRenderer<Behavior<?>> {
 		texture.bind();
 		GL11.glBegin(GL11.GL_TRIANGLES);
 		double t; // temporary data holder
-		double x = 1; // radius = 1
+		double x = 0.5; // radius = 1
 		double y = 0;
 		for (int i = 0; i < nbSegments * progressBehavior.getProgress(); i++) {
 			GL11.glTexCoord2f(0.5f, 0.5f);
 			GL11.glVertex2f(0, 0);
-			GL11.glTexCoord2d(0.5f + x / 2, 0.5f + y / 2);
+			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
 			GL11.glVertex2d(texture.getTextureWidth() * x, texture.getTextureWidth() * y);
 
 			t = x;
 			x = cos * x - sin * y;
 			y = sin * t + cos * y;
 
-			GL11.glTexCoord2d(0.5f + x / 2, 0.5f + y / 2);
+			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
 			GL11.glVertex2d(texture.getTextureWidth() * x, texture.getTextureWidth() * y);
 		}
 		GL11.glEnd();
