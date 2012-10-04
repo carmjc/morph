@@ -24,6 +24,7 @@ public class ZoomAction implements Runnable {
 			if (Math.abs(smoothZoomScaleTarget - WorldRenderer.scale) < Math.abs(smoothZoomScaleIncrement)) {
 				WorldRenderer.scale = smoothZoomScaleTarget;
 				smoothZoomScaleIncrement = 0;
+				LOGGER.debug("Final scale: " + WorldRenderer.scale);
 			}
 			GL11.glMatrixMode(GL11.GL_PROJECTION);
 			GL11.glLoadIdentity();
@@ -39,13 +40,12 @@ public class ZoomAction implements Runnable {
 		int eventKey = Keyboard.getEventKey();
 		boolean eventKeyState = Keyboard.getEventKeyState();
 
-		if (eventKey == Keyboard.KEY_EQUALS || eventKey == Keyboard.KEY_ADD && !eventKeyState) {
+		if ((eventKey == Keyboard.KEY_EQUALS || eventKey == Keyboard.KEY_ADD) && !eventKeyState) {
 			// Zoom in
 			smoothZoomScaleTarget = WorldRenderer.scale / 2;
+			LOGGER.debug("Scale target: " + smoothZoomScaleTarget);
 			smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
-
-			LOGGER.debug("Zoom in");
-		} else if (eventKey == Keyboard.KEY_6 || eventKey == Keyboard.KEY_MINUS && !eventKeyState) {
+		} else if ((eventKey == Keyboard.KEY_6 || eventKey == Keyboard.KEY_MINUS) && !eventKeyState) {
 			// Zoom out
 			smoothZoomScaleTarget = WorldRenderer.scale * 2;
 			smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;

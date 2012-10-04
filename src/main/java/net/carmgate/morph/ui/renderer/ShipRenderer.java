@@ -105,7 +105,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		renderShipMorphBehaviors(glMode, renderStyle, ship);
 		renderShipSpeed(glMode, renderStyle, ship);
 
-		if (glMode != GL11.GL_SELECT) {
+		if (glMode != GL11.GL_SELECT && WorldRenderer.debugDisplay) {
 			for (Morph morph : UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values()) {
 				GL11.glTranslatef(morph.getPosInWorld().x, morph.getPosInWorld().y, morph.getPosInWorld().z);
 				selectedMorphRenderer.render(glMode, renderStyle, morph);
