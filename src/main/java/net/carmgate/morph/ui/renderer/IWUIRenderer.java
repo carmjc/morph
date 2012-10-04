@@ -133,10 +133,10 @@ public class IWUIRenderer {
 		if (menuItem != null && glMode != GL11.GL_SELECT) {
 			Texture evolTexture = MorphRenderer.getTextures().get(((EvolutionTypeIWMenuItem) menuItem).getEvolutionType().getMorphType());
 			if (evolTexture != null) {
-				if ((float) World.getWorld().getCurrentTS() / 1000 % 2 < 1) {
-					GL11.glColor4f(1, 1, 1, 0.75f + (float) World.getWorld().getCurrentTS() / 1000 % 2 / 4);
+				if ((float) World.getWorld().getCurrentTS() / 1000 % 1 < 0.5f) {
+					GL11.glColor4f(1, 1, 1, 0.75f + (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
 				} else {
-					GL11.glColor4f(1, 1, 1, 1.25f - (float) World.getWorld().getCurrentTS() / 1000 % 2 / 4);
+					GL11.glColor4f(1, 1, 1, 1.25f - (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
 				}
 
 				GL11.glTranslatef(0, -40, 0);
