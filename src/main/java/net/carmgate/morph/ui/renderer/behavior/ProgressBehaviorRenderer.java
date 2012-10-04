@@ -26,7 +26,7 @@ public class ProgressBehaviorRenderer extends BehaviorRenderer<Behavior<?>> {
 
 	static {
 		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("ui/circular-progress-32.png").getPath()));
+			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("ui/circular-progress-64.png").getPath()));
 			// texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("ui/circular-menu-fake.png").getPath()));
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Failed loading texture.", e);

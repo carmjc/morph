@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
+import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.model.behavior.ProgressBehavior;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.ui.model.UIModel;
@@ -82,7 +84,16 @@ public class MorphRenderer implements Renderer<Morph> {
 	@Override
 	public void render(int glMode, RenderStyle drawType, Morph morph) {
 		float alphaLevel = 1f;
-		GL11.glScalef(MORPH_SCALE_FACTOR, MORPH_SCALE_FACTOR, MORPH_SCALE_FACTOR);
+		float morphScaleFactor = MORPH_SCALE_FACTOR;
+
+		for (Behavior<?> b : morph.getAlternateBehaviorList()) {
+			if (b instanceof ProgressBehavior) {
+				morphScaleFactor = 0.65f;
+				alphaLevel *= 0.5f;
+			}
+		}
+
+		GL11.glScalef(morphScaleFactor, morphScaleFactor, morphScaleFactor);
 
 		// make current morph selectable
 		if (glMode == GL11.GL_SELECT) {
@@ -134,8 +145,8 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glColor4f(0.85f, 0.85f, 0.85f, alphaLevel);
 		}
 
-		GL11.glScalef(1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR, 1 / MORPH_SCALE_FACTOR);
-		float size = MORPH_SCALE_FACTOR * morph.getMass() / morph.getClass().getAnnotation(MorphInfo.class).maxMass();
+		GL11.glScalef(1 / morphScaleFactor, 1 / morphScaleFactor, 1 / morphScaleFactor);
+		float size = morphScaleFactor * morph.getMass() / morph.getClass().getAnnotation(MorphInfo.class).maxMass();
 		if (size == Float.POSITIVE_INFINITY || size == 0 || Float.isNaN(size)) {
 			size = 0.01f;
 		}
