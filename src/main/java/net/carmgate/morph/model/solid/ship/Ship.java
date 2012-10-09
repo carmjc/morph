@@ -230,16 +230,18 @@ public abstract class Ship {
 	 * the ship is at full mass.
 	 */
 	private void calculateCOM() {
+		LOGGER.debug("Calculate COM");
+
 		centerOfMass.copy(Vect3D.NULL);
 		float shipMass = 0;
 		for (Morph m : getMorphsByIds().values()) {
 			// Add the weighted pos in ship of the morph
 			Vect3D weightedPosInShip = new Vect3D(m.getPosInShip());
-			weightedPosInShip.prodScal(m.getMass());
+			weightedPosInShip.prodScal(m.getMaxMass());
 			centerOfMass.add(weightedPosInShip);
 
 			// add the morph's mass to the ship's mass
-			shipMass += m.getMass();
+			shipMass += m.getMaxMass();
 		}
 		centerOfMass.normalize(centerOfMass.modulus() / shipMass);
 	}

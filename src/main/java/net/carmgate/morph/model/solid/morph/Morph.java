@@ -272,7 +272,7 @@ public abstract class Morph {
 	 * Return max mass deducted from the MorphInfo annotation.
 	 * @return
 	 */
-	public float getMaxMass() {
+	public final float getMaxMass() {
 		return getClass().getAnnotation(MorphInfo.class).maxMass();
 	}
 

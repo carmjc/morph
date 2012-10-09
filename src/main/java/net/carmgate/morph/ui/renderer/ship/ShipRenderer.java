@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.renderer;
+package net.carmgate.morph.ui.renderer.ship;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,12 +15,13 @@ import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.Transforming;
-import net.carmgate.morph.model.behavior.old.Emitting;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.ui.model.UIModel;
+import net.carmgate.morph.ui.renderer.ForceRenderer;
+import net.carmgate.morph.ui.renderer.Renderer;
+import net.carmgate.morph.ui.renderer.WorldRenderer;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
-import net.carmgate.morph.ui.renderer.behavior.EmittingRenderer;
 import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
 import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
@@ -42,7 +43,7 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	static {
 		try {
-			comTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("com32.png").getPath()));
+			comTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("com16.png").getPath()));
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Texture file not found", e);
 		} catch (IOException e) {
@@ -60,7 +61,6 @@ public class ShipRenderer implements Renderer<Ship> {
 		selectedMorphRenderer = new SelectedMorphRenderer();
 
 		// Behavior renderers map init
-		behaviorRenderersMap.put(Emitting.class, new EmittingRenderer());
 		behaviorRenderersMap.put(SpreadingEnergy.class, null);
 		behaviorRenderersMap.put(Transforming.class, new ProgressBehaviorRenderer());
 

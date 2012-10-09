@@ -1,6 +1,5 @@
 package net.carmgate.morph.model.solid.ship;
 
-import net.carmgate.morph.model.solid.morph.BasicMorph;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemMorph;
 
@@ -15,9 +14,9 @@ public class TestShip extends Ship {
 	public TestShip(float x, float y, float z) {
 		super(x, y, z);
 
-		addMorph(new BasicMorph(), -1, 1, 0);
+		addMorph(new StemMorph(), -1, 1, 0);
 		addMorph(new PropulsorMorph(), -1, 0, 0);
-		addMorph(new PropulsorMorph(), 0, 1, 0);
+		addMorph(new StemMorph(), 0, 1, 0);
 		addMorph(new StemMorph(), 0, 0, 0);
 
 	}

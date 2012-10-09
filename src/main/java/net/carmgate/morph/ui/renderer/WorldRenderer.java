@@ -8,6 +8,8 @@ import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.solid.world.WorldArea;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.renderer.energysource.EnergySourceRenderer;
+import net.carmgate.morph.ui.renderer.ship.SelectedShipRenderer;
+import net.carmgate.morph.ui.renderer.ship.ShipRenderer;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.TextureImpl;
@@ -19,7 +21,8 @@ public class WorldRenderer implements Renderer<World> {
 	public static final Vect3D focalPoint = new Vect3D(0, 0, 0);
 
 	// Renderers
-	private ShipRenderer currentShipRenderer = new ShipRenderer();
+	private ShipRenderer shipRenderer = new ShipRenderer();
+	private SelectedShipRenderer selectedShipRenderer = new SelectedShipRenderer();
 	private ForceRenderer currentForceRenderer = new ForceRenderer();
 	private WorldAreaRenderer currentWorldAreaRenderer = new WorldAreaRenderer();
 	private EnergySourceRenderer currentEnergySourceRenderer = new EnergySourceRenderer();
@@ -102,7 +105,8 @@ public class WorldRenderer implements Renderer<World> {
 	 */
 	private void renderShips(int glMode, RenderStyle drawType, World world) {
 		for (Ship ship : world.getShips().values()) {
-			currentShipRenderer.render(glMode, drawType, ship);
+			shipRenderer.render(glMode, drawType, ship);
+			selectedShipRenderer.render(glMode, drawType, ship);
 		}
 	}
 
@@ -123,7 +127,7 @@ public class WorldRenderer implements Renderer<World> {
 	}
 
 	public void setShipRenderer(ShipRenderer shipRenderer) {
-		currentShipRenderer = shipRenderer;
+		shipRenderer = shipRenderer;
 	}
 
 	public void setWorldAreaRenderer(WorldAreaRenderer worldAreaRenderer) {
