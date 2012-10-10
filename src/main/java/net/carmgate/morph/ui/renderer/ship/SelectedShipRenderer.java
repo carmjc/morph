@@ -29,7 +29,6 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 	static {
 		try {
 			texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("ui/ship-selection-16.png").getPath()));
-			// texture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("ui/circular-menu-fake.png").getPath()));
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Failed loading texture.", e);
 		} catch (IOException e) {

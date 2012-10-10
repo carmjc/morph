@@ -23,15 +23,25 @@ public class MorphRenderer implements Renderer<Morph> {
 
 	private static final Logger LOGGER = Logger.getLogger(MorphRenderer.class);
 
-	/** Morph scale factor. */
-	protected static final float MORPH_SCALE_FACTOR = 0.90f;
+	private static final int nbSegments = 40;
+	private static final double deltaAngle = 2 * Math.PI / nbSegments;
+	private static final double cos = Math.cos(deltaAngle);
+	private static final double sin = Math.sin(deltaAngle);
+
+	private static Texture energyMassTexture;
 
 	/** The texture under the morph image. */
 	private static Texture baseTexture;
 
+	/** The texture under the morph image when morph is selected. */
+	private static Texture baseSelectedTexture;
+
 	/** The map of the morph texture. */
 	private final static Map<MorphType, Texture> textures = new HashMap<Morph.MorphType, Texture>();
-	private final static Map<MorphType, Texture> debugTextures = new HashMap<Morph.MorphType, Texture>();
+
+	public static Texture getBaseTexture() {
+		return baseTexture;
+	}
 
 	public static Map<MorphType, Texture> getTextures() {
 		return textures;
@@ -42,35 +52,18 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		try {
 			// load texture from PNG file
-			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath()));
+			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32.png").getPath()));
+			baseSelectedTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-selected.png")
+					.getPath()));
 
 			// Normal textures
-			textures.put(MorphType.BASIC,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
-			textures.put(MorphType.SHADOW,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
-			textures.put(MorphType.EMITTER,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
 			textures.put(MorphType.PROPULSOR,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor-32.png").getPath())));
-			textures.put(MorphType.SHIELD,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-prop-32.png").getPath())));
 			textures.put(MorphType.STEM,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem-32.png").getPath())));
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-stem-32.png").getPath())));
 
-			// Debug textures
-			debugTextures.put(MorphType.BASIC,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
-			debugTextures.put(MorphType.SHADOW,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/neutral-32.png").getPath())));
-			debugTextures.put(MorphType.EMITTER,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/firer.png").getPath())));
-			debugTextures.put(MorphType.PROPULSOR,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/propulsor-32.png").getPath())));
-			debugTextures.put(MorphType.SHIELD,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/shield.png").getPath())));
-			debugTextures.put(MorphType.STEM,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("new-morphs/stem-32.png").getPath())));
+			// Energy and mass gauge texture
+			energyMassTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-gauge.png").getPath()));
 		} catch (IOException e) {
 			LOGGER.error("Error while loading morph textures.", e);
 		}
@@ -83,13 +76,19 @@ public class MorphRenderer implements Renderer<Morph> {
 	 */
 	@Override
 	public void render(int glMode, RenderStyle drawType, Morph morph) {
-		float alphaLevel = 1f;
-		float morphScaleFactor = MORPH_SCALE_FACTOR;
+		float alphaLevel;
+		if (morph.getMaxMass() != 0) {
+			alphaLevel = morph.getMass() / morph.getMaxMass();
+		} else {
+			alphaLevel = 1;
+		}
+		float morphScaleFactor = 1;
 
 		for (Behavior<?> b : morph.getAlternateBehaviorList()) {
 			if (b instanceof ProgressBehavior) {
 				morphScaleFactor = 0.65f;
 				alphaLevel *= 0.5f;
+				break;
 			}
 		}
 
@@ -100,27 +99,10 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glPushName(morph.getId());
 		}
 
-		// Shadow morphs are just basic morphs with half transparency
+		// Shadow morphs are just basic morphs with more transparency
 		if (morph.getClass().getAnnotation(MorphInfo.class).type() == MorphType.SHADOW) {
-			alphaLevel *= 0.5f;
+			alphaLevel *= 0.3f;
 		}
-
-		// sphere texture
-		alphaLevel *= 0.3f;
-		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
-		baseTexture.bind();
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 1);
-		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
-		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
-		GL11.glEnd();
-		alphaLevel /= 0.3f;
-		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
 
 		// morph texture
 		if (WorldRenderer.debugDisplay) {
@@ -145,19 +127,28 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glColor4f(0.85f, 0.85f, 0.85f, alphaLevel);
 		}
 
-		GL11.glScalef(1 / morphScaleFactor, 1 / morphScaleFactor, 1 / morphScaleFactor);
-		float size = morphScaleFactor * morph.getMass() / morph.getClass().getAnnotation(MorphInfo.class).maxMass();
-		if (size == Float.POSITIVE_INFINITY || size == 0 || Float.isNaN(size)) {
-			size = 0.01f;
+		GL11.glColor4f(1, 1, 1, alphaLevel);
+		// sphere texture
+		if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().containsValue(morph)) {
+			baseSelectedTexture.bind();
+		} else {
+			baseTexture.bind();
 		}
-		LOGGER.trace(morph.getClass() + " current mass: " + morph.getMass() + " - size: " + size);
-		GL11.glScalef(size, size, size);
+		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glTexCoord2f(0, 0);
+		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
+		GL11.glTexCoord2f(1, 0);
+		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
+		GL11.glTexCoord2f(1, 1);
+		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
+		GL11.glTexCoord2f(0, 1);
+		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
+		GL11.glEnd();
+
+		GL11.glColor4f(1, 1, 1, 1);
 
 		// morph texture
 		Texture morphTexture = textures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
-		if (drawType == RenderStyle.DEBUG) {
-			morphTexture = debugTextures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
-		}
 		if (morphTexture != null) {
 			morphTexture.bind();
 			GL11.glBegin(GL11.GL_QUADS);
@@ -172,8 +163,12 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glEnd();
 		}
 
-		GL11.glColor4f(1, 1, 1, 1);
-		GL11.glScalef(1 / size, 1 / size, 1 / size);
+		if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+			renderEnergy(glMode, drawType, morph);
+			renderMass(glMode, drawType, morph);
+		}
+
+		GL11.glScalef(1 / morphScaleFactor, 1 / morphScaleFactor, 1 / morphScaleFactor);
 
 		// make current morph selectable
 		if (glMode == GL11.GL_SELECT) {
@@ -182,4 +177,47 @@ public class MorphRenderer implements Renderer<Morph> {
 
 	}
 
+	private void renderEnergy(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Morph morph) {
+		energyMassTexture.bind();
+		GL11.glBegin(GL11.GL_TRIANGLES);
+		double t; // temporary data holder
+		double x = -0.5; // radius = 1
+		double y = 0;
+		for (int i = 0; i < nbSegments * morph.getEnergy() / morph.getMaxEnergy() / 2; i++) {
+			GL11.glTexCoord2f(0.5f, 0.5f);
+			GL11.glVertex2f(0, 0);
+			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
+			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
+
+			t = x;
+			x = cos * x - sin * y;
+			y = sin * t + cos * y;
+
+			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
+			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
+		}
+		GL11.glEnd();
+	}
+
+	private void renderMass(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Morph morph) {
+		energyMassTexture.bind();
+		GL11.glBegin(GL11.GL_TRIANGLES);
+		double t; // temporary data holder
+		double x = -0.5; // radius = 1
+		double y = 0;
+		for (int i = 0; i < nbSegments * morph.getMass() / morph.getMaxMass() / 2; i++) {
+			GL11.glTexCoord2f(0.5f, 0.5f);
+			GL11.glVertex2f(0, 0);
+			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
+			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
+
+			t = x;
+			x = cos * x + sin * y;
+			y = -sin * t + cos * y;
+
+			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
+			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
+		}
+		GL11.glEnd();
+	}
 }

@@ -131,6 +131,32 @@ public class IWUIRenderer {
 	 */
 	private void renderMorphTypeMenuItemContent(int glMode, int menuItemIndex, IWMenuItem menuItem) {
 		if (menuItem != null && glMode != GL11.GL_SELECT) {
+			Texture baseTexture = MorphRenderer.getBaseTexture();
+			if (baseTexture != null) {
+				if ((float) World.getWorld().getCurrentTS() / 1000 % 1 < 0.5f) {
+					GL11.glColor4f(1, 1, 1, 0.75f + (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
+				} else {
+					GL11.glColor4f(1, 1, 1, 1.25f - (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
+				}
+
+				GL11.glTranslatef(0, -40, 0);
+				GL11.glRotatef(-60 * menuItemIndex, 0, 0, 1);
+
+				baseTexture.bind();
+				GL11.glBegin(GL11.GL_QUADS);
+				GL11.glTexCoord2f(0, 0);
+				GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
+				GL11.glTexCoord2f(1, 0);
+				GL11.glVertex2f(baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
+				GL11.glTexCoord2f(1, 1);
+				GL11.glVertex2f(baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
+				GL11.glTexCoord2f(0, 1);
+				GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
+				GL11.glEnd();
+
+				GL11.glRotatef(60 * menuItemIndex, 0, 0, 1);
+				GL11.glTranslatef(0, 40, 0);
+			}
 			Texture evolTexture = MorphRenderer.getTextures().get(((EvolutionTypeIWMenuItem) menuItem).getEvolutionType().getMorphType());
 			if (evolTexture != null) {
 				if ((float) World.getWorld().getCurrentTS() / 1000 % 1 < 0.5f) {
