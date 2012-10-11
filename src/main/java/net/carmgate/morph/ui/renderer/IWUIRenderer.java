@@ -13,7 +13,6 @@ import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.iwmenu.EvolutionTypeIWMenuItem;
 import net.carmgate.morph.ui.model.iwmenu.IWMenu;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
-import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
 
 import org.apache.log4j.Logger;
@@ -21,7 +20,7 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-public class IWUIRenderer {
+public class IWUIRenderer implements Renderer<World> {
 	private static final Logger LOGGER = Logger.getLogger(UIRenderer.class);
 	private static Texture baseTexture;
 	static {
@@ -39,7 +38,8 @@ public class IWUIRenderer {
 	public void init() {
 	}
 
-	public void render(int glMode, RenderStyle drawType) {
+	@Override
+	public void render(int glMode, RenderStyle drawType, World world) {
 		// TODO This should maybe evolve towards a factory system
 		switch (UIModel.getUiModel().getUiState()) {
 		case EVOLVING:

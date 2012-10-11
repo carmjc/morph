@@ -42,6 +42,7 @@ public class World {
 
 	public static boolean combat = false;
 	public static boolean freeze = false;
+	public static boolean lockedOnFirstSelectedShip = false;
 
 	public static World getWorld() {
 		if (worldInstance == null) {

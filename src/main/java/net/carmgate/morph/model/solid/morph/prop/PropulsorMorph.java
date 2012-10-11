@@ -32,7 +32,7 @@ public class PropulsorMorph extends BasicMorph {
 
 	@Override
 	public boolean deactivate() {
-		LOGGER.debug("PropulsorMorph deactivated.");
+		LOGGER.trace("PropulsorMorph deactivated.");
 
 		// If the propulsor has been stopped because of a lack of energy,
 		// create a new behavior to slow down the ship

@@ -7,9 +7,8 @@ import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.interaction.KeyboardAndMouseHandler;
-import net.carmgate.morph.ui.renderer.IWUIRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
-import net.carmgate.morph.ui.renderer.UIRenderer;
+import net.carmgate.morph.ui.renderer.RendererHolder;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -52,14 +51,6 @@ public class Main {
 		Main sample = new Main();
 		sample.start();
 	}
-
-	/** The solid data model root. */
-	private World world;
-
-	// Renderers
-	private WorldRenderer worldRenderer;
-	private UIRenderer uiRenderer;
-	private IWUIRenderer uiInWorldRenderer;
 
 	// Interactions handler
 	private KeyboardAndMouseHandler keyboardAndMouseHandler;
@@ -122,24 +113,19 @@ public class Main {
 	public void render() {
 
 		// draw world
-		RenderStyle renderStyle = RenderStyle.NORMAL;
-		if (WorldRenderer.debugDisplay) {
-			renderStyle = RenderStyle.DEBUG;
-		}
-		// go down into the stack to leave a stack level for the interface
-		worldRenderer.render(GL11.GL_RENDER, renderStyle, world);
-		uiInWorldRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
+		RendererHolder.worldRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
+		RendererHolder.iwuiRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
 
 		// Interface rendering
 		GL11.glTranslatef(WorldRenderer.focalPoint.x, WorldRenderer.focalPoint.y, WorldRenderer.focalPoint.z);
-		uiRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
+		RendererHolder.uiRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
 		GL11.glTranslatef(-WorldRenderer.focalPoint.x, -WorldRenderer.focalPoint.y, -WorldRenderer.focalPoint.z);
 
 		// move world
-		world.update();
+		World.getWorld().update();
 
 		// udpate IAs
-		for (Ship ship : world.getShips().values()) {
+		for (Ship ship : World.getWorld().getShips().values()) {
 			List<IA> iasToRemove = new ArrayList<IA>();
 			for (IA ia : ship.getIAList()) {
 				if (ia != null) {
@@ -163,14 +149,9 @@ public class Main {
 	public void start() {
 		initGL(WIDTH, HEIGHT);
 
-		// Initializes the world and its renderer
-		world = World.getWorld();
-		world.init();
-		worldRenderer = new WorldRenderer();
-		uiRenderer = new UIRenderer();
-		uiRenderer.init();
-		uiInWorldRenderer = new IWUIRenderer();
-		keyboardAndMouseHandler = new KeyboardAndMouseHandler(uiInWorldRenderer, worldRenderer);
+		// Initializes the world
+		World.getWorld().init();
+		keyboardAndMouseHandler = new KeyboardAndMouseHandler();
 
 		// Rendering loop
 		while (true) {

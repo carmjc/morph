@@ -23,10 +23,6 @@ public class UIRenderer {
 		font = new TrueTypeFont(awtFont, true);
 	}
 
-	public void init() {
-		// load a default java font
-	}
-
 	public void render(int glMode, RenderStyle drawType) {
 		LOGGER.trace("Rendering interface");
 		TextureImpl.bindNone();

@@ -9,8 +9,8 @@ import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
-import net.carmgate.morph.ui.renderer.IWUIRenderer;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
+import net.carmgate.morph.ui.renderer.RendererHolder;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -28,12 +28,7 @@ public class PickingHandler {
 	private static final int NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH = 0;
 	private static final int NAME_STACK_LEVEL_SHIPS = 1;
 
-	private IWUIRenderer iwUIRenderer;
-	private WorldRenderer worldRenderer;
-
-	public PickingHandler(IWUIRenderer iwUIRenderer, WorldRenderer worldRenderer) {
-		this.iwUIRenderer = iwUIRenderer;
-		this.worldRenderer = worldRenderer;
+	public PickingHandler() {
 	}
 
 	/**
@@ -107,20 +102,14 @@ public class PickingHandler {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glPushMatrix();
 		GL11.glLoadIdentity();
-		// GL11.glScalef(SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR);
+
 		float pickMatrixX = x; // SCALE_FACTOR;
 		float pickMatrixY = y; // SCALE_FACTOR;
 		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 5.0f, 5.0f, viewport);
 		GLU.gluOrtho2D(0, Main.WIDTH, 0, Main.HEIGHT);
 
-		// name stack level for the ui elements
-		// the name stack for ships and morphs is handled in the ShipRenderer and the MorphRenderer
-		// make current morph selectable
-		// GL11.glPushName(0);
-		iwUIRenderer.render(GL11.GL_SELECT, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
-		worldRenderer.render(GL11.GL_SELECT, null, World.getWorld());
-		// pop name stack level for ui elements
-		// GL11.glPopName();
+		RendererHolder.iwuiRenderer.render(GL11.GL_SELECT, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
+		RendererHolder.worldRenderer.render(GL11.GL_SELECT, null, World.getWorld());
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glPopMatrix();
@@ -134,7 +123,7 @@ public class PickingHandler {
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
 		int hits = glPick(x, y, selectBuf);
-		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
+		LOGGER.trace("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
 		// if there was no solid model hit, we need to deselect everything
 		if (hits == 0 || selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) == 0) {

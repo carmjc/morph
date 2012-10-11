@@ -182,7 +182,7 @@ public class MorphRenderer implements Renderer<Morph> {
 		double t; // temporary data holder
 		double x = -0.5; // radius = 1
 		double y = 0;
-		for (int i = 0; i < nbSegments * morph.getEnergy() / morph.getMaxEnergy() / 2; i++) {
+		for (int i = 0; i < nbSegments * Math.min(1, morph.getEnergy() / morph.getMaxEnergy()) / 2; i++) {
 			GL11.glTexCoord2f(0.5f, 0.5f);
 			GL11.glVertex2f(0, 0);
 			GL11.glTexCoord2d(0.5f + x, 0.5f + y);

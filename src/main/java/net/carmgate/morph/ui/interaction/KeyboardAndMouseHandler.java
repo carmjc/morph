@@ -15,11 +15,11 @@ import net.carmgate.morph.ui.interaction.action.ShowEvolveMenuAction;
 import net.carmgate.morph.ui.interaction.action.ToggleCombatMode;
 import net.carmgate.morph.ui.interaction.action.ToggleDebugAction;
 import net.carmgate.morph.ui.interaction.action.ToggleFreezeAction;
+import net.carmgate.morph.ui.interaction.action.ToggleLockedOnFirstSelectedShip;
 import net.carmgate.morph.ui.interaction.action.zoom.ZoomAction;
 import net.carmgate.morph.ui.interaction.action.zoom.ZoomInAction;
 import net.carmgate.morph.ui.interaction.action.zoom.ZoomOutAction;
 import net.carmgate.morph.ui.model.UIModel;
-import net.carmgate.morph.ui.renderer.IWUIRenderer;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -33,26 +33,25 @@ public class KeyboardAndMouseHandler {
 	private static final Logger LOGGER = Logger.getLogger(KeyboardAndMouseHandler.class);
 
 	// Mouse
-	private Vect3D holdWorldMousePos = null;
+	private Vect3D holdMousePos = null;
 
 	// Actions
 	private final Map<Command, Runnable> keyboardMapping = new HashMap<Command, Runnable>();
 	private final ZoomAction zoomAction = new ZoomAction();
 
 	// These renderers are used for picking
-	private IWUIRenderer iwUIRenderer;
-	private WorldRenderer worldRenderer;
 	private PickingHandler pickingHandler;
+
+	/** true if the user is currently dragging. */
+	private boolean isDragging = false;
 
 	/**
 	 * The distance (in pixels) the mouse should be dragged to trigger a world translation following the mouse pointer.
 	 */
 	private static final int MIN_MOVE_FOR_DRAG = 5;
 
-	public KeyboardAndMouseHandler(IWUIRenderer iwUIRenderer, WorldRenderer worldRenderer) {
-		this.iwUIRenderer = iwUIRenderer;
-		this.worldRenderer = worldRenderer;
-		pickingHandler = new PickingHandler(iwUIRenderer, worldRenderer);
+	public KeyboardAndMouseHandler() {
+		pickingHandler = new PickingHandler();
 
 		initKeyboardMapping();
 	}
@@ -61,6 +60,7 @@ public class KeyboardAndMouseHandler {
 		keyboardMapping.put(new Command(Keyboard.KEY_A, null), new ToggleCombatMode());
 		keyboardMapping.put(new Command(Keyboard.KEY_D, null), new ToggleDebugAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_E, null), new ShowEvolveMenuAction());
+		keyboardMapping.put(new Command(Keyboard.KEY_L, null), new ToggleLockedOnFirstSelectedShip());
 		keyboardMapping.put(new Command(Keyboard.KEY_6, null), new ZoomInAction(zoomAction));
 		keyboardMapping.put(new Command(Keyboard.KEY_EQUALS, null), new ZoomOutAction(zoomAction));
 		keyboardMapping.put(new Command(Keyboard.KEY_PAUSE, null), new ToggleFreezeAction());
@@ -98,13 +98,24 @@ public class KeyboardAndMouseHandler {
 	 * @param worldMousePos
 	 */
 	private void processMouse(Vect3D worldMousePos) {
+		if (!isDragging && World.lockedOnFirstSelectedShip
+				&& UIModel.getUiModel().getSelectionModel().getSelectedShips().values().size() > 0) {
+			WorldRenderer.focalPoint.copy(UIModel.getUiModel().getSelectionModel().getSelectedShips().values().iterator().next().getPos());
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadIdentity();
+			GLU.gluOrtho2D(WorldRenderer.focalPoint.x - Main.WIDTH / 2 * WorldRenderer.scale,
+					WorldRenderer.focalPoint.x + Main.WIDTH / 2 * WorldRenderer.scale,
+					WorldRenderer.focalPoint.y + Main.HEIGHT / 2 * WorldRenderer.scale,
+					WorldRenderer.focalPoint.y - Main.HEIGHT / 2 * WorldRenderer.scale);
+		}
+
 		// Handling world moving around by drag and dropping the world.
 		// This portion of code is meant to allow the engine to show the world properly
 		// while it's being dragged.
-		if (holdWorldMousePos != null) {
-			if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG
-					|| Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG) {
-				WorldRenderer.focalPoint.add(holdWorldMousePos);
+		if (holdMousePos != null) {
+			if (isDragging || Math.abs(holdMousePos.x - MorphMouse.getX()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG
+					|| Math.abs(holdMousePos.y - MorphMouse.getY()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG) {
+				WorldRenderer.focalPoint.add(holdMousePos);
 				WorldRenderer.focalPoint.substract(worldMousePos);
 				GL11.glMatrixMode(GL11.GL_PROJECTION);
 				GL11.glLoadIdentity();
@@ -112,9 +123,11 @@ public class KeyboardAndMouseHandler {
 						WorldRenderer.focalPoint.x + Main.WIDTH / 2 * WorldRenderer.scale,
 						WorldRenderer.focalPoint.y + Main.HEIGHT / 2 * WorldRenderer.scale,
 						WorldRenderer.focalPoint.y - Main.HEIGHT / 2 * WorldRenderer.scale);
-				holdWorldMousePos.x = MorphMouse.getX();
-				holdWorldMousePos.y = MorphMouse.getY();
+				holdMousePos.x = MorphMouse.getX();
+				holdMousePos.y = MorphMouse.getY();
 
+				// we are dragging the world
+				isDragging = true;
 			}
 		}
 
@@ -125,9 +138,9 @@ public class KeyboardAndMouseHandler {
 			if (Mouse.getEventButton() == 0) {
 				// if event button state is false, the button is being released
 				if (!Mouse.getEventButtonState()) {
-					if (Math.abs(holdWorldMousePos.x - MorphMouse.getX()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG
-							|| Math.abs(holdWorldMousePos.y - MorphMouse.getY()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG) {
-						WorldRenderer.focalPoint.add(holdWorldMousePos);
+					if (isDragging || Math.abs(holdMousePos.x - MorphMouse.getX()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG
+							|| Math.abs(holdMousePos.y - MorphMouse.getY()) > KeyboardAndMouseHandler.MIN_MOVE_FOR_DRAG) {
+						WorldRenderer.focalPoint.add(holdMousePos);
 						WorldRenderer.focalPoint.substract(worldMousePos);
 						GL11.glMatrixMode(GL11.GL_PROJECTION);
 						GL11.glLoadIdentity();
@@ -135,13 +148,14 @@ public class KeyboardAndMouseHandler {
 								WorldRenderer.focalPoint.x + Main.WIDTH / 2 * WorldRenderer.scale,
 								WorldRenderer.focalPoint.y + Main.HEIGHT / 2 * WorldRenderer.scale,
 								WorldRenderer.focalPoint.y - Main.HEIGHT / 2 * WorldRenderer.scale);
+						isDragging = false;
 					} else {
 						pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY());
 					}
-					holdWorldMousePos = null;
+					holdMousePos = null;
 				} else {
 					// the mouse left button is being pressed
-					holdWorldMousePos = worldMousePos;
+					holdMousePos = worldMousePos;
 				}
 			}
 
@@ -149,7 +163,7 @@ public class KeyboardAndMouseHandler {
 			if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0
 					&& !World.combat) {
 
-				LOGGER.debug("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
+				LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
 				for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
 					List<IA> iaList = selectedShip.getIAList();
 
@@ -164,7 +178,7 @@ public class KeyboardAndMouseHandler {
 					}
 
 					// If we found no tracker, create a new one and add it to this ship's
-					// IA list
+					// AI list
 					if (!foundATracker) {
 						iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
 					}

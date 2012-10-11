@@ -27,7 +27,7 @@ public class ZoomAction implements Runnable {
 			if (Math.abs(smoothZoomScaleTarget - WorldRenderer.scale) < Math.abs(smoothZoomScaleIncrement)) {
 				WorldRenderer.scale = smoothZoomScaleTarget;
 				smoothZoomScaleIncrement = 0;
-				LOGGER.debug("Final scale: " + WorldRenderer.scale);
+				LOGGER.trace("Final scale: " + WorldRenderer.scale);
 			}
 			GL11.glMatrixMode(GL11.GL_PROJECTION);
 			GL11.glLoadIdentity();
@@ -48,7 +48,7 @@ public class ZoomAction implements Runnable {
 	 */
 	public void zoomIn() {
 		smoothZoomScaleTarget = WorldRenderer.scale / 2;
-		LOGGER.debug("Scale target: " + smoothZoomScaleTarget);
+		LOGGER.trace("Scale target: " + smoothZoomScaleTarget);
 		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
 	}
 
