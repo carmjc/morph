@@ -36,9 +36,28 @@ import org.lwjgl.util.glu.GLU;
 
 public class Main {
 
+	/** 
+	 * Picking contexts.
+	 */
+	public enum PickingContext {
+		IW_MENU(1),
+		SHIP(2);
+
+		private final int depth;
+
+		private PickingContext(int depth) {
+			this.depth = depth;
+		}
+
+		public final int getDepth() {
+			return depth;
+		}
+	}
+
 	private static final int NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH = 0;
 	private static final int NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS = 0;
 	private static final int NAME_STACK_LEVEL_SHIPS = 1;
+
 	private static final int NAME_STACK_LEVEL_MORPHS = 2;
 
 	/**
@@ -47,9 +66,9 @@ public class Main {
 	private static final int MIN_MOVE_FOR_DRAG = 5;
 
 	private static Logger LOGGER = Logger.getLogger(Main.class);
-
 	// public static final float SCALE_FACTOR = 1f;
 	public static final int HEIGHT = 768;
+
 	public static final int WIDTH = 1280;
 
 	/**
@@ -156,11 +175,11 @@ public class Main {
 		// name stack level for the ui elements
 		// the name stack for ships and morphs is handled in the ShipRenderer and the MorphRenderer
 		// make current morph selectable
-		GL11.glPushName(0);
+		// GL11.glPushName(0);
 		uiInWorldRenderer.render(GL11.GL_SELECT, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
 		worldRenderer.render(GL11.GL_SELECT, null, world);
 		// pop name stack level for ui elements
-		GL11.glPopName();
+		// GL11.glPopName();
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glPopMatrix();
@@ -228,17 +247,16 @@ public class Main {
 		int hits = glPick(x, y, selectBuf);
 		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
-		// if there was no hit, we need to deselect everything
-		if (hits == 0) {
+		// if there was no solid model hit, we need to deselect everything
+		if (hits == 0 || selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) == 0) {
 			UIModel.getUiModel().getSelectionModel().clearAllSelections();
 			UIModel.getUiModel().setCurrentInWorldMenu(null);
 			return;
 		}
 
 		// do not allow ship/morph selection if there is an active in-world menu
-		if (UIModel.getUiModel().getCurrentIWMenu() == null
-				&& selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > NAME_STACK_LEVEL_SHIPS
-				&& selectBuf.get(3 + NAME_STACK_LEVEL_SHIPS) > 0) {
+		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > 0
+				&& selectBuf.get(3) == PickingContext.SHIP.ordinal()) {
 			// Add the picked ship to the list of selected ships
 			// We add the ship after handling morph selection to avoid it tempering
 			// with morph selection.
@@ -267,8 +285,8 @@ public class Main {
 
 		// pick in-world menu items
 		LOGGER.trace("Menu item: " + selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
-		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS
-				&& selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS) > 0) {
+		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > 0
+				&& selectBuf.get(3) == PickingContext.IW_MENU.ordinal()) {
 			UIModel.getUiModel().getSelectionModel().addIWMenuItemToSelection(getPickedIWMenuItem(selectBuf));
 		}
 	}

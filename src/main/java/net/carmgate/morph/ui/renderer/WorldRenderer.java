@@ -1,5 +1,6 @@
 package net.carmgate.morph.ui.renderer;
 
+import net.carmgate.morph.Main;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
@@ -7,6 +8,7 @@ import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.solid.world.WorldArea;
 import net.carmgate.morph.ui.MorphMouse;
+import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.energysource.EnergySourceRenderer;
 import net.carmgate.morph.ui.renderer.ship.SelectedShipRenderer;
 import net.carmgate.morph.ui.renderer.ship.ShipRenderer;
@@ -104,10 +106,16 @@ public class WorldRenderer implements Renderer<World> {
 	 * @param world the world whose ships should be rendered.
 	 */
 	private void renderShips(int glMode, RenderStyle drawType, World world) {
+		GL11.glPushName(Main.PickingContext.SHIP.ordinal());
+
 		for (Ship ship : world.getShips().values()) {
 			shipRenderer.render(glMode, drawType, ship);
-			selectedShipRenderer.render(glMode, drawType, ship);
+			if (UIModel.getUiModel().getSelectionModel().getSelectedShips().containsValue(ship)) {
+				selectedShipRenderer.render(glMode, drawType, ship);
+			}
 		}
+
+		GL11.glPopName();
 	}
 
 	/**

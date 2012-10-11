@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.carmgate.morph.Main;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.model.UIModel;
@@ -55,6 +56,8 @@ public class IWUIRenderer {
 	 * @param drawType
 	 */
 	private void renderEvolvingContextualMenu(int glMode, RenderStyle drawType) {
+		GL11.glPushName(Main.PickingContext.IW_MENU.ordinal());
+
 		Map<Integer, Morph> selectedMorphs = UIModel.getUiModel().getSelectionModel().getSelectedMorphs();
 		if (selectedMorphs.size() > 0) {
 			Morph m = selectedMorphs.values().iterator().next();
@@ -84,9 +87,7 @@ public class IWUIRenderer {
 					// Draw the menu item
 					if (glMode == GL11.GL_SELECT) {
 						if (menuItem != null) {
-							GL11.glLoadName(menuItem.getId());
-						} else {
-							GL11.glLoadName(0);
+							GL11.glPushName(menuItem.getId());
 						}
 					}
 
@@ -116,12 +117,21 @@ public class IWUIRenderer {
 
 						renderMorphTypeMenuItemContent(glMode, i, menuItem);
 					}
+
+					if (glMode == GL11.GL_SELECT) {
+						if (menuItem != null) {
+							GL11.glPopName();
+						}
+					}
+
 					GL11.glRotatef(60, 0, 0, 1);
 				}
 			}
 
 			GL11.glTranslatef(-m.getPosInWorld().x, -m.getPosInWorld().y, -m.getPosInWorld().z);
 		}
+
+		GL11.glPopName();
 	}
 
 	/**
