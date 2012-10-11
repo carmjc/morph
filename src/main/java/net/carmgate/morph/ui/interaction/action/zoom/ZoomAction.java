@@ -1,13 +1,16 @@
-package net.carmgate.morph.ui.action;
+package net.carmgate.morph.ui.interaction.action.zoom;
 
 import net.carmgate.morph.Main;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
+/**
+ * This action should not be run directly.
+ * However it handles zoom actions (zoomIn, zoomOut) and zoom smoothing
+ */
 public class ZoomAction implements Runnable {
 
 	private static final Logger LOGGER = Logger.getLogger(ZoomAction.class);
@@ -37,19 +40,23 @@ public class ZoomAction implements Runnable {
 
 	@Override
 	public void run() {
-		int eventKey = Keyboard.getEventKey();
-		boolean eventKeyState = Keyboard.getEventKeyState();
+		// Does nothing
+	}
 
-		if ((eventKey == Keyboard.KEY_EQUALS || eventKey == Keyboard.KEY_ADD) && !eventKeyState) {
-			// Zoom in
-			smoothZoomScaleTarget = WorldRenderer.scale / 2;
-			LOGGER.debug("Scale target: " + smoothZoomScaleTarget);
-			smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
-		} else if ((eventKey == Keyboard.KEY_6 || eventKey == Keyboard.KEY_MINUS) && !eventKeyState) {
-			// Zoom out
-			smoothZoomScaleTarget = WorldRenderer.scale * 2;
-			smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
-		}
+	/**
+	 * 
+	 */
+	public void zoomIn() {
+		smoothZoomScaleTarget = WorldRenderer.scale / 2;
+		LOGGER.debug("Scale target: " + smoothZoomScaleTarget);
+		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
+	}
 
+	/**
+	 * 
+	 */
+	public void zoomOut() {
+		smoothZoomScaleTarget = WorldRenderer.scale * 2;
+		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
 	}
 }

@@ -39,17 +39,8 @@ public class MorphRenderer implements Renderer<Morph> {
 	/** The map of the morph texture. */
 	private final static Map<MorphType, Texture> textures = new HashMap<Morph.MorphType, Texture>();
 
-	public static Texture getBaseTexture() {
-		return baseTexture;
-	}
-
-	public static Map<MorphType, Texture> getTextures() {
-		return textures;
-	}
-
 	// loading resources
-	public static void init() {
-
+	static {
 		try {
 			// load texture from PNG file
 			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32.png").getPath()));
@@ -67,6 +58,14 @@ public class MorphRenderer implements Renderer<Morph> {
 		} catch (IOException e) {
 			LOGGER.error("Error while loading morph textures.", e);
 		}
+	}
+
+	public static Texture getBaseTexture() {
+		return baseTexture;
+	}
+
+	public static Map<MorphType, Texture> getTextures() {
+		return textures;
 	}
 
 	/**

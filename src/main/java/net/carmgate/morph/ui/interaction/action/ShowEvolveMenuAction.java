@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.action;
+package net.carmgate.morph.ui.interaction.action;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Transforming;
@@ -10,8 +10,6 @@ import net.carmgate.morph.ui.model.iwmenu.EvolutionTypeIWMenuItem;
 import net.carmgate.morph.ui.model.iwmenu.IWMenu;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
 import net.carmgate.morph.ui.selection.SelectionEvent;
-
-import org.lwjgl.input.Keyboard;
 
 // TODO add comments
 public class ShowEvolveMenuAction implements Runnable {
@@ -41,14 +39,13 @@ public class ShowEvolveMenuAction implements Runnable {
 		inWorldMenuListener = null;
 	}
 
+	@Override
 	public void run() {
-		if (Keyboard.getEventKey() == Keyboard.KEY_E && !Keyboard.getEventKeyState()) {
-			if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size() == 1) {
-				if (UIModel.getUiModel().getUiState() != UIState.EVOLVING) {
-					showEvolvingMenu();
-				} else {
-					hideEvolvingMenu();
-				}
+		if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size() == 1) {
+			if (UIModel.getUiModel().getUiState() != UIState.EVOLVING) {
+				showEvolvingMenu();
+			} else {
+				hideEvolvingMenu();
 			}
 		}
 	}
