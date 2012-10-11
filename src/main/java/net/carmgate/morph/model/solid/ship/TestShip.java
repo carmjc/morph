@@ -3,6 +3,7 @@ package net.carmgate.morph.model.solid.ship;
 import net.carmgate.morph.model.solid.morph.GunMorph;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemMorph;
+import net.carmgate.morph.model.user.User;
 
 public class TestShip extends Ship {
 
@@ -11,9 +12,10 @@ public class TestShip extends Ship {
 	 * @param x
 	 * @param y
 	 * @param z
+	 * @param user 
 	 */
-	public TestShip(float x, float y, float z) {
-		super(x, y, z);
+	public TestShip(float x, float y, float z, User user) {
+		super(x, y, z, user);
 
 		addMorph(new GunMorph(), -1, 1, 0);
 		addMorph(new PropulsorMorph(), -1, 0, 0);

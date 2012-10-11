@@ -176,10 +176,12 @@ public class SelectionModel {
 	 * @param morph the morph to "deselect"
 	 */
 	public void removeAllShipsFromSelection() {
+		selectedShips.lock();
 		for (Ship s : selectedShips.values()) {
 			selectedShips.remove(s.getId());
 			fireShipDeselected(s);
 		}
+		selectedShips.unlock();
 	}
 
 	/**

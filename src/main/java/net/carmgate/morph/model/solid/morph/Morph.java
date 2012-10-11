@@ -187,22 +187,6 @@ public abstract class Morph {
 	 */
 	protected abstract boolean deactivate();
 
-	// /**
-	// * Disables a morph.
-	// * This automatically forces the morph's deactivation.
-	// */
-	// public final void disable() {
-	// disabled = true;
-	// tryToDeactivate(true);
-	// }
-	//
-	// /**
-	// * Enables the morph
-	// */
-	// public final void enable() {
-	// disabled = false;
-	// }
-	//
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

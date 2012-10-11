@@ -16,6 +16,7 @@ import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.listener.ShipEvent;
 import net.carmgate.morph.model.solid.ship.listener.ShipListener;
 import net.carmgate.morph.model.solid.world.World;
+import net.carmgate.morph.model.user.User;
 import net.carmgate.morph.ui.model.UIModel;
 
 import org.apache.log4j.Logger;
@@ -78,7 +79,10 @@ public abstract class Ship {
 	/** The id of the current ship. */
 	private int id;
 
-	public Ship(float x, float y, float z) {
+	/** Owner of the ship. */
+	private User owner;
+
+	public Ship(float x, float y, float z, User owner) {
 		id = ++lastId;
 
 		pos = new Vect3D(x, y, z);
@@ -91,6 +95,8 @@ public abstract class Ship {
 		// Init lastUpdateTS
 		lastUpdateTS = World.getWorld().getCurrentTS();
 
+		// assign user
+		this.owner = owner;
 	}
 
 	/**
@@ -317,6 +323,10 @@ public abstract class Ship {
 		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
 		neighbors.add(findShipMorph((int) morph.getPosInShipGrid().x + 1, (int) morph.getPosInShipGrid().y - 1, (int) morph.getPosInShipGrid().z));
 		return neighbors;
+	}
+
+	public User getOwner() {
+		return owner;
 	}
 
 	public List<Force> getOwnForceList() {

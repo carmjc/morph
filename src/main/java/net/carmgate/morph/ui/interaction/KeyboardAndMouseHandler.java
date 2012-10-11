@@ -8,11 +8,11 @@ import net.carmgate.morph.Main;
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.interaction.action.ShowEvolveMenuAction;
-import net.carmgate.morph.ui.interaction.action.ToggleCombatMode;
 import net.carmgate.morph.ui.interaction.action.ToggleDebugAction;
 import net.carmgate.morph.ui.interaction.action.ToggleFreezeAction;
 import net.carmgate.morph.ui.interaction.action.ToggleLockedOnFirstSelectedShip;
@@ -20,6 +20,7 @@ import net.carmgate.morph.ui.interaction.action.zoom.ZoomAction;
 import net.carmgate.morph.ui.interaction.action.zoom.ZoomInAction;
 import net.carmgate.morph.ui.interaction.action.zoom.ZoomOutAction;
 import net.carmgate.morph.ui.model.UIModel;
+import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -57,7 +58,6 @@ public class KeyboardAndMouseHandler {
 	}
 
 	private void initKeyboardMapping() {
-		keyboardMapping.put(new Command(Keyboard.KEY_A, null), new ToggleCombatMode());
 		keyboardMapping.put(new Command(Keyboard.KEY_D, null), new ToggleDebugAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_E, null), new ShowEvolveMenuAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_L, null), new ToggleLockedOnFirstSelectedShip());
@@ -150,7 +150,7 @@ public class KeyboardAndMouseHandler {
 								WorldRenderer.focalPoint.y - Main.HEIGHT / 2 * WorldRenderer.scale);
 						isDragging = false;
 					} else {
-						pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY());
+						select(pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY()));
 					}
 					holdMousePos = null;
 				} else {
@@ -160,27 +160,31 @@ public class KeyboardAndMouseHandler {
 			}
 
 			// Event button == 1 : Right button related event
-			if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0
-					&& !World.combat) {
+			if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0) {
 
-				LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
-				for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
-					List<IA> iaList = selectedShip.getIAList();
+				Object pickedObject = pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY());
+				if (pickedObject instanceof Ship && !"Me".equals(((Ship) pickedObject).getOwner())) {
+					LOGGER.debug("Start firing");
+				} else {
+					LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
+					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
+						List<IA> iaList = selectedShip.getIAList();
 
-					// Look for existing tracker
-					// If we find one, update it's target
-					boolean foundATracker = false;
-					for (IA ia : iaList) {
-						if (ia instanceof FixedPositionTracker) {
-							((FixedPositionTracker) ia).setTargetPos(worldMousePos);
-							foundATracker = true;
+						// Look for existing tracker
+						// If we find one, update it's target
+						boolean foundATracker = false;
+						for (IA ia : iaList) {
+							if (ia instanceof FixedPositionTracker) {
+								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+								foundATracker = true;
+							}
 						}
-					}
 
-					// If we found no tracker, create a new one and add it to this ship's
-					// AI list
-					if (!foundATracker) {
-						iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
+						// If we found no tracker, create a new one and add it to this ship's
+						// AI list
+						if (!foundATracker) {
+							iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
+						}
 					}
 				}
 			}
@@ -195,4 +199,51 @@ public class KeyboardAndMouseHandler {
 		}
 	}
 
+	public void select(Object pickedObject) {
+
+		if (pickedObject == null) {
+			UIModel.getUiModel().getSelectionModel().clearAllSelections();
+			UIModel.getUiModel().setCurrentInWorldMenu(null);
+			return;
+		}
+
+		if (pickedObject instanceof Morph) {
+			Morph morph = (Morph) pickedObject;
+			// if LCONTROL is down, add/remove to/from selection
+			// else, just replace the selection by the currently selected morph.
+			if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) == true) {
+				// Add the selected morph if it wasn't
+				// Remove it if it was already selected
+				if (!UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
+					UIModel.getUiModel().getSelectionModel().addMorphToSelection(morph);
+				} else {
+					UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(morph);
+				}
+			} else {
+				UIModel.getUiModel().getSelectionModel().removeAllMorphsFromSelection();
+				UIModel.getUiModel().getSelectionModel().addMorphToSelection(morph);
+			}
+		}
+
+		if (pickedObject instanceof Ship) {
+			Ship selectedShip = (Ship) pickedObject;
+
+			// Replace the ship in the selection if the owner is "Me" (the player)
+			// TODO #80
+			if (UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0) {
+				UIModel.getUiModel().getSelectionModel().removeAllShipsFromSelection();
+			}
+
+			if ("Me".equals(selectedShip.getOwner().getName())) {
+				UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
+			}
+		}
+
+		// pick in-world menu items
+		if (pickedObject instanceof IWMenuItem) {
+			IWMenuItem menuItem = (IWMenuItem) pickedObject;
+
+			UIModel.getUiModel().getSelectionModel().addIWMenuItemToSelection(menuItem);
+		}
+	}
 }

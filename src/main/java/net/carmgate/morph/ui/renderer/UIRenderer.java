@@ -3,7 +3,6 @@ package net.carmgate.morph.ui.renderer;
 import java.awt.Font;
 
 import net.carmgate.morph.Main;
-import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.renderer.Renderer.RenderStyle;
 
@@ -38,7 +37,7 @@ public class UIRenderer {
 		GL11.glEnd();
 
 		// Writing in the console box
-		String modes = "Debug mode : " + WorldRenderer.debugDisplay + " - Combat mode : " + World.combat;
+		String modes = "Debug mode : " + WorldRenderer.debugDisplay;
 		font.drawString(-Main.WIDTH / 2 + 10, Main.HEIGHT / 2 - 65, modes, Color.black);
 		font.drawString(-Main.WIDTH / 2 + 10, Main.HEIGHT / 2 - 50, "Mouse position : " + MorphMouse.getX() + "x" + MorphMouse.getY(), Color.black);
 

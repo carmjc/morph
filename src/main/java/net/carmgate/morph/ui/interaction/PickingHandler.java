@@ -15,7 +15,6 @@ import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
@@ -119,7 +118,8 @@ public class PickingHandler {
 		return hits;
 	}
 
-	public void pick(int x, int y) {
+	public Object pick(int x, int y) {
+		Object pickedObject = null;
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
 		int hits = glPick(x, y, selectBuf);
@@ -127,9 +127,7 @@ public class PickingHandler {
 
 		// if there was no solid model hit, we need to deselect everything
 		if (hits == 0 || selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) == 0) {
-			UIModel.getUiModel().getSelectionModel().clearAllSelections();
-			UIModel.getUiModel().setCurrentInWorldMenu(null);
-			return;
+			return null;
 		}
 
 		// do not allow ship/morph selection if there is an active in-world menu
@@ -139,34 +137,21 @@ public class PickingHandler {
 			// We add the ship after handling morph selection to avoid it tempering
 			// with morph selection.
 			Ship selectedShip = getPickedShip(selectBuf);
+			pickedObject = selectedShip;
 			if (UIModel.getUiModel().getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
-
-				Morph morph = getPickedMorph(selectBuf);
-				// if LCONTROL is down, add/remove to/from selection
-				// else, just replace the selection by the currently selected morph.
-				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) == true) {
-					// Add the selected morph if it wasn't
-					// Remove it if it was already selected
-					if (!UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().contains(morph)) {
-						UIModel.getUiModel().getSelectionModel().addMorphToSelection(morph);
-					} else {
-						UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(morph);
-					}
-				} else {
-					UIModel.getUiModel().getSelectionModel().removeAllMorphsFromSelection();
-					UIModel.getUiModel().getSelectionModel().addMorphToSelection(morph);
-				}
+				pickedObject = getPickedMorph(selectBuf);
 			}
-			// Add the ship to the selection
-			UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
+
+			return pickedObject;
 		}
 
 		// pick in-world menu items
 		LOGGER.trace("Menu item: " + selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
 		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > 0
 				&& selectBuf.get(3) == PickingContext.IW_MENU.ordinal()) {
-			UIModel.getUiModel().getSelectionModel().addIWMenuItemToSelection(getPickedIWMenuItem(selectBuf));
+			pickedObject = getPickedIWMenuItem(selectBuf);
 		}
+		return pickedObject;
 	}
 
 }

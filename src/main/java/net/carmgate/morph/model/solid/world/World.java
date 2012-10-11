@@ -15,6 +15,9 @@ import net.carmgate.morph.model.solid.energysource.Star;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.TestShip;
+import net.carmgate.morph.model.user.User;
+import net.carmgate.morph.model.user.User.UserType;
+import net.carmgate.morph.model.user.UserFactory;
 
 import org.apache.log4j.Logger;
 
@@ -40,7 +43,6 @@ public class World {
 	/** timestamp of game start. */
 	private long gameStartMsec = new Date().getTime();
 
-	public static boolean combat = false;
 	public static boolean freeze = false;
 	public static boolean lockedOnFirstSelectedShip = false;
 
@@ -115,12 +117,21 @@ public class World {
 	}
 
 	public void init() {
+		// Create users
+		UserFactory.addUser(new User(UserType.HUMAN, "Me"));
+		UserFactory.addUser(new User(UserType.AI, "Nemesis"));
+		UserFactory.addUser(new User(UserType.GOD, "God"));
+
 		// Create a star
-		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000);
+		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
 		getEnergySources().put(star.getId(), star);
 
-		// Create a ship
-		TestShip ship = new TestShip(0, 0, 0);
+		// Create a ship for me
+		TestShip ship = new TestShip(0, 0, 0, UserFactory.findUser("Me"));
+		getShips().put(ship.getId(), ship);
+
+		// Create a ship for the ennemy
+		ship = new TestShip(300, 0, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
 	}
 
