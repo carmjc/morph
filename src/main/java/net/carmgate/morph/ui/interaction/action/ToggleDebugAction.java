@@ -16,10 +16,10 @@ public class ToggleDebugAction implements Runnable {
 	public void run() {
 		if (WorldRenderer.debugDisplay) {
 			WorldRenderer.debugDisplay = false;
-			LOGGER.info("Graphical debug: Off");
+			LOGGER.trace("Graphical debug: Off");
 		} else {
 			WorldRenderer.debugDisplay = true;
-			LOGGER.info("Graphical debug: On");
+			LOGGER.trace("Graphical debug: On");
 		}
 	}
 

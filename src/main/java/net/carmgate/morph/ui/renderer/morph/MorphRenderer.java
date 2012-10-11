@@ -52,6 +52,8 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-prop-32.png").getPath())));
 			textures.put(MorphType.STEM,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-stem-32.png").getPath())));
+			textures.put(MorphType.GUN,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-gun-32.png").getPath())));
 
 			// Energy and mass gauge texture
 			energyMassTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-gauge.png").getPath()));

@@ -28,6 +28,7 @@ public abstract class Morph {
 	public static enum EvolutionType {
 		TO_STEM(MorphType.STEM, 100),
 		TO_PROPULSOR(MorphType.PROPULSOR, 10),
+		TO_GUN(MorphType.GUN, 30),
 		TO_BASIC(MorphType.BASIC, 100);
 
 		private final MorphType morphType;
@@ -52,7 +53,7 @@ public abstract class Morph {
 	 */
 	public static enum MorphType {
 		BASIC(BasicMorph.class),
-		EMITTER(null),
+		GUN(GunMorph.class),
 		PROPULSOR(PropulsorMorph.class),
 		SHIELD(null),
 		SPREADER(null),

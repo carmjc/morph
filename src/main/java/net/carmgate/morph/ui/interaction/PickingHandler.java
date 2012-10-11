@@ -23,7 +23,7 @@ public class PickingHandler {
 	private static final Logger LOGGER = Logger.getLogger(PickingHandler.class);
 
 	// name stack management
-	private static final int NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS = 0;
+	private static final int NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS = 1;
 	private static final int NAME_STACK_LEVEL_MORPHS = 2;
 	private static final int NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH = 0;
 	private static final int NAME_STACK_LEVEL_SHIPS = 1;

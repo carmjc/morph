@@ -6,7 +6,7 @@ import net.carmgate.morph.model.solid.morph.BasicMorph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
 @Deprecated
-@MorphInfo(type = MorphType.EMITTER)
+@MorphInfo(type = MorphType.GUN)
 public class EmitterMorph extends BasicMorph {
 
 	public EmitterMorph() {
