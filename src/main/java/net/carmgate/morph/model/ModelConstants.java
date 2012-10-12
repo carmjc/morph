@@ -13,7 +13,7 @@ public interface ModelConstants {
 
 	// SPREADING ENERGY
 	/** The rate of the energy transfer between to adjacent morphs. */
-	public static final float ENERGY_TRANSFER_PER_SEC = 5f;
+	public static final float ENERGY_TRANSFER_PER_SEC = 1f;
 	/** The amount of energy transfered from one morph to a neighbor during one second. */
 	public static final float MAX_DIFFUSED_EXCESS_ENERGY_PER_SECOND = 4f;
 

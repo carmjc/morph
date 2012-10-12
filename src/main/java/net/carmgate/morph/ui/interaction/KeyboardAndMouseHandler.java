@@ -8,6 +8,7 @@ import net.carmgate.morph.Main;
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.solid.morph.GunMorph;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
@@ -164,7 +165,17 @@ public class KeyboardAndMouseHandler {
 
 				Object pickedObject = pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY());
 				if (pickedObject instanceof Ship && !"Me".equals(((Ship) pickedObject).getOwner())) {
+					Ship ship = (Ship) pickedObject;
 					LOGGER.debug("Start firing");
+
+					for (Ship s : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
+						for (Morph m : s.getMorphsByIds().values()) {
+							if (m instanceof GunMorph) {
+								((GunMorph) m).setTarget(ship);
+								m.tryToActivate();
+							}
+						}
+					}
 				} else {
 					LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
 					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
@@ -234,9 +245,9 @@ public class KeyboardAndMouseHandler {
 				UIModel.getUiModel().getSelectionModel().removeAllShipsFromSelection();
 			}
 
-			if ("Me".equals(selectedShip.getOwner().getName())) {
-				UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
-			}
+			// if ("Me".equals(selectedShip.getOwner().getName())) {
+			UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
+			// }
 		}
 
 		// pick in-world menu items

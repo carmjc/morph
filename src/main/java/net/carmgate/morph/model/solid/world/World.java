@@ -11,8 +11,8 @@ import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
-import net.carmgate.morph.model.solid.energysource.Star;
 import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.ship.EnnemyTestShip;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.TestShip;
 import net.carmgate.morph.model.user.User;
@@ -123,16 +123,55 @@ public class World {
 		UserFactory.addUser(new User(UserType.GOD, "God"));
 
 		// Create a star
-		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
-		getEnergySources().put(star.getId(), star);
+		// EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
+		// getEnergySources().put(star.getId(), star);
 
 		// Create a ship for me
-		TestShip ship = new TestShip(0, 0, 0, UserFactory.findUser("Me"));
+		Ship ship = new TestShip(0, 0, 0, UserFactory.findUser("Me"));
 		getShips().put(ship.getId(), ship);
 
 		// Create a ship for the ennemy
-		ship = new TestShip(300, 0, 0, UserFactory.findUser("Nemesis"));
+		ship = new EnnemyTestShip(300, -300, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
+	}
+
+	/**
+	 * Checks if morphs are dead and if the ship is dead.
+	 * Removes dead morphs from ship.
+	 * @param ship the ship to check
+	 * @return true if the ship is dead.
+	 */
+	private boolean processDeath(Ship ship) {
+		List<Morph> morphsToRemove = new ArrayList<Morph>();
+		for (Morph m : ship.getMorphsByIds().values()) {
+			if (m.getMass() <= 0) {
+				morphsToRemove.add(m);
+			}
+		}
+
+		ship.removeMorphs(morphsToRemove);
+		if (ship.getMorphsByIds().size() == 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private void processEnergyManagement(Ship ship) {
+		for (Morph m : ship.getMorphsByIds().values()) {
+			// if there is too much excess of energy, the morph will loose a portion of its mass
+			// proportional to the amount of energy above sustainable amount of energy in excess
+			float sustainableExcessEnergy = m.getClass().getAnnotation(MorphInfo.class).maxEnergy()
+					* ModelConstants.MAX_EXCEED_ENERGY_AS_RATIO_OF_MAX_MORPH_ENERGY;
+			if (m.getExcessEnergy() > sustainableExcessEnergy) {
+				float energyAboveSustainable = m.getExcessEnergy() - sustainableExcessEnergy;
+				float lostMass = energyAboveSustainable * ModelConstants.MASS_LOSS_TO_EXCESS_ENERGY_RATIO;
+				m.setMass(m.getMass() - lostMass);
+				LOGGER.trace("Lost mass: " + lostMass + " - lost mass / s: " + lostMass * 1000 / World.getWorld().getSinceLastUpdateTS());
+				m.setEnergy(m.getEnergy() - energyAboveSustainable);
+			}
+
+		}
 	}
 
 	/**
@@ -160,19 +199,8 @@ public class World {
 					// then we update it's energy
 					if (!m.getClass().getAnnotation(MorphInfo.class).virtual()) {
 						// augment morph energy
-						m.setEnergy((float) (m.getEnergy() + energyGainedPerMorph * m.getMass() / m.getClass().getAnnotation(MorphInfo.class).maxMass()));
+						m.setEnergy((float) (m.getEnergy() + energyGainedPerMorph));
 
-						// if there is too much excess of energy, the morph will loose a portion of its mass
-						// proportional to the amount of energy above sustainable amount of energy in excess
-						float sustainableExcessEnergy = m.getClass().getAnnotation(MorphInfo.class).maxEnergy()
-								* ModelConstants.MAX_EXCEED_ENERGY_AS_RATIO_OF_MAX_MORPH_ENERGY;
-						if (m.getExcessEnergy() > sustainableExcessEnergy) {
-							float energyAboveSustainable = m.getExcessEnergy() - sustainableExcessEnergy;
-							float lostMass = energyAboveSustainable * ModelConstants.MASS_LOSS_TO_EXCESS_ENERGY_RATIO;
-							m.setMass(m.getMass() - lostMass);
-							LOGGER.trace("Lost mass: " + lostMass + " - lost mass / s: " + lostMass * 1000 / World.getWorld().getSinceLastUpdateTS());
-							m.setEnergy(m.getEnergy() - energyAboveSustainable);
-						}
 					}
 				}
 			}
@@ -195,9 +223,18 @@ public class World {
 		}
 
 		// update ships
+		List<Ship> shipsToRemove = new ArrayList<Ship>();
 		for (Ship ship : getShips().values()) {
 			processGettingEnergyFromEnergySource(ship);
+			processEnergyManagement(ship);
+			if (processDeath(ship)) {
+				shipsToRemove.add(ship);
+			}
 			ship.update();
+		}
+
+		for (Ship ship : shipsToRemove) {
+			World.getWorld().ships.remove(ship.getId());
 		}
 
 	}
