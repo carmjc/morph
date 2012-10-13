@@ -13,6 +13,7 @@ import net.carmgate.morph.ui.renderer.Renderer;
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 import org.newdawn.slick.opengl.TextureLoader;
 
 public class SelectedShipRenderer implements Renderer<Ship> {
@@ -41,14 +42,23 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 
 	@Override
 	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Ship ship) {
-		Vect3D comPosInWorld = new Vect3D(ship.getPos());
-		comPosInWorld.add(ship.getCenterOfMassInShip());
-		GL11.glTranslatef(comPosInWorld.x, comPosInWorld.y, comPosInWorld.z);
+		Vect3D centerPosInWorld = new Vect3D(ship.getPos());
+		centerPosInWorld.add(ship.getCenter());
+
+		TextureImpl.bindNone();
+		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glVertex2d(centerPosInWorld.x - 2, centerPosInWorld.y - 2);
+		GL11.glVertex2d(centerPosInWorld.x - 2, centerPosInWorld.y + 2);
+		GL11.glVertex2d(centerPosInWorld.x + 2, centerPosInWorld.y + 2);
+		GL11.glVertex2d(centerPosInWorld.x + 2, centerPosInWorld.y - 2);
+		GL11.glEnd();
+
+		GL11.glTranslatef(centerPosInWorld.x, centerPosInWorld.y, centerPosInWorld.z);
 
 		float maxDistance = 0;
 		for (Morph m : ship.getMorphsByIds().values()) {
 			if (!m.getClass().getAnnotation(MorphInfo.class).virtual()) {
-				maxDistance = Math.max(maxDistance, comPosInWorld.distance(m.getPosInWorld()));
+				maxDistance = Math.max(maxDistance, centerPosInWorld.distance(m.getPosInWorld()));
 			}
 		}
 		maxDistance += 32;
@@ -80,7 +90,7 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 		alphaLevel /= 0.3f;
 		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
 
-		GL11.glTranslatef(-comPosInWorld.x, -comPosInWorld.y, -comPosInWorld.z);
+		GL11.glTranslatef(-centerPosInWorld.x, -centerPosInWorld.y, -centerPosInWorld.z);
 	}
 
 }

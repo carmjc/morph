@@ -31,16 +31,19 @@ public abstract class Ship {
 	/** the last id affected to a ship. */
 	private static int lastId = 0;
 
+	/** Radius of the ship. */
+	private float radius = 0;
+
 	/** The ship position in the world. */
 	private Vect3D pos;
+
 	private Vect3D posSpeed;
 	private Vect3D posAccel;
-
 	/** The ship orientation in the world. */
 	private float rot;
+
 	private float rotSpeed;
 	private float rotAccel;
-
 	/** The drag factor. The lower, the more it's dragged. */
 	private float dragFactor = ModelConstants.INITIAL_DRAG_FACTOR;
 
@@ -72,6 +75,9 @@ public abstract class Ship {
 
 	/** The center of mass of the ship, in world coordinates */
 	private Vect3D centerOfMass = new Vect3D(Vect3D.NULL);
+
+	/** The center of mass of the ship, in world coordinates */
+	private Vect3D center = new Vect3D(Vect3D.NULL);
 
 	/** Timestamp of last time the ship's position was calculated. */
 	private long lastUpdateTS;
@@ -149,8 +155,9 @@ public abstract class Ship {
 			newMorph.setShip(this);
 			newMorph.updatePosFromGridPos();
 
-			// Recompute center of mass of the ship
-			calculateCOM();
+			// Recompute differente elements of the ship.
+			computeCOM();
+			computeRadiusIncremental(newMorph, true);
 
 			return true;
 		}
@@ -191,7 +198,7 @@ public abstract class Ship {
 			getMorphsByIds().put(m.getId(), m);
 			LOGGER.trace("morph added: " + m);
 		}
-		calculateCOM();
+		computeCOM();
 		LOGGER.trace("COM(" + centerOfMass + ")");
 	}
 
@@ -204,7 +211,7 @@ public abstract class Ship {
 		rotAccel = 0;
 
 		// Calculate com in world
-		Vect3D comInWorld = new Vect3D(getCenterOfMassInShip());
+		Vect3D comInWorld = new Vect3D(getCenterOfMass());
 		transformShipToWorldCoords(comInWorld);
 
 		// Initialize forceTarget vector
@@ -235,7 +242,7 @@ public abstract class Ship {
 	 * The current computation is an approximation and assumes that each and every morph in
 	 * the ship is at full mass.
 	 */
-	private void calculateCOM() {
+	private void computeCOM() {
 		LOGGER.debug("Calculate COM");
 
 		centerOfMass.copy(Vect3D.NULL);
@@ -250,6 +257,32 @@ public abstract class Ship {
 			shipMass += m.getMaxMass();
 		}
 		centerOfMass.normalize(centerOfMass.modulus() / shipMass);
+	}
+
+	/**
+	 * Computes the radius of the ship.
+	 * This computing is done incrementally. We take the former radius of the ship and 
+	 * compute the change brought by the morph addition/deletion.
+	 * FIXME Implement deletion
+	 * @param newMorph the morph added to the ship 
+	 * @param addition denotes if the morph in an addition or a deletion from to the ship.
+	 */
+	private void computeRadiusIncremental(Morph newMorph, boolean addition) {
+		if (getMorphsByIds().size() == 1) {
+			radius = 16; // FIXME put that morph radius into the Morph class
+		}
+
+		float distance = 0;
+		for (Morph m : getMorphsByIds().values()) {
+			distance = newMorph.getPosInShip().distance(m.getPosInShip());
+			if (distance > (radius - 16) * 2) {
+				radius = distance / 2 + 16;
+				center = new Vect3D();
+				center.add(newMorph.getPosInShip());
+				center.add(m.getPosInShip());
+				center.normalize(center.modulus() / 2);
+			}
+		}
 	}
 
 	public Morph findShipMorph(float x, float y, float z) {
@@ -280,7 +313,11 @@ public abstract class Ship {
 		return activeMorphList;
 	}
 
-	public Vect3D getCenterOfMassInShip() {
+	public Vect3D getCenter() {
+		return center;
+	}
+
+	public Vect3D getCenterOfMass() {
 		return centerOfMass;
 	}
 
@@ -343,6 +380,14 @@ public abstract class Ship {
 
 	public Vect3D getPosSpeed() {
 		return posSpeed;
+	}
+
+	/**
+	 * The radius is only computed when a morph is added/removed from the ship.
+	 * @return the radius of the ship.
+	 */
+	public float getRadius() {
+		return radius;
 	}
 
 	public float getRot() {
@@ -459,7 +504,8 @@ public abstract class Ship {
 		pos.y += posSpeed.y * secondsSinceLastUpdate;
 		pos.z += posSpeed.z * secondsSinceLastUpdate;
 
-		rotSpeed += rotAccel * secondsSinceLastUpdate;
+		// rotSpeed += rotAccel * secondsSinceLastUpdate;
+		// rotSpeed = 5; // FIXME Remove that
 
 		// The drag factor is reduced to take into account the fact that we update the position since last TS and not from a full second ago.
 		float reducedRotDragFactor = 1 - (1 - ModelConstants.ROT_DRAG_FACTOR) * secondsSinceLastUpdate;

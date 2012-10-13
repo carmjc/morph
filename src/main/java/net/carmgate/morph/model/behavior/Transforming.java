@@ -2,6 +2,7 @@ package net.carmgate.morph.model.behavior;
 
 import java.util.GregorianCalendar;
 
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.ui.model.UIModel;
@@ -39,7 +40,10 @@ public class Transforming extends NoActivationBehavior<Morph> implements Progres
 		// Transform the morph only when time is up
 		if (getProgress() >= 1) {
 			try {
-				Morph newMorph = evolutionType.getMorphType().getMorphClass().newInstance();
+				Class<? extends Morph> newMorphClass = evolutionType.getMorphType().getMorphClass();
+				Morph newMorph = newMorphClass.newInstance();
+				newMorph.setEnergy(Math.min(getOwner().getEnergy(), newMorphClass.getAnnotation(MorphInfo.class).maxEnergy()));
+				newMorph.setMass(Math.min(getOwner().getMass(), newMorphClass.getAnnotation(MorphInfo.class).maxMass()));
 				getOwner().getShip().addMorph(newMorph, getOwner().getPosInShipGrid(), true);
 			} catch (InstantiationException e) {
 				LOGGER.error("Error while creating new morph", e);
@@ -51,6 +55,7 @@ public class Transforming extends NoActivationBehavior<Morph> implements Progres
 		}
 	}
 
+	@Override
 	public float getProgress() {
 		double currentTimeInMillis = new GregorianCalendar().getTimeInMillis();
 		return (float) ((currentTimeInMillis - beginDate) / (evolutionType.getDurationInSeconds() * 1000));

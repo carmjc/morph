@@ -6,7 +6,7 @@ import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.ship.Ship;
 
-@MorphInfo(type = MorphType.GUN, possibleEvolutions = { EvolutionType.TO_BASIC }, maxEnergy = 250)
+@MorphInfo(type = MorphType.GUN, possibleEvolutions = { EvolutionType.TO_BASIC }, maxEnergy = 300)
 public class GunMorph extends BasicMorph {
 
 	private Ship target;

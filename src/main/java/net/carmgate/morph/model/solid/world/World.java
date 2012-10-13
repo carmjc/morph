@@ -11,8 +11,9 @@ import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
+import net.carmgate.morph.model.solid.energysource.Star;
 import net.carmgate.morph.model.solid.morph.Morph;
-import net.carmgate.morph.model.solid.ship.EnnemyTestShip;
+import net.carmgate.morph.model.solid.ship.EnemyTestShip;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.TestShip;
 import net.carmgate.morph.model.user.User;
@@ -123,15 +124,18 @@ public class World {
 		UserFactory.addUser(new User(UserType.GOD, "God"));
 
 		// Create a star
-		// EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
-		// getEnergySources().put(star.getId(), star);
+		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
+		getEnergySources().put(star.getId(), star);
 
 		// Create a ship for me
 		Ship ship = new TestShip(0, 0, 0, UserFactory.findUser("Me"));
 		getShips().put(ship.getId(), ship);
 
 		// Create a ship for the ennemy
-		ship = new EnnemyTestShip(300, -300, 0, UserFactory.findUser("Nemesis"));
+		ship = new EnemyTestShip(300, -300, 0, UserFactory.findUser("Nemesis"));
+		getShips().put(ship.getId(), ship);
+		// Create a ship for the ennemy
+		ship = new EnemyTestShip(250, -250, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
 	}
 

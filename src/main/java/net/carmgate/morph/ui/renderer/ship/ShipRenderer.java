@@ -12,6 +12,7 @@ import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.model.behavior.LaserFiringBehavior;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.Transforming;
@@ -22,6 +23,7 @@ import net.carmgate.morph.ui.renderer.ForceRenderer;
 import net.carmgate.morph.ui.renderer.Renderer;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
+import net.carmgate.morph.ui.renderer.behavior.LaserFiringBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
 import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
@@ -63,6 +65,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		// Behavior renderers map init
 		behaviorRenderersMap.put(SpreadingEnergy.class, null);
 		behaviorRenderersMap.put(Transforming.class, new ProgressBehaviorRenderer());
+		behaviorRenderersMap.put(LaserFiringBehavior.class, new LaserFiringBehaviorRenderer());
 
 		// IA renderers map init
 		FixedPositionTrackerRenderer fixedPositionTrackerRenderer = new FixedPositionTrackerRenderer();
@@ -132,7 +135,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	private void renderCOM(int glMode,
 			net.carmgate.morph.ui.renderer.Renderer.RenderStyle renderStyle,
 			Ship ship) {
-		dummyVect.copy(ship.getCenterOfMassInShip());
+		dummyVect.copy(ship.getCenterOfMass());
 		ship.transformShipToWorldCoords(dummyVect);
 		GL11.glTranslatef(dummyVect.x, dummyVect.y, dummyVect.z);
 		comTexture.bind();
@@ -216,7 +219,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	 */
 	private void renderShipSpeed(int glMode, RenderStyle renderStyle, Ship ship) {
 		// Render ship speed
-		Vect3D comInWorld = new Vect3D(ship.getCenterOfMassInShip());
+		Vect3D comInWorld = new Vect3D(ship.getCenterOfMass());
 		ship.transformShipToWorldCoords(comInWorld);
 
 		if (renderStyle == RenderStyle.DEBUG) {
