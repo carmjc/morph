@@ -6,6 +6,12 @@ package net.carmgate.morph.model.user;
  */
 public class User {
 
+	public enum FriendOrFoe {
+		SELF,
+		FRIEND,
+		FOE;
+	}
+
 	/** The type of user. */
 	public enum UserType {
 		HUMAN,
@@ -19,12 +25,24 @@ public class User {
 	/** User name. */
 	private final String name;
 
+	/** friend of foe ? */
+	private final FriendOrFoe friendOrFoe;
+
 	/**
 	 * @param type a {@link UserType}
 	 */
-	public User(UserType type, String name) {
+	public User(UserType type, String name, FriendOrFoe friendOrFoe) {
 		this.type = type;
 		this.name = name;
+		this.friendOrFoe = friendOrFoe;
+	}
+
+	/**
+	 * God is a {@link FriendOrFoe#FRIEND}
+	 * @return a {@link FriendOrFoe} reference.
+	 */
+	public FriendOrFoe getFriendOrFoe() {
+		return friendOrFoe;
 	}
 
 	/**

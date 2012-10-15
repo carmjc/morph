@@ -18,6 +18,7 @@ import net.carmgate.morph.model.solid.ship.test.EnemyTestShip1;
 import net.carmgate.morph.model.solid.ship.test.EnemyTestShip2;
 import net.carmgate.morph.model.solid.ship.test.TestShip;
 import net.carmgate.morph.model.user.User;
+import net.carmgate.morph.model.user.User.FriendOrFoe;
 import net.carmgate.morph.model.user.User.UserType;
 import net.carmgate.morph.model.user.UserFactory;
 
@@ -120,9 +121,9 @@ public class World {
 
 	public void init() {
 		// Create users
-		UserFactory.addUser(new User(UserType.HUMAN, "Me"));
-		UserFactory.addUser(new User(UserType.AI, "Nemesis"));
-		UserFactory.addUser(new User(UserType.GOD, "God"));
+		UserFactory.addUser(new User(UserType.HUMAN, "Me", FriendOrFoe.SELF));
+		UserFactory.addUser(new User(UserType.AI, "Nemesis", FriendOrFoe.FOE));
+		UserFactory.addUser(new User(UserType.GOD, "God", FriendOrFoe.FRIEND));
 
 		// Create a star
 		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));

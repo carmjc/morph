@@ -12,6 +12,7 @@ import net.carmgate.morph.model.solid.morph.GunMorph;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
+import net.carmgate.morph.model.user.User.FriendOrFoe;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.interaction.action.ShowEvolveMenuAction;
 import net.carmgate.morph.ui.interaction.action.ToggleDebugAction;
@@ -164,7 +165,7 @@ public class KeyboardAndMouseHandler {
 			if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0) {
 
 				Object pickedObject = pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY(), Morph.class);
-				if (pickedObject instanceof Morph && !"Me".equals(((Morph) pickedObject).getShip().getOwner())) {
+				if (pickedObject instanceof Morph && FriendOrFoe.FOE.equals(((Morph) pickedObject).getShip().getOwner().getFriendOrFoe())) {
 					Morph morph = (Morph) pickedObject;
 					LOGGER.trace("Start firing");
 
@@ -245,9 +246,9 @@ public class KeyboardAndMouseHandler {
 				UIModel.getUiModel().getSelectionModel().removeAllShipsFromSelection();
 			}
 
-			// if ("Me".equals(selectedShip.getOwner().getName())) {
-			UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
-			// }
+			if (FriendOrFoe.SELF.equals(selectedShip.getOwner().getFriendOrFoe())) {
+				UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
+			}
 		}
 
 		// pick in-world menu items
