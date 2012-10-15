@@ -1,5 +1,6 @@
 package net.carmgate.morph.ui.renderer.morph;
 
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ public class MorphRenderer implements Renderer<Morph> {
 
 	/** The texture under the morph image. */
 	private static Texture baseTexture;
+	private static Texture ownerBgTexture;
 
 	/** The texture under the morph image when morph is selected. */
 	private static Texture baseSelectedTexture;
@@ -46,6 +48,9 @@ public class MorphRenderer implements Renderer<Morph> {
 			baseTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32.png").getPath()));
 			baseSelectedTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-selected.png")
 					.getPath()));
+
+			// owner bg texture
+			ownerBgTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-owner-bg.png").getPath()));
 
 			// Normal textures
 			textures.put(MorphType.PROPULSOR,
@@ -103,6 +108,23 @@ public class MorphRenderer implements Renderer<Morph> {
 		// Shadow morphs are just basic morphs with more transparency
 		if (morph.getClass().getAnnotation(MorphInfo.class).type() == MorphType.SHADOW) {
 			alphaLevel *= 0.3f;
+		}
+
+		// Show the owner colored background
+		if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+			ownerBgTexture.bind();
+			Color color = morph.getShip().getOwner().getColor();
+			GL11.glColor4f((float) color.getRed() / 256, (float) color.getGreen() / 256, (float) color.getBlue() / 256, alphaLevel);
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0, 0);
+			GL11.glVertex2f(-ownerBgTexture.getTextureWidth() / 2, -ownerBgTexture.getTextureWidth() / 2);
+			GL11.glTexCoord2f(1, 0);
+			GL11.glVertex2f(ownerBgTexture.getTextureWidth() / 2, -ownerBgTexture.getTextureWidth() / 2);
+			GL11.glTexCoord2f(1, 1);
+			GL11.glVertex2f(ownerBgTexture.getTextureWidth() / 2, ownerBgTexture.getTextureHeight() / 2);
+			GL11.glTexCoord2f(0, 1);
+			GL11.glVertex2f(-ownerBgTexture.getTextureWidth() / 2, ownerBgTexture.getTextureHeight() / 2);
+			GL11.glEnd();
 		}
 
 		// morph texture

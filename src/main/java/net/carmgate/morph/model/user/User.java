@@ -1,5 +1,7 @@
 package net.carmgate.morph.model.user;
 
+import java.awt.Color;
+
 /**
  * This class allows to identify the owner of something in the model (for instance, a ship).
  * If the user is not mentionned at a given level, it should be inherited from the container.
@@ -25,16 +27,27 @@ public class User {
 	/** User name. */
 	private final String name;
 
+	/** user color. */
+	private final Color color;
+
 	/** friend of foe ? */
 	private final FriendOrFoe friendOrFoe;
 
 	/**
 	 * @param type a {@link UserType}
 	 */
-	public User(UserType type, String name, FriendOrFoe friendOrFoe) {
+	public User(UserType type, String name, FriendOrFoe friendOrFoe, Color color) {
 		this.type = type;
 		this.name = name;
 		this.friendOrFoe = friendOrFoe;
+		this.color = color;
+	}
+
+	/**
+	 * @return the user specific color.
+	 */
+	public Color getColor() {
+		return color;
 	}
 
 	/**

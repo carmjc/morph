@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.solid.world;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -121,9 +122,9 @@ public class World {
 
 	public void init() {
 		// Create users
-		UserFactory.addUser(new User(UserType.HUMAN, "Me", FriendOrFoe.SELF));
-		UserFactory.addUser(new User(UserType.AI, "Nemesis", FriendOrFoe.FOE));
-		UserFactory.addUser(new User(UserType.GOD, "God", FriendOrFoe.FRIEND));
+		UserFactory.addUser(new User(UserType.HUMAN, "Me", FriendOrFoe.SELF, new Color(0, 0, 0)));
+		UserFactory.addUser(new User(UserType.AI, "Nemesis", FriendOrFoe.FOE, new Color(150, 50, 50)));
+		UserFactory.addUser(new User(UserType.GOD, "God", FriendOrFoe.FRIEND, new Color(255, 255, 255)));
 
 		// Create a star
 		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
@@ -136,7 +137,8 @@ public class World {
 		// Create a ship for the ennemy
 		ship = new EnemyTestShip1(280, -300, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
-		// Create a ship for the ennemy
+
+		// Create another ship for the ennemy
 		ship = new EnemyTestShip2(250, -220, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
 	}

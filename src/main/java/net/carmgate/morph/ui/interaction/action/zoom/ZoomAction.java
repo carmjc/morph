@@ -47,16 +47,16 @@ public class ZoomAction implements Runnable {
 	 * 
 	 */
 	public void zoomIn() {
-		smoothZoomScaleTarget = WorldRenderer.scale / 2;
+		smoothZoomScaleTarget = smoothZoomScaleTarget / 2;
 		LOGGER.trace("Scale target: " + smoothZoomScaleTarget);
-		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
+		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 15;
 	}
 
 	/**
 	 * 
 	 */
 	public void zoomOut() {
-		smoothZoomScaleTarget = WorldRenderer.scale * 2;
-		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 10;
+		smoothZoomScaleTarget = smoothZoomScaleTarget * 2;
+		smoothZoomScaleIncrement = (smoothZoomScaleTarget - WorldRenderer.scale) / 15;
 	}
 }
