@@ -38,17 +38,19 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 
 	@Override
 	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Ship ship) {
+		GL11.glTranslatef(ship.getPos().x, ship.getPos().y, ship.getPos().z);
+		GL11.glRotatef(ship.getRot(), 0, 0, 1);
+
 		// Render center of ship
-		Vect3D centerPosInWorld = new Vect3D(ship.getPos());
-		centerPosInWorld.add(ship.getCenter());
+		Vect3D centerPos = new Vect3D(ship.getCenter());
 		TextureImpl.bindNone();
 		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex2d(centerPosInWorld.x - 2, centerPosInWorld.y - 2);
-		GL11.glVertex2d(centerPosInWorld.x - 2, centerPosInWorld.y + 2);
-		GL11.glVertex2d(centerPosInWorld.x + 2, centerPosInWorld.y + 2);
-		GL11.glVertex2d(centerPosInWorld.x + 2, centerPosInWorld.y - 2);
+		GL11.glVertex2d(centerPos.x - 2, centerPos.y - 2);
+		GL11.glVertex2d(centerPos.x - 2, centerPos.y + 2);
+		GL11.glVertex2d(centerPos.x + 2, centerPos.y + 2);
+		GL11.glVertex2d(centerPos.x + 2, centerPos.y - 2);
 		GL11.glEnd();
-		GL11.glTranslatef(centerPosInWorld.x, centerPosInWorld.y, centerPosInWorld.z);
+		GL11.glTranslatef(centerPos.x, centerPos.y, centerPos.z);
 
 		// Draw selection circle
 		float selectionRadius = ship.getRadius() + 8 * WorldRenderer.scale;
@@ -79,7 +81,10 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 		alphaLevel /= 0.3f;
 		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
 
-		GL11.glTranslatef(-centerPosInWorld.x, -centerPosInWorld.y, -centerPosInWorld.z);
+		GL11.glTranslatef(-centerPos.x, -centerPos.y, -centerPos.z);
+
+		GL11.glRotatef(-ship.getRot(), 0, 0, 1);
+		GL11.glTranslatef(-ship.getPos().x, -ship.getPos().y, -ship.getPos().z);
 	}
 
 }
