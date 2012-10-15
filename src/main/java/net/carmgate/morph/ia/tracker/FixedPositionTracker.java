@@ -28,6 +28,8 @@ public class FixedPositionTracker implements IA {
 
 	private boolean done;
 
+	private float activePropsToMorphsRatio;
+
 	public FixedPositionTracker(Ship ship, Vect3D targetPos) {
 		this.ship = ship;
 		this.targetPos = targetPos;
@@ -51,6 +53,7 @@ public class FixedPositionTracker implements IA {
 		}
 	}
 
+	@Override
 	public void compute() {
 		// update the list of active propulsors
 		activePropulsorMorphs.clear();
@@ -59,6 +62,9 @@ public class FixedPositionTracker implements IA {
 				activePropulsorMorphs.add(m);
 			}
 		}
+
+		// Compute ratio of active props over total morphs
+		activePropsToMorphsRatio = (float) activePropulsorMorphs.size() / ship.getMorphsByIds().size();
 
 		// Calculate center of mass in world
 		Vect3D comInWorld = new Vect3D(ship.getCenterOfMass());
@@ -73,8 +79,8 @@ public class FixedPositionTracker implements IA {
 				/ (ModelConstants.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
 		float distanceToBreak = ship.getPosSpeed().modulus() * nbSecondsToBreak;
 		LOGGER.trace("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
-		float rampedSpeed = ModelConstants.MAX_SPEED * (distanceToTarget - distanceToBreak) / distanceToBreak;// ship.slowingDistance;
-		float clippedSpeed = Math.min(rampedSpeed, ModelConstants.MAX_SPEED);
+		float rampedSpeed = ModelConstants.MAX_SPEED_PER_PROP_MORPH * activePropsToMorphsRatio * (distanceToTarget - distanceToBreak) / distanceToBreak;// ship.slowingDistance;
+		float clippedSpeed = Math.min(rampedSpeed, ModelConstants.MAX_SPEED_PER_PROP_MORPH * activePropsToMorphsRatio);
 		Vect3D desiredVelocity = new Vect3D(comToTarget);
 		desiredVelocity.normalize(clippedSpeed);
 		LOGGER.trace("DesiredVelocity: " + desiredVelocity.modulus());
@@ -86,7 +92,7 @@ public class FixedPositionTracker implements IA {
 		// and adjust thrust according to max_accel, max_speed and distanceToTarget
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			// Adjust thrust for moments
-			float thrust = steeringForce.modulus() / ModelConstants.MAX_SPEED;
+			float thrust = steeringForce.modulus() / ModelConstants.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST;
 			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
 			m.getPropulsingBehavior().setThrustPercentage(thrust);
 
@@ -95,6 +101,7 @@ public class FixedPositionTracker implements IA {
 
 	}
 
+	@Override
 	public boolean done() {
 
 		// The direction vector points in the direction the ship should try to go

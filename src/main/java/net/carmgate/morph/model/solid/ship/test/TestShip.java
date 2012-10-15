@@ -24,7 +24,7 @@ public class TestShip extends Ship {
 		addMorph(new StemMorph(), 0, 0, 0);
 		addMorph(new PropulsorMorph(), 1, 0, 0);
 
-		// addMorph(new GunMorph(), 10, 0, 0);
+		addMorph(new GunMorph(), 10, 0, 0);
 	}
 
 }

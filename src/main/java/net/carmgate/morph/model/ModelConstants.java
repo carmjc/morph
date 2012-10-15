@@ -28,7 +28,7 @@ public interface ModelConstants {
 	/** The drag factor initial value */
 	public static final float INITIAL_DRAG_FACTOR = 0.990f;
 	/** The ship max speed. */
-	public static final float MAX_SPEED = 250;
+	public static final float MAX_SPEED_PER_PROP_MORPH = 400;
 	/** Under that speed, the ship stops completely. */
 	public static final float MIN_SPEED = 0.00001f;
 	/** The rotation drag factor. The lower, the more it's dragged. */
