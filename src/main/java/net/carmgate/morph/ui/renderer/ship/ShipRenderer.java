@@ -27,6 +27,7 @@ import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.LaserFiringBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.PropulsingRenderer;
+import net.carmgate.morph.ui.renderer.behavior.SpreadingEnergyRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
 import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
 import net.carmgate.morph.ui.renderer.morph.SelectedMorphRenderer;
@@ -69,6 +70,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		behaviorRenderersMap.put(Transforming.class, new ProgressBehaviorRenderer());
 		behaviorRenderersMap.put(LaserFiringBehavior.class, new LaserFiringBehaviorRenderer());
 		behaviorRenderersMap.put(Propulsing.class, new PropulsingRenderer());
+		behaviorRenderersMap.put(SpreadingEnergy.class, new SpreadingEnergyRenderer());
 
 		// IA renderers map init
 		FixedPositionTrackerRenderer fixedPositionTrackerRenderer = new FixedPositionTrackerRenderer();
