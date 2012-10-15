@@ -1,10 +1,12 @@
 package net.carmgate.morph.ui.renderer.behavior;
 
 import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.ui.BehaviorRendererInfo;
 import net.carmgate.morph.ui.renderer.Renderer;
 
 import org.lwjgl.opengl.GL11;
 
+@BehaviorRendererInfo
 public abstract class BehaviorRenderer<K extends Behavior<?>> implements Renderer<Behavior<?>> {
 
 	private boolean active;
@@ -19,8 +21,21 @@ public abstract class BehaviorRenderer<K extends Behavior<?>> implements Rendere
 	}
 
 	@Override
-	public final void render(int glMode, RenderStyle drawType, Behavior<?> sceneItem) {
-		renderBehavior(glMode, drawType, (K) sceneItem);
+	public final void render(int glMode, RenderStyle renderStyle, Behavior<?> behavior) {
+		renderBehavior(glMode, renderStyle, (K) behavior);
+	}
+
+	/**
+	 * Renders a behavior 
+	 * @param glMode the mode {@link GL11#GL_SELECT} or {@link GL11#GL_RENDER} 
+	 * @param renderStyle a {@link RenderStyle} reference
+	 * @param behavior the behavior to render
+	 * @param preMorphRendering true if the renderer is called before all morphs rendering
+	 */
+	public final void render(int glMode, RenderStyle renderStyle, Behavior<?> behavior, boolean preMorphRendering) {
+		if (preMorphRendering == getClass().getAnnotation(BehaviorRendererInfo.class).preMorphRendering()) {
+			render(glMode, renderStyle, behavior);
+		}
 	}
 
 	/**

@@ -11,13 +11,17 @@ import java.util.Queue;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.prop.Propulsing;
+import net.carmgate.morph.ui.BehaviorRendererInfo;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+@BehaviorRendererInfo(preMorphRendering = true)
 public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
+	private static final int TRAIL_WIDTH = 4;
+
 	private static final int NB_OF_COORD_IN_TRAIL = 100;
 
 	private static final Logger LOGGER = Logger.getLogger(LaserFiringBehaviorRenderer.class);
@@ -50,7 +54,6 @@ public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 
 		// render the trail
 		Vect3D previousPos = null;
-		int currentBeamWidth = 2;
 		int currentCoordInTrail = 0;
 		for (Vect3D pos : trail) {
 
@@ -64,17 +67,17 @@ public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 				GL11.glBegin(GL11.GL_QUADS);
 				GL11.glColor4f(1, 1, 1, (float) currentCoordInTrail / trail.size());
 				GL11.glTexCoord2f(1, 0);
-				GL11.glVertex2f(previousPos.x - direction.y * currentBeamWidth,
-						previousPos.y + direction.x * currentBeamWidth);
+				GL11.glVertex2f(previousPos.x - direction.y * TRAIL_WIDTH,
+						previousPos.y + direction.x * TRAIL_WIDTH);
 				GL11.glTexCoord2f(1, 1);
-				GL11.glVertex2f(previousPos.x + direction.y * currentBeamWidth,
-						previousPos.y - direction.x * currentBeamWidth);
+				GL11.glVertex2f(previousPos.x + direction.y * TRAIL_WIDTH,
+						previousPos.y - direction.x * TRAIL_WIDTH);
 				GL11.glTexCoord2f(0, 1);
-				GL11.glVertex2f(pos.x + direction.y * currentBeamWidth,
-						pos.y - direction.x * currentBeamWidth);
+				GL11.glVertex2f(pos.x + direction.y * TRAIL_WIDTH,
+						pos.y - direction.x * TRAIL_WIDTH);
 				GL11.glTexCoord2f(0, 0);
-				GL11.glVertex2f(pos.x - direction.y * currentBeamWidth,
-						pos.y + direction.x * currentBeamWidth);
+				GL11.glVertex2f(pos.x - direction.y * TRAIL_WIDTH,
+						pos.y + direction.x * TRAIL_WIDTH);
 				GL11.glEnd();
 			}
 

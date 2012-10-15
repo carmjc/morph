@@ -86,10 +86,11 @@ public class ShipRenderer implements Renderer<Ship> {
 			GL11.glPushName(ship.getId());
 		}
 
+		// Do whatever is necessary to draw the ship except sub items
+		renderShipMorphBehaviors(glMode, renderStyle, ship, true);
+
 		GL11.glTranslatef(ship.getPos().x, ship.getPos().y, ship.getPos().z);
 		GL11.glRotatef(ship.getRot(), 0, 0, 1);
-
-		// Do whatever is necessary to draw the ship except sub items
 
 		// Draw the morphs
 		// TODO We clone the list to avoid ConcurrentModificationExceptions. We should try to improve this.
@@ -106,9 +107,9 @@ public class ShipRenderer implements Renderer<Ship> {
 		GL11.glRotatef(-ship.getRot(), 0, 0, 1);
 		GL11.glTranslatef(-ship.getPos().x, -ship.getPos().y, -ship.getPos().z);
 
+		renderShipMorphBehaviors(glMode, renderStyle, ship, false);
 		renderShipCenterOfMass(glMode, renderStyle, ship);
 		renderShipIAs(glMode, renderStyle, ship);
-		renderShipMorphBehaviors(glMode, renderStyle, ship);
 		renderShipSpeed(glMode, renderStyle, ship);
 
 		if (glMode != GL11.GL_SELECT && WorldRenderer.debugDisplay) {
@@ -125,11 +126,11 @@ public class ShipRenderer implements Renderer<Ship> {
 		}
 	}
 
-	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior) {
+	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior, boolean preMorphRendering) {
 		BehaviorRenderer<?> behaviorRenderer = behaviorRenderersMap.get(behavior.getClass());
 		if (behavior.getState() == State.ACTIVE || behaviorRenderer != null && behaviorRenderer.isActive()) {
 			if (behaviorRenderer != null) {
-				behaviorRenderer.render(glMode, drawType, behavior);
+				behaviorRenderer.render(glMode, drawType, behavior, preMorphRendering);
 			}
 		}
 	}
@@ -185,17 +186,17 @@ public class ShipRenderer implements Renderer<Ship> {
 	 * @param renderStyle
 	 * @param ship
 	 */
-	private void renderShipMorphBehaviors(int glMode, RenderStyle renderStyle, Ship ship) {
+	private void renderShipMorphBehaviors(int glMode, RenderStyle renderStyle, Ship ship, boolean preMorphRendering) {
 		for (Morph morph : ship.getMorphsByIds().values()) {
 			if (glMode == GL11.GL_RENDER) {
 				for (Behavior<?> behavior : morph.getAlwaysActiveBehaviorList()) {
-					renderBehavior(glMode, renderStyle, behavior);
+					renderBehavior(glMode, renderStyle, behavior, preMorphRendering);
 				}
 				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
-					renderBehavior(glMode, renderStyle, behavior);
+					renderBehavior(glMode, renderStyle, behavior, preMorphRendering);
 				}
 				for (Behavior<?> behavior : morph.getAlternateBehaviorList()) {
-					renderBehavior(glMode, renderStyle, behavior);
+					renderBehavior(glMode, renderStyle, behavior, preMorphRendering);
 				}
 			}
 		}
