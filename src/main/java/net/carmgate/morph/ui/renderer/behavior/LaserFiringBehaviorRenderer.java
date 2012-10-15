@@ -37,10 +37,19 @@ public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBeh
 
 	@Override
 	protected void renderBehavior(int glMode, RenderStyle drawType, LaserFiringBehavior behavior) {
+		if (behavior.getEffectiveTarget() == null) {
+			return;
+		}
+
 		Vect3D source = behavior.getOwner().getPosInWorld();
-		Vect3D target = behavior.getOwner().getTarget().getPos();
-		Vect3D direction = new Vect3D(target);
+		Vect3D direction = new Vect3D(behavior.getOwner().getTarget().getPosInWorld());
 		direction.substract(source);
+		direction.normalize(1);
+		Vect3D target = new Vect3D(behavior.getOwner().getTarget().getPosInWorld());
+		target.normalize(1);
+		target.normalize(behavior.getEffectiveTarget().getPosInWorld().prodScal(target));
+
+		// Animation of the beam
 		if (Math.abs(currentBeamWidth - targetBeamWidth) < BEAM_WIDTH_CHANGE_RATE) {
 			targetBeamWidth = 1 + (float) (Math.random() * 4);
 		} else {
@@ -50,7 +59,6 @@ public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBeh
 				currentBeamWidth -= BEAM_WIDTH_CHANGE_RATE;
 			}
 		}
-		direction.normalize(1);
 
 		gunfireTexture.bind();
 		GL11.glBegin(GL11.GL_QUADS);
@@ -68,5 +76,4 @@ public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBeh
 				target.y - direction.y * MORPH_RADIUS + direction.x * currentBeamWidth);
 		GL11.glEnd();
 	}
-
 }

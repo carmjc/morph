@@ -163,15 +163,15 @@ public class KeyboardAndMouseHandler {
 			// Event button == 1 : Right button related event
 			if (Mouse.getEventButton() == 1 && !Mouse.getEventButtonState() && UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0) {
 
-				Object pickedObject = pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY());
-				if (pickedObject instanceof Ship && !"Me".equals(((Ship) pickedObject).getOwner())) {
-					Ship ship = (Ship) pickedObject;
-					LOGGER.debug("Start firing");
+				Object pickedObject = pickingHandler.pick(MorphMouse.getX(), MorphMouse.getY(), Morph.class);
+				if (pickedObject instanceof Morph && !"Me".equals(((Morph) pickedObject).getShip().getOwner())) {
+					Morph morph = (Morph) pickedObject;
+					LOGGER.trace("Start firing");
 
 					for (Ship s : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
 						for (Morph m : s.getMorphsByIds().values()) {
 							if (m instanceof GunMorph) {
-								((GunMorph) m).setTarget(ship);
+								((GunMorph) m).setTarget(morph);
 								m.tryToActivate();
 							}
 						}

@@ -5,10 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.ui.renderer.Renderer;
+import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -37,14 +36,11 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 		}
 	}
 
-	public SelectedShipRenderer() {
-	}
-
 	@Override
 	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Ship ship) {
+		// Render center of ship
 		Vect3D centerPosInWorld = new Vect3D(ship.getPos());
 		centerPosInWorld.add(ship.getCenter());
-
 		TextureImpl.bindNone();
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glVertex2d(centerPosInWorld.x - 2, centerPosInWorld.y - 2);
@@ -52,29 +48,22 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 		GL11.glVertex2d(centerPosInWorld.x + 2, centerPosInWorld.y + 2);
 		GL11.glVertex2d(centerPosInWorld.x + 2, centerPosInWorld.y - 2);
 		GL11.glEnd();
-
 		GL11.glTranslatef(centerPosInWorld.x, centerPosInWorld.y, centerPosInWorld.z);
 
-		float maxDistance = 0;
-		for (Morph m : ship.getMorphsByIds().values()) {
-			if (!m.getClass().getAnnotation(MorphInfo.class).virtual()) {
-				maxDistance = Math.max(maxDistance, centerPosInWorld.distance(m.getPosInWorld()));
-			}
-		}
-		maxDistance += 32;
-
+		// Draw selection circle
+		float selectionRadius = ship.getRadius() + 8 * WorldRenderer.scale;
 		float alphaLevel = 0.2f;
 		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
 		texture.bind();
-		double y1 = -maxDistance + 8; // radius = 1
+		double y1 = -selectionRadius + 8 * WorldRenderer.scale;
 		double x1 = 0;
-		double y2 = -maxDistance; // radius = 1
+		double y2 = -selectionRadius;
 		double x2 = 0;
 		double x3 = cos * x1 - sin * y1;
 		double y3 = sin * x1 + cos * y1;
 		double x4 = cos * x2 - sin * y2;
 		double y4 = sin * x2 + cos * y2;
-		for (int i = 0; i < nbSegments; i++) { // nbSegments
+		for (int i = 0; i < nbSegments; i++) {
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0, 0);
 			GL11.glVertex2d(x2, y2);

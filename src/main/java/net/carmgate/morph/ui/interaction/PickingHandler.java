@@ -118,7 +118,37 @@ public class PickingHandler {
 		return hits;
 	}
 
+	/**
+	 * Pick an object at world coordinates x and y.
+	 * If multi-level object is selected, the result may vary slightly on the context:
+	 * <ul><li>if a ship is clicked on</li>
+	 *  <ul><li>if no ship is selected or if the clicked ship is not the currently selected one, the clicked
+	 *  	ship is returned.</li>
+	 *  <li>if the clicked ship is already selected, the clicked morph will be returned.</li></ul>
+	 * </ul>
+	 * @param x the x coordinate
+	 * @param y the y coordinate
+	 * @return the picked object.
+	 */
 	public Object pick(int x, int y) {
+		return pick(x, y, null);
+	}
+
+	/**
+	 * Pick an object at world coordinates x and y.
+	 * If multi-level object is selected (for instance ship/morph), 
+	 * the result may vary slightly depending on the context if <b>null</b> is given as the <b>kind</b> parameter :
+	 * <ul><li>if a ship is clicked on</li>
+	 *  <ul><li>if no ship is selected or if the clicked ship is not the currently selected one, the clicked
+	 *  	ship is returned.</li>
+	 *  <li>if the clicked ship is already selected, the clicked morph will be returned.</li></ul>
+	 * </ul>
+	 * @param x the x coordinate
+	 * @param y the y coordinate
+	 * @param kind the kind of object we want when a click happens on a multi level object.
+	 * @return the picked object.
+	 */
+	public Object pick(int x, int y, Class<?> kind) {
 		Object pickedObject = null;
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
@@ -138,7 +168,7 @@ public class PickingHandler {
 			// with morph selection.
 			Ship selectedShip = getPickedShip(selectBuf);
 			pickedObject = selectedShip;
-			if (UIModel.getUiModel().getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
+			if (Morph.class.equals(kind) || UIModel.getUiModel().getSelectionModel().getSelectedShips().values().contains(selectedShip)) {
 				pickedObject = getPickedMorph(selectBuf);
 			}
 

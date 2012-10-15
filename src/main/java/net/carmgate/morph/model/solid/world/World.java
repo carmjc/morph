@@ -13,9 +13,10 @@ import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
 import net.carmgate.morph.model.solid.energysource.Star;
 import net.carmgate.morph.model.solid.morph.Morph;
-import net.carmgate.morph.model.solid.ship.EnemyTestShip;
 import net.carmgate.morph.model.solid.ship.Ship;
-import net.carmgate.morph.model.solid.ship.TestShip;
+import net.carmgate.morph.model.solid.ship.test.EnemyTestShip1;
+import net.carmgate.morph.model.solid.ship.test.EnemyTestShip2;
+import net.carmgate.morph.model.solid.ship.test.TestShip;
 import net.carmgate.morph.model.user.User;
 import net.carmgate.morph.model.user.User.UserType;
 import net.carmgate.morph.model.user.UserFactory;
@@ -132,10 +133,10 @@ public class World {
 		getShips().put(ship.getId(), ship);
 
 		// Create a ship for the ennemy
-		ship = new EnemyTestShip(300, -300, 0, UserFactory.findUser("Nemesis"));
+		ship = new EnemyTestShip1(280, -300, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
 		// Create a ship for the ennemy
-		ship = new EnemyTestShip(250, -250, 0, UserFactory.findUser("Nemesis"));
+		ship = new EnemyTestShip2(250, -220, 0, UserFactory.findUser("Nemesis"));
 		getShips().put(ship.getId(), ship);
 	}
 

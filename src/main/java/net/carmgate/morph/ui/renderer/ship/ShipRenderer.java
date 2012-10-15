@@ -129,29 +129,6 @@ public class ShipRenderer implements Renderer<Ship> {
 		}
 	}
 
-	/**
-	 * Renders the center of mass.
-	 */
-	private void renderCOM(int glMode,
-			net.carmgate.morph.ui.renderer.Renderer.RenderStyle renderStyle,
-			Ship ship) {
-		dummyVect.copy(ship.getCenterOfMass());
-		ship.transformShipToWorldCoords(dummyVect);
-		GL11.glTranslatef(dummyVect.x, dummyVect.y, dummyVect.z);
-		comTexture.bind();
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(-comTexture.getTextureWidth() / 2, -comTexture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(comTexture.getTextureWidth() / 2, -comTexture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 1);
-		GL11.glVertex2f(comTexture.getTextureWidth() / 2, comTexture.getTextureHeight() / 2);
-		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(-comTexture.getTextureWidth() / 2, comTexture.getTextureHeight() / 2);
-		GL11.glEnd();
-		GL11.glTranslatef(-dummyVect.x, -dummyVect.y, -dummyVect.z);
-	}
-
 	private void renderIA(int glMode,
 			RenderStyle renderStyle,
 			IA ia) {
@@ -168,7 +145,21 @@ public class ShipRenderer implements Renderer<Ship> {
 	 */
 	private void renderShipCenterOfMass(int glMode, RenderStyle renderStyle, Ship ship) {
 		if (WorldRenderer.debugDisplay) {
-			renderCOM(glMode, renderStyle, ship);
+			dummyVect.copy(ship.getCenterOfMass());
+			ship.transformShipToWorldCoords(dummyVect);
+			GL11.glTranslatef(dummyVect.x, dummyVect.y, dummyVect.z);
+			comTexture.bind();
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0, 0);
+			GL11.glVertex2f(-comTexture.getTextureWidth() / 2, -comTexture.getTextureWidth() / 2);
+			GL11.glTexCoord2f(1, 0);
+			GL11.glVertex2f(comTexture.getTextureWidth() / 2, -comTexture.getTextureWidth() / 2);
+			GL11.glTexCoord2f(1, 1);
+			GL11.glVertex2f(comTexture.getTextureWidth() / 2, comTexture.getTextureHeight() / 2);
+			GL11.glTexCoord2f(0, 1);
+			GL11.glVertex2f(-comTexture.getTextureWidth() / 2, comTexture.getTextureHeight() / 2);
+			GL11.glEnd();
+			GL11.glTranslatef(-dummyVect.x, -dummyVect.y, -dummyVect.z);
 		}
 	}
 
