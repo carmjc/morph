@@ -37,6 +37,8 @@ public class WorldRenderer implements Renderer<World> {
 	@Override
 	public void render(int glMode, RenderStyle drawType, World world) {
 
+		// glMode = GL11.GL_SELECT;
+
 		if (glMode == GL11.GL_RENDER) {
 			TextureImpl.bindNone();
 			renderWorldAreas(glMode, drawType, world);
@@ -110,7 +112,7 @@ public class WorldRenderer implements Renderer<World> {
 
 		for (Ship ship : world.getShips().values()) {
 			shipRenderer.render(glMode, drawType, ship);
-			if (UIModel.getUiModel().getSelectionModel().getSelectedShips().containsValue(ship)) {
+			if (glMode != GL11.GL_SELECT && UIModel.getUiModel().getSelectionModel().getSelectedShips().containsValue(ship)) {
 				selectedShipRenderer.render(glMode, drawType, ship);
 			}
 		}

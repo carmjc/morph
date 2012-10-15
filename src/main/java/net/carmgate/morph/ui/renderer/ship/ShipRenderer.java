@@ -16,6 +16,7 @@ import net.carmgate.morph.model.behavior.LaserFiringBehavior;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.Transforming;
+import net.carmgate.morph.model.behavior.prop.Propulsing;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.ui.model.UIModel;
@@ -25,6 +26,7 @@ import net.carmgate.morph.ui.renderer.WorldRenderer;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.LaserFiringBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
+import net.carmgate.morph.ui.renderer.behavior.PropulsingRenderer;
 import net.carmgate.morph.ui.renderer.ia.FixedPositionTrackerRenderer;
 import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
 import net.carmgate.morph.ui.renderer.morph.SelectedMorphRenderer;
@@ -66,6 +68,7 @@ public class ShipRenderer implements Renderer<Ship> {
 		behaviorRenderersMap.put(SpreadingEnergy.class, null);
 		behaviorRenderersMap.put(Transforming.class, new ProgressBehaviorRenderer());
 		behaviorRenderersMap.put(LaserFiringBehavior.class, new LaserFiringBehaviorRenderer());
+		behaviorRenderersMap.put(Propulsing.class, new PropulsingRenderer());
 
 		// IA renderers map init
 		FixedPositionTrackerRenderer fixedPositionTrackerRenderer = new FixedPositionTrackerRenderer();
@@ -124,8 +127,10 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior) {
 		BehaviorRenderer<?> behaviorRenderer = behaviorRenderersMap.get(behavior.getClass());
-		if (behaviorRenderer != null) {
-			behaviorRenderer.render(glMode, drawType, behavior);
+		if (behavior.getState() == State.ACTIVE || behaviorRenderer != null && behaviorRenderer.isActive()) {
+			if (behaviorRenderer != null) {
+				behaviorRenderer.render(glMode, drawType, behavior);
+			}
 		}
 	}
 
@@ -184,19 +189,13 @@ public class ShipRenderer implements Renderer<Ship> {
 		for (Morph morph : ship.getMorphsByIds().values()) {
 			if (glMode == GL11.GL_RENDER) {
 				for (Behavior<?> behavior : morph.getAlwaysActiveBehaviorList()) {
-					if (behavior.getState() == State.ACTIVE) {
-						renderBehavior(glMode, renderStyle, behavior);
-					}
+					renderBehavior(glMode, renderStyle, behavior);
 				}
 				for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
-					if (behavior.getState() == State.ACTIVE) {
-						renderBehavior(glMode, renderStyle, behavior);
-					}
+					renderBehavior(glMode, renderStyle, behavior);
 				}
 				for (Behavior<?> behavior : morph.getAlternateBehaviorList()) {
-					if (behavior.getState() == State.ACTIVE) {
-						renderBehavior(glMode, renderStyle, behavior);
-					}
+					renderBehavior(glMode, renderStyle, behavior);
 				}
 			}
 		}

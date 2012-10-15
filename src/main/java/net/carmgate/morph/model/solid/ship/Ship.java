@@ -504,7 +504,7 @@ public abstract class Ship {
 		pos.y += posSpeed.y * secondsSinceLastUpdate;
 		pos.z += posSpeed.z * secondsSinceLastUpdate;
 
-		// rotSpeed += rotAccel * secondsSinceLastUpdate;
+		rotSpeed += rotAccel * secondsSinceLastUpdate;
 		// rotSpeed = 5; // FIXME Remove that
 
 		// The drag factor is reduced to take into account the fact that we update the position since last TS and not from a full second ago.

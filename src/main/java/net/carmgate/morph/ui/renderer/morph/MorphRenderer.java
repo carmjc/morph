@@ -130,7 +130,7 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		GL11.glColor4f(1, 1, 1, alphaLevel);
 		// sphere texture
-		if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().containsValue(morph)) {
+		if (glMode != GL11.GL_SELECT && UIModel.getUiModel().getSelectionModel().getSelectedMorphs().containsValue(morph)) {
 			baseSelectedTexture.bind();
 		} else {
 			baseTexture.bind();
