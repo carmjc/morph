@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.interaction.action;
+package net.carmgate.morph.ui.interaction.actions;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Transforming;
@@ -11,9 +11,14 @@ import net.carmgate.morph.ui.model.iwmenu.IWMenu;
 import net.carmgate.morph.ui.selection.SelectionAdapter;
 import net.carmgate.morph.ui.selection.SelectionEvent;
 
+import org.apache.log4j.Logger;
+
 // TODO add comments
 public class ShowEvolveMenuAction implements Runnable {
 
+	/**
+	 * Listens to menu item clicks and triggers evolutions.
+	 */
 	private final class MenuListener extends SelectionAdapter {
 		@Override
 		public void iwMenuItemSelected(SelectionEvent selectionEvent) {
@@ -24,6 +29,8 @@ public class ShowEvolveMenuAction implements Runnable {
 			selectedMorph.getAlternateBehaviorList().add(transformBehavior);
 		}
 	}
+
+	private static final Logger LOGGER = Logger.getLogger(ShowEvolveMenuAction.class);
 
 	private MenuListener inWorldMenuListener;
 
@@ -51,7 +58,7 @@ public class ShowEvolveMenuAction implements Runnable {
 	}
 
 	/**
-	 * 
+	 * Shows the menu items for evolution mecanism. 
 	 */
 	private void showEvolvingMenu() {
 		IWMenu inWorldMenu = new IWMenu();

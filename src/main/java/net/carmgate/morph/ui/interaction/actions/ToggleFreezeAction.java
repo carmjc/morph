@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.interaction.action;
+package net.carmgate.morph.ui.interaction.actions;
 
 import net.carmgate.morph.model.solid.world.World;
 

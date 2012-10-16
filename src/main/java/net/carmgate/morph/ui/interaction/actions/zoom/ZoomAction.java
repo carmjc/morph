@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.interaction.action.zoom;
+package net.carmgate.morph.ui.interaction.actions.zoom;
 
 import net.carmgate.morph.Main;
 import net.carmgate.morph.ui.renderer.WorldRenderer;

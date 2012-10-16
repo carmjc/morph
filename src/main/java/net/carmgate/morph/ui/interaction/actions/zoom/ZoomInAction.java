@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.interaction.action.zoom;
+package net.carmgate.morph.ui.interaction.actions.zoom;
 
 public class ZoomInAction implements Runnable {
 

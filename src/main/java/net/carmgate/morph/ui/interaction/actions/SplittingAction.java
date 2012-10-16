@@ -1,4 +1,4 @@
-package net.carmgate.morph.ui.interaction.action;
+package net.carmgate.morph.ui.interaction.actions;
 
 import java.util.Map;
 
