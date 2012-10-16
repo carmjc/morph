@@ -41,13 +41,19 @@ public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBeh
 			return;
 		}
 
-		Vect3D source = behavior.getOwner().getPosInWorld();
-		Vect3D direction = new Vect3D(behavior.getOwner().getTarget().getPosInWorld());
-		direction.substract(source);
-		direction.normalize(1);
-		Vect3D target = new Vect3D(behavior.getOwner().getTarget().getPosInWorld());
-		target.normalize(1);
-		target.normalize(behavior.getEffectiveTarget().getPosInWorld().prodScal(target));
+		// Source position
+		Vect3D sourcePos = behavior.getOwner().getPosInWorld();
+		// Target direction normalized to 1
+		Vect3D targetDirection = new Vect3D(behavior.getOwner().getTarget().getPosInWorld());
+		targetDirection.substract(sourcePos);
+		targetDirection.normalize(1);
+		// The source to effective target vector
+		Vect3D sourceToEffTargetVect = behavior.getEffectiveTarget().getPosInWorld();
+		sourceToEffTargetVect.substract(sourcePos);
+		// Where the effective target is hit
+		Vect3D effTargetHitPosition = new Vect3D(targetDirection);
+		effTargetHitPosition.normalize(targetDirection.prodScal(sourceToEffTargetVect));
+		effTargetHitPosition.add(sourcePos);
 
 		// Animation of the beam
 		if (Math.abs(currentBeamWidth - targetBeamWidth) < BEAM_WIDTH_CHANGE_RATE) {
@@ -63,17 +69,17 @@ public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBeh
 		gunfireTexture.bind();
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(source.x + direction.x * MORPH_RADIUS - direction.y * currentBeamWidth,
-				source.y + direction.y * MORPH_RADIUS + direction.x * currentBeamWidth);
+		GL11.glVertex2f(sourcePos.x + targetDirection.x * MORPH_RADIUS - targetDirection.y * currentBeamWidth,
+				sourcePos.y + targetDirection.y * MORPH_RADIUS + targetDirection.x * currentBeamWidth);
 		GL11.glTexCoord2f(1, 1);
-		GL11.glVertex2f(source.x + direction.x * MORPH_RADIUS + direction.y * currentBeamWidth,
-				source.y + direction.y * MORPH_RADIUS - direction.x * currentBeamWidth);
+		GL11.glVertex2f(sourcePos.x + targetDirection.x * MORPH_RADIUS + targetDirection.y * currentBeamWidth,
+				sourcePos.y + targetDirection.y * MORPH_RADIUS - targetDirection.x * currentBeamWidth);
 		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(target.x - direction.x * MORPH_RADIUS + direction.y * currentBeamWidth,
-				target.y - direction.y * MORPH_RADIUS - direction.x * currentBeamWidth);
+		GL11.glVertex2f(effTargetHitPosition.x - targetDirection.x * MORPH_RADIUS + targetDirection.y * currentBeamWidth,
+				effTargetHitPosition.y - targetDirection.y * MORPH_RADIUS - targetDirection.x * currentBeamWidth);
 		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(target.x - direction.x * MORPH_RADIUS - direction.y * currentBeamWidth,
-				target.y - direction.y * MORPH_RADIUS + direction.x * currentBeamWidth);
+		GL11.glVertex2f(effTargetHitPosition.x - targetDirection.x * MORPH_RADIUS - targetDirection.y * currentBeamWidth,
+				effTargetHitPosition.y - targetDirection.y * MORPH_RADIUS + targetDirection.x * currentBeamWidth);
 		GL11.glEnd();
 	}
 }
