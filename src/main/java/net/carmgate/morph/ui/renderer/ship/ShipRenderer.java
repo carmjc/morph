@@ -12,10 +12,10 @@ import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
+import net.carmgate.morph.model.behavior.Evolving;
 import net.carmgate.morph.model.behavior.LaserFiringBehavior;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.behavior.State;
-import net.carmgate.morph.model.behavior.Evolving;
 import net.carmgate.morph.model.behavior.prop.Propulsing;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
@@ -92,7 +92,9 @@ public class ShipRenderer implements Renderer<Ship> {
 		renderShipMorphBehaviors(glMode, renderStyle, ship, true);
 
 		GL11.glTranslatef(ship.getPos().x, ship.getPos().y, ship.getPos().z);
+		GL11.glTranslatef(ship.getComInShip().x, ship.getComInShip().y, ship.getComInShip().z);
 		GL11.glRotatef(ship.getRot(), 0, 0, 1);
+		GL11.glTranslatef(-ship.getComInShip().x, -ship.getComInShip().y, -ship.getComInShip().z);
 
 		// Draw the morphs
 		// TODO We clone the list to avoid ConcurrentModificationExceptions. We should try to improve this.
@@ -106,11 +108,13 @@ public class ShipRenderer implements Renderer<Ship> {
 
 		}
 
+		GL11.glTranslatef(ship.getComInShip().x, ship.getComInShip().y, ship.getComInShip().z);
 		GL11.glRotatef(-ship.getRot(), 0, 0, 1);
+		GL11.glTranslatef(-ship.getComInShip().x, -ship.getComInShip().y, -ship.getComInShip().z);
 		GL11.glTranslatef(-ship.getPos().x, -ship.getPos().y, -ship.getPos().z);
 
 		renderShipMorphBehaviors(glMode, renderStyle, ship, false);
-		renderShipCenterOfMass(glMode, renderStyle, ship);
+		renderShipCom(glMode, renderStyle, ship);
 		renderShipIAs(glMode, renderStyle, ship);
 		renderShipSpeed(glMode, renderStyle, ship);
 
@@ -151,9 +155,9 @@ public class ShipRenderer implements Renderer<Ship> {
 	 * @param renderStyle
 	 * @param ship
 	 */
-	private void renderShipCenterOfMass(int glMode, RenderStyle renderStyle, Ship ship) {
+	private void renderShipCom(int glMode, RenderStyle renderStyle, Ship ship) {
 		if (WorldRenderer.debugDisplay) {
-			dummyVect.copy(ship.getCenterOfMass());
+			dummyVect.copy(ship.getComInShip());
 			ship.transformShipToWorldCoords(dummyVect);
 			GL11.glTranslatef(dummyVect.x, dummyVect.y, dummyVect.z);
 			comTexture.bind();
@@ -212,7 +216,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	 */
 	private void renderShipSpeed(int glMode, RenderStyle renderStyle, Ship ship) {
 		// Render ship speed
-		Vect3D comInWorld = new Vect3D(ship.getCenterOfMass());
+		Vect3D comInWorld = new Vect3D(ship.getComInShip());
 		ship.transformShipToWorldCoords(comInWorld);
 
 		if (renderStyle == RenderStyle.DEBUG) {

@@ -17,8 +17,8 @@ public class EnemyTestShip2 extends Ship {
 		super(x, y, z, user);
 
 		addMorph(new BasicMorph(), 0, 0, 0);
-		// addMorph(new StemMorph(), 1, -1, 0);
-		addMorph(new BasicMorph(), -1, 1, 0);
+		addMorph(new BasicMorph(), 1, 0, 0);
+		addMorph(new BasicMorph(), 2, 0, 0);
 
 	}
 

@@ -7,8 +7,8 @@ import java.util.List;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.Evolving;
+import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.requirements.Requirement;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemMorph;
@@ -298,6 +298,7 @@ public abstract class Morph {
 	 */
 	public final Vect3D getPosInWorld() {
 		if (ship != null) {
+			// This should be computed only once per frame
 			posInWorld.copy(posInShip);
 			ship.transformShipToWorldCoords(posInWorld);
 		}

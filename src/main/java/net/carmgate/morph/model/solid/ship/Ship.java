@@ -74,8 +74,8 @@ public abstract class Ship {
 	/** List of ship's listeners. */
 	private final List<ShipListener> shipListeners = new ArrayList<ShipListener>();
 
-	/** The center of mass of the ship, in world coordinates */
-	private Vect3D centerOfMass = new Vect3D(Vect3D.NULL);
+	/** The center of mass of the ship, in ship coordinates */
+	private Vect3D comInShip = new Vect3D(Vect3D.NULL);
 
 	/** The center of mass of the ship, in world coordinates */
 	private Vect3D center = new Vect3D(Vect3D.NULL);
@@ -158,6 +158,7 @@ public abstract class Ship {
 
 			// Recompute differente elements of the ship.
 			if (newMorph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+				// Compute com and center
 				computeCOM();
 				computeRadiusIncremental(newMorph, true);
 			}
@@ -203,7 +204,6 @@ public abstract class Ship {
 			LOGGER.trace("morph added: " + m);
 		}
 		computeCOM();
-		LOGGER.trace("COM(" + centerOfMass + ")");
 	}
 
 	public void addShipListeners(ShipListener shipListener) {
@@ -215,7 +215,7 @@ public abstract class Ship {
 		rotAccel = 0;
 
 		// Calculate com in world
-		Vect3D comInWorld = new Vect3D(getCenterOfMass());
+		Vect3D comInWorld = new Vect3D(getComInShip());
 		transformShipToWorldCoords(comInWorld);
 
 		// Initialize forceTarget vector
@@ -249,18 +249,23 @@ public abstract class Ship {
 	public void computeCOM() {
 		LOGGER.debug("Calculate COM");
 
-		centerOfMass.copy(Vect3D.NULL);
+		// Compute new com position
+		comInShip.copy(Vect3D.NULL);
 		float shipMass = 0;
 		for (Morph m : getMorphsByIds().values()) {
 			// Add the weighted pos in ship of the morph
 			Vect3D weightedPosInShip = new Vect3D(m.getPosInShip());
 			weightedPosInShip.prodScal(m.getMaxMass());
-			centerOfMass.add(weightedPosInShip);
+			comInShip.add(weightedPosInShip);
 
 			// add the morph's mass to the ship's mass
 			shipMass += m.getMaxMass();
 		}
-		centerOfMass.normalize(centerOfMass.modulus() / shipMass);
+		comInShip.normalize(comInShip.modulus() / shipMass);
+
+		// update position
+		Vect3D posDelta = new Vect3D(comInShip).rotate(rot).substract(comInShip);
+		pos.add(posDelta);
 	}
 
 	/**
@@ -342,8 +347,11 @@ public abstract class Ship {
 		return center;
 	}
 
-	public Vect3D getCenterOfMass() {
-		return centerOfMass;
+	/**
+	 * @return COM ship coordinates
+	 */
+	public Vect3D getComInShip() {
+		return comInShip;
 	}
 
 	private float getDragFactor() {
@@ -456,8 +464,12 @@ public abstract class Ship {
 		dragFactor = ModelConstants.INITIAL_DRAG_FACTOR;
 	}
 
-	public void setCenterOfMassInWorld(Vect3D centerOfMass) {
-		this.centerOfMass = centerOfMass;
+	/**
+	 * Sets the Com in ship coordinates.
+	 * @param comInShip com position in ship coordinates
+	 */
+	public void setComInShip(Vect3D comInShip) {
+		this.comInShip = comInShip;
 	}
 
 	public void setDragFactor(float dragFactor) {
@@ -502,8 +514,10 @@ public abstract class Ship {
 	 * @param coords the coordinates in ship referential
 	 */
 	public void transformShipToWorldCoords(Vect3D coords) {
+		coords.substract(getComInShip());
 		coords.rotate(rot);
 		coords.add(pos);
+		coords.add(getComInShip());
 	}
 
 	/**
@@ -553,6 +567,7 @@ public abstract class Ship {
 		rotSpeed = Math.abs(rotSpeed * reducedRotDragFactor * 0.995f) > ModelConstants.MIN_SPEED ? rotSpeed * reducedRotDragFactor * 0.995f : 0;
 
 		rot = (rot + rotSpeed * secondsSinceLastUpdate) % 360;
+		// rot = 90; // FIXME remove that
 
 		updateMorphs();
 	}

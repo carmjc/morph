@@ -48,10 +48,11 @@ public class Vect3D {
 	 * Addition
 	 * @param vector
 	 */
-	public void add(Vect3D vector) {
+	public Vect3D add(Vect3D vector) {
 		x += vector.x;
 		y += vector.y;
 		z += vector.z;
+		return this;
 	}
 
 	/**
@@ -84,10 +85,11 @@ public class Vect3D {
 	 * Copy the coordinates of the provided vector.
 	 * @param vect3d
 	 */
-	public void copy(Vect3D vect3d) {
+	public Vect3D copy(Vect3D vect3d) {
 		x = vect3d.x;
 		y = vect3d.y;
 		z = vect3d.z;
+		return this;
 	}
 
 	/**
@@ -153,23 +155,26 @@ public class Vect3D {
 	 * The new vector has a modulus equal to newModulus.
 	 * @param newModulus
 	 */
-	public void normalize(float newModulus) {
+	public Vect3D normalize(float newModulus) {
 		float oldModulus = modulus();
 
 		if (oldModulus == 0) {
 			// impossible to normalize
-			return;
+			return this;
 		}
 
 		x = x / oldModulus * newModulus;
 		y = y / oldModulus * newModulus;
 		z = z / oldModulus * newModulus;
+
+		return this;
 	}
 
-	public void prodScal(float operand) {
+	public Vect3D prodScal(float operand) {
 		x *= operand;
 		y *= operand;
 		z *= operand;
+		return this;
 	}
 
 	/**
@@ -192,21 +197,23 @@ public class Vect3D {
 	 * Rotates a vector by the given angles in degrees.
 	 * @param angle the rotation angles in degrees along the z axis.
 	 */
-	public void rotate(float angle) {
+	public Vect3D rotate(float angle) {
 		float newX = (float) (Math.cos(Math.toRadians(angle)) * x - Math.sin(Math.toRadians(angle)) * y);
 		float newY = (float) (Math.sin(Math.toRadians(angle)) * x + Math.cos(Math.toRadians(angle)) * y);
 		x = newX;
 		y = newY;
+		return this;
 	}
 
 	/**
 	 * Substraction.
 	 * @param vector
 	 */
-	public void substract(Vect3D vector) {
+	public Vect3D substract(Vect3D vector) {
 		x -= vector.x;
 		y -= vector.y;
 		z -= vector.z;
+		return this;
 	}
 
 	@Override

@@ -67,7 +67,7 @@ public class FixedPositionTracker implements IA {
 		activePropsToMorphsRatio = (float) activePropulsorMorphs.size() / ship.getMorphsByIds().size();
 
 		// Calculate center of mass in world
-		Vect3D comInWorld = new Vect3D(ship.getCenterOfMass());
+		Vect3D comInWorld = new Vect3D(ship.getComInShip());
 		ship.transformShipToWorldCoords(comInWorld);
 
 		// the vector from the ship's center of mass to the target
@@ -106,7 +106,7 @@ public class FixedPositionTracker implements IA {
 
 		// The direction vector points in the direction the ship should try to go
 		// Calculate center of mass in world
-		Vect3D comInWorld = new Vect3D(ship.getCenterOfMass());
+		Vect3D comInWorld = new Vect3D(ship.getComInShip());
 		ship.transformShipToWorldCoords(comInWorld);
 		Vect3D comToTarget = new Vect3D(targetPos);
 		comToTarget.substract(comInWorld);
