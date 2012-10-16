@@ -1,5 +1,6 @@
 package net.carmgate.morph.ui.interaction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.user.User.FriendOrFoe;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.interaction.action.ShowEvolveMenuAction;
+import net.carmgate.morph.ui.interaction.action.SplittingAction;
 import net.carmgate.morph.ui.interaction.action.ToggleDebugAction;
 import net.carmgate.morph.ui.interaction.action.ToggleFreezeAction;
 import net.carmgate.morph.ui.interaction.action.ToggleLockedOnFirstSelectedShip;
@@ -63,6 +65,7 @@ public class KeyboardAndMouseHandler {
 		keyboardMapping.put(new Command(Keyboard.KEY_D, null), new ToggleDebugAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_E, null), new ShowEvolveMenuAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_L, null), new ToggleLockedOnFirstSelectedShip());
+		keyboardMapping.put(new Command(Keyboard.KEY_S, new Integer[] { Keyboard.KEY_LCONTROL }), new SplittingAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_6, null), new ZoomInAction(zoomAction));
 		keyboardMapping.put(new Command(Keyboard.KEY_EQUALS, null), new ZoomOutAction(zoomAction));
 		keyboardMapping.put(new Command(Keyboard.KEY_PAUSE, null), new ToggleFreezeAction());
@@ -72,9 +75,22 @@ public class KeyboardAndMouseHandler {
 	 * 
 	 */
 	private void processKeyboard() {
+		List<Integer> modifiers = new ArrayList<Integer>();
+
 		// Only process release key events
 		if (Keyboard.next() && Keyboard.getEventKeyState()) {
-			Runnable action = keyboardMapping.get(new Command(Keyboard.getEventKey(), null));
+			if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+				modifiers.add(Keyboard.KEY_LCONTROL);
+			}
+
+			Command command;
+			if (modifiers.size() == 0) {
+				command = new Command(Keyboard.getEventKey(), null);
+			} else {
+				command = new Command(Keyboard.getEventKey(), modifiers.toArray(new Integer[0]));
+			}
+
+			Runnable action = keyboardMapping.get(command);
 			if (action != null) {
 				action.run();
 			}

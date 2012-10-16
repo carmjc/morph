@@ -86,7 +86,7 @@ public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 		}
 
 		// Remove last one if the trail is full or the behavior INACTIVE
-		if (trail.size() >= NB_OF_COORD_IN_TRAIL || behavior.getState() == State.INACTIVE) {
+		if (trail.size() >= NB_OF_COORD_IN_TRAIL || behavior.getState() == State.INACTIVE && trail.size() > 0) {
 			trail.remove();
 		}
 

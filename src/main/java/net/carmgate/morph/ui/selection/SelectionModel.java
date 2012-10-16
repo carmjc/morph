@@ -140,7 +140,7 @@ public class SelectionModel {
 	}
 
 	public Map<Integer, Morph> getSelectedMorphs() {
-		return Collections.unmodifiableMap(selectedMorphs.getMap());
+		return Collections.unmodifiableMap(new HashMap<Integer, Morph>(selectedMorphs.getMap()));
 	}
 
 	public Map<Integer, Ship> getSelectedShips() {

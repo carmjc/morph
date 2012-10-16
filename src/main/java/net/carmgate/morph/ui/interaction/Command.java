@@ -1,15 +1,16 @@
 package net.carmgate.morph.ui.interaction;
 
-import java.util.Set;
+import java.util.Arrays;
 
 public class Command {
 
 	private int key;
-	private Set<Integer> modifiers;
 
-	public Command(int key, Set<Integer> modifiers) {
+	private Integer[] modifiers;
+
+	public Command(int key, Integer[] integers) {
 		this.key = key;
-		this.modifiers = modifiers;
+		modifiers = integers;
 	}
 
 	@Override
@@ -27,11 +28,7 @@ public class Command {
 		if (key != other.key) {
 			return false;
 		}
-		if (modifiers == null) {
-			if (other.modifiers != null) {
-				return false;
-			}
-		} else if (!modifiers.equals(other.modifiers)) {
+		if (!Arrays.equals(modifiers, other.modifiers)) {
 			return false;
 		}
 		return true;
@@ -42,7 +39,7 @@ public class Command {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + key;
-		result = prime * result + (modifiers == null ? 0 : modifiers.hashCode());
+		result = prime * result + Arrays.hashCode(modifiers);
 		return result;
 	}
 

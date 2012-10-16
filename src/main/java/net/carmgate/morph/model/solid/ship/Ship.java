@@ -59,7 +59,7 @@ public abstract class Ship {
 	private final Map<Integer, Morph> morphsByIds = new HashMap<Integer, Morph>();
 
 	/** The list of this ship's morphs. */
-	private final Map<Vect3D, Morph> morphsByPositionInShip = new HashMap<Vect3D, Morph>();
+	private final Map<Vect3D, Morph> morphsByPositionInShipGrid = new HashMap<Vect3D, Morph>();
 
 	/** 
 	 * List of active morphs.
@@ -146,10 +146,10 @@ public abstract class Ship {
 			newMorph.setShip(this);
 			// Insert it in both maps
 			getMorphsByIds().put(newMorph.getId(), newMorph);
-			getMorphsByPositionInShip().put(new Vect3D(x, y, z), newMorph);
+			getMorphsByPositionInShipGrid().put(new Vect3D(x, y, z), newMorph);
 
 			// set position in ship
-			newMorph.setShipGridPos(new Vect3D(x, y, z));
+			newMorph.setPosInShipGrid(new Vect3D(x, y, z));
 
 			// Position and rotation in ship and world
 			newMorph.setShip(this);
@@ -196,6 +196,7 @@ public abstract class Ship {
 		for (Morph m : morphs) {
 			m.setShip(this);
 			getMorphsByIds().put(m.getId(), m);
+			getMorphsByPositionInShipGrid().put(m.getPosInShipGrid(), m);
 			LOGGER.trace("morph added: " + m);
 		}
 		computeCOM();
@@ -242,7 +243,7 @@ public abstract class Ship {
 	 * The current computation is an approximation and assumes that each and every morph in
 	 * the ship is at full mass.
 	 */
-	private void computeCOM() {
+	public void computeCOM() {
 		LOGGER.debug("Calculate COM");
 
 		centerOfMass.copy(Vect3D.NULL);
@@ -267,7 +268,7 @@ public abstract class Ship {
 	 * @param newMorph the morph added to the ship 
 	 * @param addition denotes if the morph in an addition or a deletion from to the ship.
 	 */
-	private void computeRadiusIncremental(Morph newMorph, boolean addition) {
+	public void computeRadiusIncremental(Morph newMorph, boolean addition) {
 		if (getMorphsByIds().size() == 1) {
 			radius = 16; // FIXME put that morph radius into the Morph class
 		}
@@ -296,7 +297,7 @@ public abstract class Ship {
 	 * @return null if there is no morph at the specified location.
 	 */
 	public Morph findShipMorph(Vect3D pos) {
-		return morphsByPositionInShip.get(pos);
+		return morphsByPositionInShipGrid.get(pos);
 	}
 
 	/**
@@ -337,8 +338,8 @@ public abstract class Ship {
 		return morphsByIds;
 	}
 
-	public Map<Vect3D, Morph> getMorphsByPositionInShip() {
-		return morphsByPositionInShip;
+	public Map<Vect3D, Morph> getMorphsByPositionInShipGrid() {
+		return morphsByPositionInShipGrid;
 	}
 
 	/**
@@ -410,7 +411,7 @@ public abstract class Ship {
 		UIModel.getUiModel().getSelectionModel().removeMorphFromSelection(morph);
 		removeActiveMorph(morph);
 		getMorphsByIds().remove(morph.getId());
-		getMorphsByPositionInShip().remove(morph.getPosInShipGrid());
+		getMorphsByPositionInShipGrid().remove(morph.getPosInShipGrid());
 	}
 
 	public void removeMorphs(Collection<? extends Morph> morphs) {
@@ -437,6 +438,22 @@ public abstract class Ship {
 
 	public void setDragFactor(float dragFactor) {
 		this.dragFactor = dragFactor;
+	}
+
+	protected void setOwner(User owner) {
+		this.owner = owner;
+	}
+
+	public void setPos(Vect3D pos) {
+		this.pos = new Vect3D(pos);
+	}
+
+	protected void setPosAccel(Vect3D posAccel) {
+		this.posAccel = new Vect3D(posAccel);
+	}
+
+	protected void setPosSpeed(Vect3D posSpeed) {
+		this.posSpeed = new Vect3D(posSpeed);
 	}
 
 	public void setRot(float rot) {

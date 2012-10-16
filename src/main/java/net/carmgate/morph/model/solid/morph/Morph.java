@@ -110,7 +110,7 @@ public abstract class Morph {
 	/** The morph position in the world referential. */
 	private Vect3D posInWorld = new Vect3D(0, 0, 0);
 	/** The morph position in the ship hex grid. */
-	private Vect3D shipGridPos;
+	private Vect3D posInShipGrid;
 
 	/** The morph orientation in the ship referential. */
 	private float rotInShip;
@@ -194,9 +194,9 @@ public abstract class Morph {
 		}
 
 		Morph morph = (Morph) obj;
-		return shipGridPos.x == morph.shipGridPos.x &&
-				shipGridPos.y == morph.shipGridPos.y &&
-				shipGridPos.z == morph.shipGridPos.z &&
+		return posInShipGrid.x == morph.posInShipGrid.x &&
+				posInShipGrid.y == morph.posInShipGrid.y &&
+				posInShipGrid.z == morph.posInShipGrid.z &&
 				getShip() == morph.getShip() &&
 				getClass().getName().equals(obj.getClass().getName());
 	}
@@ -280,7 +280,7 @@ public abstract class Morph {
 	}
 
 	public final Vect3D getPosInShipGrid() {
-		return shipGridPos;
+		return posInShipGrid;
 	}
 
 	/**
@@ -315,7 +315,7 @@ public abstract class Morph {
 
 	@Override
 	public int hashCode() {
-		return (int) (100 + (long) shipGridPos.x * 500 + (long) shipGridPos.y * 500 + (long) shipGridPos.z * 500 + ship.hashCode()) * 100
+		return (int) (100 + (long) posInShipGrid.x * 500 + (long) posInShipGrid.y * 500 + (long) posInShipGrid.z * 500 + ship.hashCode()) * 100
 				+ getClass().hashCode();
 	}
 
@@ -395,8 +395,8 @@ public abstract class Morph {
 		rotInWorld = ship.getRot();
 	}
 
-	public void setShipGridPos(Vect3D shipGridPos) {
-		this.shipGridPos = shipGridPos;
+	public void setPosInShipGrid(Vect3D posInShipGrid) {
+		this.posInShipGrid = posInShipGrid;
 	}
 
 	@Override
@@ -570,8 +570,8 @@ public abstract class Morph {
 
 	public void updatePosFromGridPos() {
 		setPosInShip(new Vect3D(
-				shipGridPos.x * World.GRID_SIZE + shipGridPos.y * World.GRID_SIZE / 2,
-				(float) (shipGridPos.y * World.GRID_SIZE * Math.sqrt(3) / 2),
+				posInShipGrid.x * World.GRID_SIZE + posInShipGrid.y * World.GRID_SIZE / 2,
+				(float) (posInShipGrid.y * World.GRID_SIZE * Math.sqrt(3) / 2),
 				0));
 	}
 }
