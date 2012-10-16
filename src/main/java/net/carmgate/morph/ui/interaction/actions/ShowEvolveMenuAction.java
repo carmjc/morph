@@ -1,7 +1,7 @@
 package net.carmgate.morph.ui.interaction.actions;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.behavior.Transforming;
+import net.carmgate.morph.model.behavior.Evolving;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.ui.model.UIModel;
@@ -25,8 +25,11 @@ public class ShowEvolveMenuAction implements Runnable {
 			hideEvolvingMenu();
 			EvolutionTypeIWMenuItem menuItem = (EvolutionTypeIWMenuItem) selectionEvent.getSource();
 			Morph selectedMorph = UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().iterator().next();
-			Transforming transformBehavior = new Transforming(selectedMorph, menuItem.getEvolutionType());
+			Evolving transformBehavior = new Evolving(selectedMorph, menuItem.getEvolutionType());
 			selectedMorph.getAlternateBehaviorList().add(transformBehavior);
+
+			// Remove iwselections
+			UIModel.getUiModel().getSelectionModel().removeAllIWMenuItemsFromSelection();
 		}
 	}
 

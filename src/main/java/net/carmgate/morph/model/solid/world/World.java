@@ -14,6 +14,7 @@ import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
 import net.carmgate.morph.model.solid.energysource.Star;
 import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.test.EnemyTestShip1;
 import net.carmgate.morph.model.solid.ship.test.EnemyTestShip2;
@@ -152,7 +153,7 @@ public class World {
 	private boolean processDeath(Ship ship) {
 		List<Morph> morphsToRemove = new ArrayList<Morph>();
 		for (Morph m : ship.getMorphsByIds().values()) {
-			if (m.getMass() <= 0) {
+			if (m.getMass() <= 0 && m.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
 				morphsToRemove.add(m);
 			}
 		}

@@ -15,7 +15,7 @@ import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.LaserFiringBehavior;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.behavior.State;
-import net.carmgate.morph.model.behavior.Transforming;
+import net.carmgate.morph.model.behavior.Evolving;
 import net.carmgate.morph.model.behavior.prop.Propulsing;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
@@ -67,7 +67,7 @@ public class ShipRenderer implements Renderer<Ship> {
 
 		// Behavior renderers map init
 		behaviorRenderersMap.put(SpreadingEnergy.class, null);
-		behaviorRenderersMap.put(Transforming.class, new ProgressBehaviorRenderer());
+		behaviorRenderersMap.put(Evolving.class, new ProgressBehaviorRenderer());
 		behaviorRenderersMap.put(LaserFiringBehavior.class, new LaserFiringBehaviorRenderer());
 		behaviorRenderersMap.put(Propulsing.class, new PropulsingRenderer());
 		behaviorRenderersMap.put(SpreadingEnergy.class, new SpreadingEnergyRenderer());

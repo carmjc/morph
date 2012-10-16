@@ -13,6 +13,7 @@ import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.ship.listener.ShipEvent;
 import net.carmgate.morph.model.solid.ship.listener.ShipListener;
 import net.carmgate.morph.model.solid.world.World;
@@ -156,8 +157,10 @@ public abstract class Ship {
 			newMorph.updatePosFromGridPos();
 
 			// Recompute differente elements of the ship.
-			computeCOM();
-			computeRadiusIncremental(newMorph, true);
+			if (newMorph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+				computeCOM();
+				computeRadiusIncremental(newMorph, true);
+			}
 
 			return true;
 		}
@@ -273,15 +276,36 @@ public abstract class Ship {
 			radius = 16; // FIXME put that morph radius into the Morph class
 		}
 
-		float distance = 0;
-		for (Morph m : getMorphsByIds().values()) {
-			distance = newMorph.getPosInShip().distance(m.getPosInShip());
-			if (distance > (radius - 16) * 2) {
-				radius = distance / 2 + 16;
-				center = new Vect3D();
-				center.add(newMorph.getPosInShip());
-				center.add(m.getPosInShip());
-				center.normalize(center.modulus() / 2);
+		if (addition) {
+			float distance = 0;
+			for (Morph m : getMorphsByIds().values()) {
+				distance = newMorph.getPosInShip().distance(m.getPosInShip());
+				if (distance > (radius - 16) * 2) {
+					radius = distance / 2 + 16;
+					center = new Vect3D();
+					center.add(newMorph.getPosInShip());
+					center.add(m.getPosInShip());
+					center.normalize(center.modulus() / 2);
+				}
+			}
+		} else {
+			List<Integer> morphIds = new ArrayList<Integer>(getMorphsByIds().keySet());
+			float distance = 0;
+			radius = 0;
+
+			for (int i = 0; i < morphIds.size(); i++) {
+				Morph refMorph = getMorphsByIds().get(morphIds.get(i));
+				for (int j = i; j < morphIds.size(); j++) {
+					Morph m = getMorphsByIds().get(morphIds.get(j));
+					distance = refMorph.getPosInShip().distance(m.getPosInShip());
+					if (distance > (radius - 16) * 2) {
+						radius = distance / 2 + 16;
+						center = new Vect3D();
+						center.add(refMorph.getPosInShip());
+						center.add(m.getPosInShip());
+						center.normalize(center.modulus() / 2);
+					}
+				}
 			}
 		}
 	}

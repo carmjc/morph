@@ -8,6 +8,7 @@ import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.State;
+import net.carmgate.morph.model.behavior.Evolving;
 import net.carmgate.morph.model.requirements.Requirement;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.solid.morph.stem.StemMorph;
@@ -169,13 +170,22 @@ public abstract class Morph {
 	 * @return true if the morph can be activated
 	 */
 	public boolean canBeActivated() {
-		boolean canBeActivated = true;
-		for (Requirement req : getActivationRequirements()) {
-			if (!req.check()) {
-				canBeActivated = false;
+
+		// if the morph is evolving, it cannot be activated
+		for (Behavior<?> behavior : getAlternateBehaviorList()) {
+			if (behavior instanceof Evolving) {
+				return false;
 			}
 		}
-		return canBeActivated;
+
+		// if it does not meet requirements, it cannot be activated
+		for (Requirement req : getActivationRequirements()) {
+			if (!req.check()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -354,6 +364,10 @@ public abstract class Morph {
 		}
 	}
 
+	public void setPosInShipGrid(Vect3D posInShipGrid) {
+		this.posInShipGrid = posInShipGrid;
+	}
+
 	// TODO Unit test
 	public void setPosInWorld(Vect3D posInWorld) {
 		this.posInWorld.copy(posInWorld);
@@ -393,10 +407,6 @@ public abstract class Morph {
 		// Reset orientation
 		rotInShip = 0;
 		rotInWorld = ship.getRot();
-	}
-
-	public void setPosInShipGrid(Vect3D posInShipGrid) {
-		this.posInShipGrid = posInShipGrid;
 	}
 
 	@Override

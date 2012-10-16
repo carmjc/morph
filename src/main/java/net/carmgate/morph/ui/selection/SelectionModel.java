@@ -152,10 +152,12 @@ public class SelectionModel {
 	 * @param morph the morph to "deselect"
 	 */
 	public void removeAllIWMenuItemsFromSelection() {
+		selectedIWMenuItems.lock();
 		for (IWMenuItem menuItem : selectedIWMenuItems.values()) {
 			selectedIWMenuItems.remove(menuItem.getId());
 			fireIWMenuItemDeselected(menuItem);
 		}
+		selectedIWMenuItems.unlock();
 	}
 
 	/**

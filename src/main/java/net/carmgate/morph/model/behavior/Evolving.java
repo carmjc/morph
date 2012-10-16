@@ -9,15 +9,15 @@ import net.carmgate.morph.ui.model.UIModel;
 
 import org.apache.log4j.Logger;
 
-public class Transforming extends NoActivationBehavior<Morph> implements ProgressBehavior {
+public class Evolving extends NoActivationBehavior<Morph> implements ProgressBehavior {
 
-	private static final Logger LOGGER = Logger.getLogger(Transforming.class);
+	private static final Logger LOGGER = Logger.getLogger(Evolving.class);
 
 	private EvolutionType evolutionType;
 
 	private long beginDate;
 
-	public Transforming(Morph owner, EvolutionType evolutionType) {
+	public Evolving(Morph owner, EvolutionType evolutionType) {
 		super(owner, State.ACTIVE);
 		this.evolutionType = evolutionType;
 	}
