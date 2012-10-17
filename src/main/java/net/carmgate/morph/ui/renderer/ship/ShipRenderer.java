@@ -134,7 +134,7 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	private void renderBehavior(int glMode, RenderStyle drawType, Behavior<?> behavior, boolean preMorphRendering) {
 		BehaviorRenderer<?> behaviorRenderer = behaviorRenderersMap.get(behavior.getClass());
-		if (behavior.getState() == State.ACTIVE || behaviorRenderer != null && behaviorRenderer.isActive()) {
+		if (behavior.getState() == State.ACTIVE || behaviorRenderer != null && (behaviorRenderer.isActive() || behaviorRenderer.isActive(behavior))) {
 			if (behaviorRenderer != null) {
 				behaviorRenderer.render(glMode, drawType, behavior, preMorphRendering);
 			}

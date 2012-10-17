@@ -43,7 +43,7 @@ public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 	@Override
 	protected void renderBehavior(int glMode, RenderStyle drawType, Propulsing behavior) {
 		// Signifying it is still active
-		setActive(true);
+		setActive(behavior, true);
 
 		// get the trail
 		Queue<Vect3D> trail = trails.get(behavior.getOwner().getId());
@@ -97,7 +97,7 @@ public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 
 		// Flag the renderer as inactive if the trail is empty
 		if (trail.size() == 0) {
-			setActive(false);
+			setActive(behavior, false);
 		}
 
 	}
