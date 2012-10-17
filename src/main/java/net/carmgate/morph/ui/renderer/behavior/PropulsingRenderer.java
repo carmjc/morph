@@ -28,8 +28,9 @@ public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 
 	/** Trails, by porpulsor morphs' id. */
 	private Map<Integer, Queue<Vect3D>> trails = new HashMap<Integer, Queue<Vect3D>>();
-	private static Texture trailTexture;
 
+	/** Texture init. */
+	private static Texture trailTexture;
 	static {
 		try {
 			trailTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("gunfire-16.png").getPath()));

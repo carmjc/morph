@@ -22,9 +22,8 @@ public class SplittingAction implements Runnable {
 	 * @param s the ship whose morphs should be recentered
 	 */
 	private void recenterShipMorphs(Ship s) {
-		Map<Vect3D, Morph> morphsByPositionInShipGrid = s.getMorphsByPositionInShipGrid();
-		if (morphsByPositionInShipGrid.get(new Vect3D(0, 0, 0)) == null) {
-			Morph anyMorph = morphsByPositionInShipGrid.values().iterator().next();
+		if (s.getMorphsByPosInShipGrid().get(new Vect3D(0, 0, 0)) == null) {
+			Morph anyMorph = s.getMorphsByPosInShipGrid().values().iterator().next();
 			Vect3D translationInWorld = anyMorph.getPosInWorld();
 			Vect3D translationInShipGrid = anyMorph.getPosInShipGrid();
 
@@ -32,7 +31,7 @@ public class SplittingAction implements Runnable {
 			s.setPos(translationInWorld);
 
 			// translate all morphs in ship grid
-			for (Morph m : morphsByPositionInShipGrid.values()) {
+			for (Morph m : s.getMorphsByPosInShipGrid().values()) {
 				m.setPosInShipGrid(new Vect3D(
 						m.getPosInShipGrid().x - translationInShipGrid.x,
 						m.getPosInShipGrid().y - translationInShipGrid.y,

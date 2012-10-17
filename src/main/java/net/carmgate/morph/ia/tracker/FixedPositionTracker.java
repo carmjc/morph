@@ -6,7 +6,6 @@ import java.util.List;
 import net.carmgate.morph.ia.IA;
 import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
 import net.carmgate.morph.model.solid.ship.Ship;
 
@@ -21,7 +20,6 @@ public class FixedPositionTracker implements IA {
 
 	private static final Logger LOGGER = Logger.getLogger(FixedPositionTracker.class);
 
-	private final List<PropulsorMorph> propulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final List<PropulsorMorph> activePropulsorMorphs = new ArrayList<PropulsorMorph>();
 	private final Ship ship;
 	private Vect3D targetPos;
@@ -30,23 +28,21 @@ public class FixedPositionTracker implements IA {
 
 	private float activePropsToMorphsRatio;
 
+	/**
+	 * Create a new fixed position tracker.
+	 * @param ship the ship this tracker is bound to.
+	 * @param targetPos the target of the tracker.
+	 */
 	public FixedPositionTracker(Ship ship, Vect3D targetPos) {
 		this.ship = ship;
 		this.targetPos = targetPos;
 		done = false;
 
-		// extract every morph that can make the ship move.
-		for (Morph m : ship.getMorphsByIds().values()) {
-			if (m instanceof PropulsorMorph) {
-				propulsorMorphs.add((PropulsorMorph) m);
-			}
-		}
-
 		// initializes the list of active propulsors
 		// this is mandatory so that done() does not considers the ship can't move
 		// after initialization
 		activePropulsorMorphs.clear();
-		for (PropulsorMorph m : propulsorMorphs) {
+		for (PropulsorMorph m : ship.getMorphsByType(PropulsorMorph.class)) {
 			if (m.canBeActivated()) {
 				activePropulsorMorphs.add(m);
 			}
@@ -57,7 +53,7 @@ public class FixedPositionTracker implements IA {
 	public void compute() {
 		// update the list of active propulsors
 		activePropulsorMorphs.clear();
-		for (PropulsorMorph m : propulsorMorphs) {
+		for (PropulsorMorph m : ship.getMorphsByType(PropulsorMorph.class)) {
 			if (m.canBeActivated()) {
 				activePropulsorMorphs.add(m);
 			}
@@ -133,7 +129,7 @@ public class FixedPositionTracker implements IA {
 
 		// Whatever might be the reason, if the IA is done, we shut down the prop morphs
 		if (done) {
-			for (PropulsorMorph morph : propulsorMorphs) {
+			for (PropulsorMorph morph : ship.getMorphsByType(PropulsorMorph.class)) {
 				morph.tryToDeactivate();
 			}
 		}
