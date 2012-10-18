@@ -104,7 +104,7 @@ public class PickingHandler {
 
 		float pickMatrixX = x; // SCALE_FACTOR;
 		float pickMatrixY = y; // SCALE_FACTOR;
-		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 5.0f, 5.0f, viewport);
+		GLU.gluPickMatrix(pickMatrixX, pickMatrixY, 0.002f, 0.002f, viewport);
 		GLU.gluOrtho2D(0, Main.WIDTH, 0, Main.HEIGHT);
 
 		RendererHolder.iwuiRenderer.render(GL11.GL_SELECT, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
@@ -153,7 +153,7 @@ public class PickingHandler {
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
 		int hits = glPick(x, y, selectBuf);
-		LOGGER.trace("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
+		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
 		// if there was no solid model hit, we need to deselect everything
 		if (hits == 0 || selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) == 0) {

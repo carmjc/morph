@@ -101,9 +101,13 @@ public class ShipRenderer implements Renderer<Ship> {
 		List<Morph> shipMorphs = new ArrayList<Morph>(ship.getMorphsByIds().values());
 		for (Morph morph : shipMorphs) {
 			GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);
-			GL11.glRotatef(morph.getRotInShip(), 0, 0, 1);
+			if (glMode != GL11.GL_SELECT) {
+				GL11.glRotatef(morph.getRotInShip(), 0, 0, 1);
+			}
 			morphRenderer.render(glMode, renderStyle, morph);
-			GL11.glRotatef(-morph.getRotInShip(), 0, 0, 1);
+			if (glMode != GL11.GL_SELECT) {
+				GL11.glRotatef(-morph.getRotInShip(), 0, 0, 1);
+			}
 			GL11.glTranslatef(-morph.getPosInShip().x, -morph.getPosInShip().y, -morph.getPosInShip().z);
 
 		}

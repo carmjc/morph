@@ -76,6 +76,40 @@ public class MorphRenderer implements Renderer<Morph> {
 	}
 
 	/**
+	 * @param texture
+	 */
+	private void drawTexturedHexagon(Texture texture) {
+		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glTexCoord2f(0, 0.5f);
+		GL11.glVertex2f(-texture.getTextureWidth() / 2, 0);
+		GL11.glTexCoord2f(0.25f, 0.5f - (float) (Math.sqrt(3) / 4));
+		GL11.glVertex2f(-texture.getTextureWidth() / 4, (float) (-texture.getTextureWidth() * Math.sqrt(3) / 4));
+		GL11.glTexCoord2f(0.75f, 0.5f - (float) (Math.sqrt(3) / 4));
+		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (-texture.getTextureHeight() * Math.sqrt(3) / 4));
+		GL11.glTexCoord2f(0.5f, 0.5f);
+		GL11.glVertex2f(0, 0);
+
+		GL11.glTexCoord2f(0, 0.5f);
+		GL11.glVertex2f(-texture.getTextureWidth() / 2, 0);
+		GL11.glTexCoord2f(0.25f, 0.5f + (float) (Math.sqrt(3) / 4));
+		GL11.glVertex2f(-texture.getTextureWidth() / 4, (float) (texture.getTextureWidth() * Math.sqrt(3) / 4));
+		GL11.glTexCoord2f(0.75f, 0.5f + (float) (Math.sqrt(3) / 4));
+		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (texture.getTextureHeight() * Math.sqrt(3) / 4));
+		GL11.glTexCoord2f(0.5f, 0.5f);
+		GL11.glVertex2f(0, 0);
+
+		GL11.glTexCoord2f(0.75f, 0.5f + (float) (Math.sqrt(3) / 4));
+		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (texture.getTextureHeight() * Math.sqrt(3) / 4));
+		GL11.glTexCoord2f(1, 0.5f);
+		GL11.glVertex2f(texture.getTextureWidth() / 2, 0);
+		GL11.glTexCoord2f(0.75f, 0.5f - (float) (Math.sqrt(3) / 4));
+		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (-texture.getTextureHeight() * Math.sqrt(3) / 4));
+		GL11.glTexCoord2f(0.5f, 0.5f);
+		GL11.glVertex2f(0, 0);
+		GL11.glEnd();
+	}
+
+	/**
 	 * Renders a morph.
 	 * The referential is center on the morph and rotated as the morph is rotated in the ship's referential or the world's referential
 	 * if the morph is not attached to a ship.
@@ -111,20 +145,11 @@ public class MorphRenderer implements Renderer<Morph> {
 		}
 
 		// Show the owner colored background
-		if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+		if (glMode != GL11.GL_SELECT || morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
 			ownerBgTexture.bind();
 			Color color = morph.getShip().getOwner().getColor();
 			GL11.glColor4f((float) color.getRed() / 256, (float) color.getGreen() / 256, (float) color.getBlue() / 256, alphaLevel);
-			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0, 0);
-			GL11.glVertex2f(-ownerBgTexture.getTextureWidth() / 2, -ownerBgTexture.getTextureWidth() / 2);
-			GL11.glTexCoord2f(1, 0);
-			GL11.glVertex2f(ownerBgTexture.getTextureWidth() / 2, -ownerBgTexture.getTextureWidth() / 2);
-			GL11.glTexCoord2f(1, 1);
-			GL11.glVertex2f(ownerBgTexture.getTextureWidth() / 2, ownerBgTexture.getTextureHeight() / 2);
-			GL11.glTexCoord2f(0, 1);
-			GL11.glVertex2f(-ownerBgTexture.getTextureWidth() / 2, ownerBgTexture.getTextureHeight() / 2);
-			GL11.glEnd();
+			drawTexturedHexagon(ownerBgTexture);
 		}
 
 		// morph texture
@@ -152,43 +177,30 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		GL11.glColor4f(1, 1, 1, alphaLevel);
 		// sphere texture
-		if (glMode != GL11.GL_SELECT && UIModel.getUiModel().getSelectionModel().getSelectedMorphs().containsValue(morph)) {
-			baseSelectedTexture.bind();
-		} else {
-			baseTexture.bind();
+		if (glMode != GL11.GL_SELECT) {
+			if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().containsValue(morph)) {
+				baseSelectedTexture.bind();
+			} else {
+				baseTexture.bind();
+			}
 		}
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, -baseTexture.getTextureWidth() / 2);
-		GL11.glTexCoord2f(1, 1);
-		GL11.glVertex2f(baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
-		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(-baseTexture.getTextureWidth() / 2, baseTexture.getTextureHeight() / 2);
-		GL11.glEnd();
+
+		drawTexturedHexagon(baseTexture);
 
 		GL11.glColor4f(1, 1, 1, 1);
 
 		// morph texture
-		Texture morphTexture = textures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
-		if (morphTexture != null) {
-			morphTexture.bind();
-			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0, 0);
-			GL11.glVertex2f(-morphTexture.getTextureWidth() / 2, -morphTexture.getTextureHeight() / 2);
-			GL11.glTexCoord2f(1, 0);
-			GL11.glVertex2f(morphTexture.getTextureWidth() / 2, -morphTexture.getTextureHeight() / 2);
-			GL11.glTexCoord2f(1, 1);
-			GL11.glVertex2f(morphTexture.getTextureWidth() / 2, morphTexture.getTextureHeight() / 2);
-			GL11.glTexCoord2f(0, 1);
-			GL11.glVertex2f(-morphTexture.getTextureWidth() / 2, morphTexture.getTextureHeight() / 2);
-			GL11.glEnd();
-		}
+		if (glMode != GL11.GL_SELECT) {
+			Texture morphTexture = textures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
+			if (morphTexture != null) {
+				morphTexture.bind();
+				drawTexturedHexagon(morphTexture);
+			}
 
-		if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
-			renderEnergy(glMode, drawType, morph);
-			renderMass(glMode, drawType, morph);
+			if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+				renderEnergy(glMode, drawType, morph);
+				renderMass(glMode, drawType, morph);
+			}
 		}
 
 		GL11.glScalef(1 / morphScaleFactor, 1 / morphScaleFactor, 1 / morphScaleFactor);

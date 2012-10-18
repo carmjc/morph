@@ -533,7 +533,7 @@ public abstract class Ship {
 	private void putMorphInMapsAndLists(Morph newMorph, float x, float y, float z) {
 		morphsById.put(newMorph.getId(), newMorph);
 		morphsByPosInShipGrid.put(new Vect3D(x, y, z), newMorph);
-		List<Morph> list = morphsByType.get(newMorph.getClass().getAnnotation(MorphInfo.class).type());
+		List<Morph> list = morphsByType.get(newMorph.getClass());
 		if (list == null) {
 			list = new ArrayList<Morph>();
 			morphsByType.put(newMorph.getClass(), list);
@@ -558,7 +558,7 @@ public abstract class Ship {
 		removeActiveMorph(morph);
 		morphsById.remove(morph.getId());
 		morphsByPosInShipGrid.remove(morph.getPosInShipGrid());
-		morphsByType.get(morph.getClass().getAnnotation(MorphInfo.class).type()).remove(morph);
+		morphsByType.get(morph.getClass()).remove(morph);
 	}
 
 	/**
