@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.Main;
-import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.ia.AI;
+import net.carmgate.morph.ia.MiningAI;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.solid.mattersource.MatterSource;
 import net.carmgate.morph.model.solid.morph.GunMorph;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
@@ -20,12 +22,14 @@ import net.carmgate.morph.ui.interaction.actions.SplittingAction;
 import net.carmgate.morph.ui.interaction.actions.ToggleDebugAction;
 import net.carmgate.morph.ui.interaction.actions.ToggleFreezeAction;
 import net.carmgate.morph.ui.interaction.actions.ToggleLockedOnFirstSelectedShip;
+import net.carmgate.morph.ui.interaction.actions.ToggleSelectRenderingAction;
 import net.carmgate.morph.ui.interaction.actions.zoom.ZoomAction;
 import net.carmgate.morph.ui.interaction.actions.zoom.ZoomInAction;
 import net.carmgate.morph.ui.interaction.actions.zoom.ZoomOutAction;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
+import net.carmgate.morph.util.collections.ModifiableList;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -65,7 +69,8 @@ public class KeyboardAndMouseHandler {
 		keyboardMapping.put(new Command(Keyboard.KEY_D, null), new ToggleDebugAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_E, null), new ShowEvolveMenuAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_L, null), new ToggleLockedOnFirstSelectedShip());
-		keyboardMapping.put(new Command(Keyboard.KEY_S, new Integer[] { Keyboard.KEY_LCONTROL }), new SplittingAction());
+		keyboardMapping.put(new Command(Keyboard.KEY_S, null), new SplittingAction());
+		keyboardMapping.put(new Command(Keyboard.KEY_S, new Integer[] { Keyboard.KEY_LCONTROL }), new ToggleSelectRenderingAction());
 		keyboardMapping.put(new Command(Keyboard.KEY_6, null), new ZoomInAction(zoomAction));
 		keyboardMapping.put(new Command(Keyboard.KEY_EQUALS, null), new ZoomOutAction(zoomAction));
 		keyboardMapping.put(new Command(Keyboard.KEY_PAUSE, null), new ToggleFreezeAction());
@@ -193,24 +198,46 @@ public class KeyboardAndMouseHandler {
 							}
 						}
 					}
-				} else {
-					LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
-					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
-						List<IA> iaList = selectedShip.getIAList();
+				} else if (pickedObject instanceof MatterSource) {
+					MatterSource mSource = (MatterSource) pickedObject;
 
-						// Look for existing tracker
+					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
+						// Look for an existing mining ai for this ship
 						// If we find one, update it's target
-						boolean foundATracker = false;
-						for (IA ia : iaList) {
-							if (ia instanceof FixedPositionTracker) {
-								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
-								foundATracker = true;
+						boolean foundAnAI = false;
+						for (AI ia : selectedShip.getAIList()) {
+							if (ia instanceof MiningAI) {
+								((MiningAI) ia).setTarget(mSource);
+								foundAnAI = true;
 							}
 						}
 
 						// If we found no tracker, create a new one and add it to this ship's
 						// AI list
-						if (!foundATracker) {
+						if (!foundAnAI) {
+							selectedShip.getAIList().add(new MiningAI(selectedShip, mSource));
+						}
+					}
+				} else {
+					// If no object was right clicked (nothing picked), this is
+					// a move to order
+					LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
+					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
+						ModifiableList<AI> iaList = selectedShip.getAIList();
+
+						// Look for existing tracker
+						// If we find one, update it's target
+						boolean foundAnAI = false;
+						for (AI ia : iaList) {
+							if (ia instanceof FixedPositionTracker) {
+								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+								foundAnAI = true;
+							}
+						}
+
+						// If we found no tracker, create a new one and add it to this ship's
+						// AI list
+						if (!foundAnAI) {
 							iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
 						}
 					}
@@ -229,10 +256,17 @@ public class KeyboardAndMouseHandler {
 
 	public void select(Object pickedObject) {
 
+		// if the pickedObject is null, deselect everything
 		if (pickedObject == null) {
 			UIModel.getUiModel().getSelectionModel().clearAllSelections();
-			UIModel.getUiModel().setCurrentInWorldMenu(null);
+			// FIXME Do something about the iw menu if there is one
 			return;
+		}
+
+		// if we are showing an iw menu and did'nt hit an iw menu item,
+		// don't select something else, but rather unselect the morph
+		if (UIModel.getUiModel().getCurrentIWMenu() != null && !(pickedObject instanceof IWMenuItem)) {
+			// FIXME hide the iw menu
 		}
 
 		if (pickedObject instanceof Morph) {

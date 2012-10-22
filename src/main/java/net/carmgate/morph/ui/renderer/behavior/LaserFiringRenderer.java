@@ -5,18 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.behavior.LaserFiringBehavior;
+import net.carmgate.morph.model.behavior.LaserFiring;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBehavior> {
+public class LaserFiringRenderer extends BehaviorRenderer<LaserFiring> {
 
 	private static final int MORPH_RADIUS = 16;
 	private static final double BEAM_WIDTH_CHANGE_RATE = 0.2;
-	private static final Logger LOGGER = Logger.getLogger(LaserFiringBehaviorRenderer.class);
+	private static final Logger LOGGER = Logger.getLogger(LaserFiringRenderer.class);
 	private static Texture gunfireTexture;
 
 	private static float currentBeamWidth = 1;
@@ -32,11 +32,11 @@ public class LaserFiringBehaviorRenderer extends BehaviorRenderer<LaserFiringBeh
 		}
 	}
 
-	public LaserFiringBehaviorRenderer() {
+	public LaserFiringRenderer() {
 	}
 
 	@Override
-	protected void renderBehavior(int glMode, RenderStyle drawType, LaserFiringBehavior behavior) {
+	protected void renderBehavior(int glMode, RenderStyle drawType, LaserFiring behavior) {
 		if (behavior.getEffectiveTarget() == null) {
 			return;
 		}

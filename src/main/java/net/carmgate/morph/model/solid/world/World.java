@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +14,12 @@ import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
 import net.carmgate.morph.model.solid.energysource.Star;
+import net.carmgate.morph.model.solid.mattersource.Asteroid;
+import net.carmgate.morph.model.solid.mattersource.Asteroid.AsteroidType;
+import net.carmgate.morph.model.solid.mattersource.MatterSource;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.particle.ParticleEngine;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.test.EnemyTestShip1;
 import net.carmgate.morph.model.solid.ship.test.EnemyTestShip2;
@@ -68,11 +73,17 @@ public class World {
 	/** the list of all energy sources in the game. */
 	private final Map<Integer, EnergySource> energySources = new HashMap<Integer, EnergySource>();
 
+	/** the list of all matter sources in the game. */
+	private final Map<Integer, MatterSource> matterSources = new HashMap<Integer, MatterSource>();
+
 	/** the list of all ships in game. */
 	private final Map<Integer, Ship> ships = new HashMap<Integer, Ship>();
 
 	/** A list of forces to show. */
 	private final List<Force> forceList = new ArrayList<Force>();
+
+	/** Particle engine. */
+	private final ParticleEngine particleEngine = new ParticleEngine();
 
 	private World() {
 		// privatized constructor
@@ -91,6 +102,17 @@ public class World {
 
 	public List<Force> getForceList() {
 		return forceList;
+	}
+
+	public Map<Integer, MatterSource> getMatterSources() {
+		return matterSources;
+	}
+
+	/**
+	 * @return This world's particle engine.
+	 */
+	public ParticleEngine getParticleEngine() {
+		return particleEngine;
 	}
 
 	public Map<Integer, Ship> getShips() {
@@ -130,6 +152,10 @@ public class World {
 		// Create a star
 		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
 		getEnergySources().put(star.getId(), star);
+
+		// Create an asteroid
+		MatterSource asteroid = new Asteroid(-800, 400, 0, AsteroidType.TYPE_0, 1000);
+		getMatterSources().put(asteroid.getId(), asteroid);
 
 		// Create a ship for me
 		Ship ship = new TestShip(0, 0, 0, UserFactory.findUser("Me"));
@@ -246,5 +272,15 @@ public class World {
 			World.getWorld().ships.remove(ship.getId());
 		}
 
+		// update particles
+		particleEngine.update();
+
+		// Remove empty matter sources
+		for (Iterator<MatterSource> i = matterSources.values().iterator(); i.hasNext();) {
+			MatterSource m = i.next();
+			if (m.getMass() <= 0) {
+				i.remove();
+			}
+		}
 	}
 }

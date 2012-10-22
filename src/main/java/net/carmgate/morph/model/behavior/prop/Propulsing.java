@@ -31,6 +31,8 @@ public class Propulsing extends Behavior<Morph> {
 
 	@Override
 	protected void execute() {
+		LOGGER.trace("force: " + force);
+
 		// update force
 		// The propulsing force is always oriented to the north,
 		// because the morph is rotated by the trackers

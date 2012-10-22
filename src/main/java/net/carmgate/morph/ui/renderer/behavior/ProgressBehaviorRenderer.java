@@ -7,6 +7,7 @@ import java.io.IOException;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.ProgressBehavior;
+import net.carmgate.morph.ui.renderer.RendererUtil;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -49,25 +50,15 @@ public class ProgressBehaviorRenderer extends BehaviorRenderer<Behavior<?>> {
 
 		float alphaLevel = 1f;
 		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
-		texture.bind();
-		GL11.glBegin(GL11.GL_TRIANGLES);
-		double t; // temporary data holder
-		double x = 0.5; // radius = 1
-		double y = 0;
-		for (int i = 0; i < nbSegments * progressBehavior.getProgress(); i++) {
-			GL11.glTexCoord2f(0.5f, 0.5f);
-			GL11.glVertex2f(0, 0);
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
-			GL11.glVertex2d(texture.getTextureWidth() * x, texture.getTextureWidth() * y);
-
-			t = x;
-			x = cos * x - sin * y;
-			y = sin * t + cos * y;
-
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
-			GL11.glVertex2d(texture.getTextureWidth() * x, texture.getTextureWidth() * y);
-		}
-		GL11.glEnd();
+		Texture tmpTexture = texture;
+		int tmpNbSegments = nbSegments;
+		double tmpCos = cos;
+		double tmpSin = sin;
+		float initialRadiusX = 0.5f;
+		float initialRadiusY = 0;
+		float radialPercentageOfDisc = progressBehavior.getProgress();
+		RendererUtil.drawPartialCircle(tmpTexture, tmpNbSegments, tmpCos, tmpSin,
+				initialRadiusX, initialRadiusY, radialPercentageOfDisc, true, glMode);
 		alphaLevel /= 0.3f;
 		GL11.glColor4f(1f, 1f, 1f, alphaLevel);
 

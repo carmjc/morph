@@ -27,4 +27,9 @@ public class Force {
 	public void setVector(Vect3D vector) {
 		this.vector = vector;
 	}
+
+	@Override
+	public String toString() {
+		return "Force(" + vector + ")";
+	}
 }

@@ -27,10 +27,11 @@ public abstract class Morph {
 	 * The list of evolution types.
 	 */
 	public static enum EvolutionType {
-		TO_STEM(MorphType.STEM, 100),
-		TO_PROPULSOR(MorphType.PROPULSOR, 10),
+		TO_BASIC(MorphType.BASIC, 100),
 		TO_GUN(MorphType.GUN, 30),
-		TO_BASIC(MorphType.BASIC, 100);
+		TO_MINER(MorphType.MINER, 30),
+		TO_PROPULSOR(MorphType.PROPULSOR, 10),
+		TO_STEM(MorphType.STEM, 100);
 
 		private final MorphType morphType;
 		private final int durationInSeconds;
@@ -55,6 +56,7 @@ public abstract class Morph {
 	public static enum MorphType {
 		BASIC(BasicMorph.class),
 		GUN(GunMorph.class),
+		MINER(MinerMorph.class),
 		PROPULSOR(PropulsorMorph.class),
 		SHIELD(null),
 		SPREADER(null),
@@ -412,7 +414,7 @@ public abstract class Morph {
 
 	@Override
 	public String toString() {
-		return "morph(id=" + id + ", posInShip:" + getPosInShip().x + "," + getPosInShip().y + ")";
+		return "morph(id:" + id + ", posInShip:" + getPosInShip().x + "," + getPosInShip().y + ", mass:" + mass + ")";
 	}
 
 	/**

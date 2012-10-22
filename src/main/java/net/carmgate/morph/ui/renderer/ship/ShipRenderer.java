@@ -8,23 +8,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.ia.AI;
 import net.carmgate.morph.ia.tracker.FixedPositionTracker;
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
 import net.carmgate.morph.model.behavior.Evolving;
-import net.carmgate.morph.model.behavior.LaserFiringBehavior;
+import net.carmgate.morph.model.behavior.LaserFiring;
+import net.carmgate.morph.model.behavior.Mining;
 import net.carmgate.morph.model.behavior.SpreadingEnergy;
 import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.behavior.prop.Propulsing;
+import net.carmgate.morph.model.solid.morph.MinerMorph;
 import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.ForceRenderer;
 import net.carmgate.morph.ui.renderer.Renderer;
+import net.carmgate.morph.ui.renderer.RendererUtil;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
-import net.carmgate.morph.ui.renderer.behavior.LaserFiringBehaviorRenderer;
+import net.carmgate.morph.ui.renderer.behavior.LaserFiringRenderer;
+import net.carmgate.morph.ui.renderer.behavior.MiningRenderer;
 import net.carmgate.morph.ui.renderer.behavior.ProgressBehaviorRenderer;
 import net.carmgate.morph.ui.renderer.behavior.PropulsingRenderer;
 import net.carmgate.morph.ui.renderer.behavior.SpreadingEnergyRenderer;
@@ -40,6 +46,12 @@ import org.newdawn.slick.opengl.TextureLoader;
 public class ShipRenderer implements Renderer<Ship> {
 
 	private static final Logger LOGGER = Logger.getLogger(ShipRenderer.class);
+
+	private static final int nbSegments = 40;
+	private static final double deltaAngle = 2 * Math.PI / nbSegments;
+	private static final double cos = Math.cos(deltaAngle);
+	private static final double sin = Math.sin(deltaAngle);
+
 	private final MorphRenderer morphRenderer;
 	private final SelectedMorphRenderer selectedMorphRenderer;
 	private static Texture comTexture;
@@ -57,7 +69,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	}
 
 	private final Map<Class<? extends Behavior<?>>, BehaviorRenderer<?>> behaviorRenderersMap = new HashMap<Class<? extends Behavior<?>>, BehaviorRenderer<?>>();
-	private final Map<Class<? extends IA>, Renderer> iaRendererMap = new HashMap<Class<? extends IA>, Renderer>();
+	private final Map<Class<? extends AI>, Renderer> iaRendererMap = new HashMap<Class<? extends AI>, Renderer>();
 	private ForceRenderer forceRenderer;
 
 	public ShipRenderer() {
@@ -68,9 +80,10 @@ public class ShipRenderer implements Renderer<Ship> {
 		// Behavior renderers map init
 		behaviorRenderersMap.put(SpreadingEnergy.class, null);
 		behaviorRenderersMap.put(Evolving.class, new ProgressBehaviorRenderer());
-		behaviorRenderersMap.put(LaserFiringBehavior.class, new LaserFiringBehaviorRenderer());
+		behaviorRenderersMap.put(LaserFiring.class, new LaserFiringRenderer());
 		behaviorRenderersMap.put(Propulsing.class, new PropulsingRenderer());
 		behaviorRenderersMap.put(SpreadingEnergy.class, new SpreadingEnergyRenderer());
+		behaviorRenderersMap.put(Mining.class, new MiningRenderer());
 
 		// IA renderers map init
 		FixedPositionTrackerRenderer fixedPositionTrackerRenderer = new FixedPositionTrackerRenderer();
@@ -88,17 +101,35 @@ public class ShipRenderer implements Renderer<Ship> {
 			GL11.glPushName(ship.getId());
 		}
 
-		// Do whatever is necessary to draw the ship except sub items
-		renderShipMorphBehaviors(glMode, renderStyle, ship, true);
-
 		GL11.glTranslatef(ship.getPos().x, ship.getPos().y, ship.getPos().z);
 		GL11.glTranslatef(ship.getComInShip().x, ship.getComInShip().y, ship.getComInShip().z);
 		GL11.glRotatef(ship.getRot(), 0, 0, 1);
 		GL11.glTranslatef(-ship.getComInShip().x, -ship.getComInShip().y, -ship.getComInShip().z);
 
+		List<Morph> shipMorphs = new ArrayList<Morph>(ship.getMorphsByIds().values());
+		if (glMode != GL11.GL_SELECT) {
+			// Draw the miner morphs bag
+			for (Morph m2 : shipMorphs) {
+				if (m2 instanceof MinerMorph) {
+					MinerMorph morph = (MinerMorph) m2;
+					// Draw the miner mass bag
+					GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);
+					if (morph.getClass().getAnnotation(MorphInfo.class).type() == MorphType.MINER) {
+						MinerMorph m = morph;
+						float overMass = m.getMass() - morph.getClass().getAnnotation(MorphInfo.class).maxMass();
+						if (overMass > 0) {
+							GL11.glColor4f(1f, 1f, 1f, 0.3f);
+							RendererUtil.drawPartialCircle(null, nbSegments, cos, sin, (float) (13 + Math.sqrt(overMass)), 0, 1, true, glMode);
+						}
+					}
+					GL11.glTranslatef(-morph.getPosInShip().x, -morph.getPosInShip().y, -morph.getPosInShip().z);
+
+				}
+			}
+		}
+
 		// Draw the morphs
 		// TODO We clone the list to avoid ConcurrentModificationExceptions. We should try to improve this.
-		List<Morph> shipMorphs = new ArrayList<Morph>(ship.getMorphsByIds().values());
 		for (Morph morph : shipMorphs) {
 			GL11.glTranslatef(morph.getPosInShip().x, morph.getPosInShip().y, morph.getPosInShip().z);
 			if (glMode != GL11.GL_SELECT) {
@@ -147,8 +178,8 @@ public class ShipRenderer implements Renderer<Ship> {
 
 	private void renderIA(int glMode,
 			RenderStyle renderStyle,
-			IA ia) {
-		Renderer<IA> iaRenderer = iaRendererMap.get(ia.getClass());
+			AI ia) {
+		Renderer<AI> iaRenderer = iaRendererMap.get(ia.getClass());
 		if (iaRenderer != null) {
 			iaRenderer.render(glMode, renderStyle, ia);
 		}
@@ -185,7 +216,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	 * @param ship
 	 */
 	private void renderShipIAs(int glMode, RenderStyle renderStyle, Ship ship) {
-		for (IA ia : ship.getIAList()) {
+		for (AI ia : ship.getAIList()) {
 			renderIA(glMode, renderStyle, ia);
 		}
 	}
@@ -196,7 +227,7 @@ public class ShipRenderer implements Renderer<Ship> {
 	 * @param renderStyle
 	 * @param ship
 	 */
-	private void renderShipMorphBehaviors(int glMode, RenderStyle renderStyle, Ship ship, boolean preMorphRendering) {
+	public void renderShipMorphBehaviors(int glMode, RenderStyle renderStyle, Ship ship, boolean preMorphRendering) {
 		for (Morph morph : ship.getMorphsByIds().values()) {
 			if (glMode == GL11.GL_RENDER) {
 				for (Behavior<?> behavior : morph.getAlwaysActiveBehaviorList()) {

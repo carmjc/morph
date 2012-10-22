@@ -10,16 +10,16 @@ import net.carmgate.morph.model.solid.world.World;
 import org.apache.log4j.Logger;
 
 @BehaviorInfo(activationCoolDownTime = 0)
-public class LaserFiringBehavior extends Behavior<GunMorph> {
+public class LaserFiring extends Behavior<GunMorph> {
 
-	private static final Logger LOGGER = Logger.getLogger(LaserFiringBehavior.class);
+	private static final Logger LOGGER = Logger.getLogger(LaserFiring.class);
 	private Morph effectiveTarget = null;
 
-	public LaserFiringBehavior(GunMorph owner) {
+	public LaserFiring(GunMorph owner) {
 		super(owner);
 	}
 
-	public LaserFiringBehavior(GunMorph owner, State initialState) {
+	public LaserFiring(GunMorph owner, State initialState) {
 		super(owner, initialState);
 	}
 

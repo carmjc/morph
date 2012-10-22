@@ -3,7 +3,7 @@ package net.carmgate.morph.ia.tracker;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.ia.AI;
 import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.solid.morph.prop.PropulsorMorph;
@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * Warning: if all the propulsors of a ship are deactivated at any moment in time,
  * the tracker will stop trying to direct the ship to the target.
  */
-public class FixedPositionTracker implements IA {
+public class FixedPositionTracker implements AI {
 
 	private static final Logger LOGGER = Logger.getLogger(FixedPositionTracker.class);
 
@@ -74,11 +74,13 @@ public class FixedPositionTracker implements IA {
 		float nbSecondsToBreak = ship.getPosSpeed().modulus()
 				/ (ModelConstants.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST * activePropulsorMorphs.size());
 		float distanceToBreak = ship.getPosSpeed().modulus() * nbSecondsToBreak;
+
 		LOGGER.trace("Distance to break/distance to target : " + distanceToBreak + "/" + distanceToTarget);
 		float rampedSpeed = ModelConstants.MAX_SPEED_PER_PROP_MORPH * activePropsToMorphsRatio * (distanceToTarget - distanceToBreak) / distanceToBreak;// ship.slowingDistance;
 		float clippedSpeed = Math.min(rampedSpeed, ModelConstants.MAX_SPEED_PER_PROP_MORPH * activePropsToMorphsRatio);
 		Vect3D desiredVelocity = new Vect3D(comToTarget);
 		desiredVelocity.normalize(clippedSpeed);
+
 		LOGGER.trace("DesiredVelocity: " + desiredVelocity.modulus());
 
 		Vect3D steeringForce = new Vect3D(desiredVelocity);
@@ -89,6 +91,7 @@ public class FixedPositionTracker implements IA {
 		for (PropulsorMorph m : activePropulsorMorphs) {
 			// Adjust thrust for moments
 			float thrust = steeringForce.modulus() / ModelConstants.PROPULSING_FORCE_MODULUS_AT_FULL_THRUST;
+
 			m.setRotInWorld(new Vect3D(0, -1, 0).angleWith(steeringForce));
 			m.getPropulsingBehavior().setThrustPercentage(thrust);
 
@@ -132,6 +135,7 @@ public class FixedPositionTracker implements IA {
 			for (PropulsorMorph morph : ship.getMorphsByType(PropulsorMorph.class)) {
 				morph.tryToDeactivate();
 			}
+			LOGGER.trace("tracker done");
 		}
 
 		return done;

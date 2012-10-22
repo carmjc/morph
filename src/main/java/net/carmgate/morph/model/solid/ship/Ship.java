@@ -7,12 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.ia.AI;
 import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.prop.PropulsorsLost;
 import net.carmgate.morph.model.physics.Force;
+import net.carmgate.morph.model.solid.morph.MassProvider;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.ship.listener.ShipEvent;
@@ -20,6 +21,7 @@ import net.carmgate.morph.model.solid.ship.listener.ShipListener;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.user.User;
 import net.carmgate.morph.ui.model.UIModel;
+import net.carmgate.morph.util.collections.ModifiableList;
 
 import org.apache.log4j.Logger;
 
@@ -75,7 +77,7 @@ public abstract class Ship {
 	private final List<Morph> activeMorphList = new ArrayList<Morph>();
 
 	/** List of ships IAs. */
-	private final List<IA> iaList = new ArrayList<IA>();
+	private final ModifiableList<AI> iaList = new ModifiableList<AI>(new ArrayList<AI>());
 
 	/** List of ship's listeners. */
 	private final List<ShipListener> shipListeners = new ArrayList<ShipListener>();
@@ -374,6 +376,13 @@ public abstract class Ship {
 	}
 
 	/**
+	 * @return the list of IAs of the ship.
+	 */
+	public ModifiableList<AI> getAIList() {
+		return iaList;
+	}
+
+	/**
 	 * @return the geometric center the of the ship.
 	 * The center of the circum circle of the ship.
 	 */
@@ -393,13 +402,6 @@ public abstract class Ship {
 	 */
 	private float getDragFactor() {
 		return dragFactor;
-	}
-
-	/**
-	 * @return the list of IAs of the ship.
-	 */
-	public List<IA> getIAList() {
-		return iaList;
 	}
 
 	/**
@@ -433,7 +435,11 @@ public abstract class Ship {
 		// This is dangerous if we don't know what we are doing.
 		// In order for this to work, we must be sure that the morphsByType map
 		// is properly filled.
-		return (List<T>) Collections.unmodifiableList(morphsByType.get(type));
+		List<Morph> list = morphsByType.get(type);
+		if (list == null) {
+			return null;
+		}
+		return (List<T>) Collections.unmodifiableList(list);
 	}
 
 	/**
@@ -739,15 +745,38 @@ public abstract class Ship {
 			}
 		}
 
+		// Get the amoung of mass that can be distributed to the ship's morphs
+		float retrievableMass = 0;
+		for (Morph m2 : morphs) {
+			if (m2 instanceof MassProvider) {
+				MassProvider massProv = (MassProvider) m2;
+				retrievableMass += massProv.getAvailableMass();
+			}
+		}
+
 		for (Morph m : morphs) {
 
-			// Updating the mass of the ship's morph if it's evolving
+			// Updating the mass of the ship's morph if needed
 			// TODO transform this in a behavior
-			if (nbMorphsNeedingMass > 0) {
-				float mass = m.getMass();
-				m.setMass(Math.min(m.getMass() + ModelConstants.NEW_MASS_PER_SECOND / nbMorphsNeedingMass / World.getWorld().getSinceLastUpdateTS(), m
-						.getClass().getAnnotation(MorphInfo.class)
-						.maxMass()));
+			if (m.getMass() < m.getClass().getAnnotation(MorphInfo.class).maxMass()
+					&& nbMorphsNeedingMass > 0) {
+				float massToRequest = Math.min(
+						retrievableMass / nbMorphsNeedingMass,
+						m.getClass().getAnnotation(MorphInfo.class).maxMass() - m.getMass());
+				float massRetrieved = 0;
+				for (Morph m2 : morphs) {
+					if (m2 instanceof MassProvider) {
+						MassProvider massProv = (MassProvider) m2;
+						massRetrieved += massProv.retrieveMass(massToRequest - massRetrieved);
+						if (massRetrieved == massToRequest) {
+							continue;
+						}
+					}
+				}
+
+				if (massRetrieved > 0) {
+					m.setMass(m.getMass() + massRetrieved);
+				}
 			}
 
 			m.update();

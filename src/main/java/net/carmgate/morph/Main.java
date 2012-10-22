@@ -3,7 +3,7 @@ package net.carmgate.morph;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.carmgate.morph.ia.IA;
+import net.carmgate.morph.ia.AI;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.interaction.KeyboardAndMouseHandler;
@@ -25,7 +25,8 @@ public class Main {
 	 */
 	public enum PickingContext {
 		IW_MENU(1),
-		SHIP(2);
+		SHIP(2),
+		ASTEROID(1);
 
 		private final int depth;
 
@@ -113,12 +114,16 @@ public class Main {
 	public void render() {
 
 		// draw world
-		RendererHolder.worldRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
-		RendererHolder.iwuiRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
+		int renderType = GL11.GL_RENDER;
+		if (WorldRenderer.selectRendering) {
+			renderType = GL11.GL_SELECT;
+		}
+		RendererHolder.worldRenderer.render(renderType, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
+		RendererHolder.iwuiRenderer.render(renderType, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL, World.getWorld());
 
 		// Interface rendering
 		GL11.glTranslatef(WorldRenderer.focalPoint.x, WorldRenderer.focalPoint.y, WorldRenderer.focalPoint.z);
-		RendererHolder.uiRenderer.render(GL11.GL_RENDER, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
+		RendererHolder.uiRenderer.render(renderType, WorldRenderer.debugDisplay ? RenderStyle.DEBUG : RenderStyle.NORMAL);
 		GL11.glTranslatef(-WorldRenderer.focalPoint.x, -WorldRenderer.focalPoint.y, -WorldRenderer.focalPoint.z);
 
 		// move world
@@ -126,18 +131,21 @@ public class Main {
 
 		// udpate IAs
 		for (Ship ship : World.getWorld().getShips().values()) {
-			List<IA> iasToRemove = new ArrayList<IA>();
-			for (IA ia : ship.getIAList()) {
+			List<AI> iasToRemove = new ArrayList<AI>();
+			ship.getAIList().lock();
+			for (AI ia : ship.getAIList()) {
 				if (ia != null) {
 					if (ia.done()) {
 						iasToRemove.add(ia);
+						LOGGER.trace("Removing Ai: " + ia.getClass().getName());
 					} else {
 						ia.compute();
 					}
 				}
 			}
-			for (IA ia : iasToRemove) {
-				ship.getIAList().remove(ia);
+			ship.getAIList().unlock();
+			for (AI ia : iasToRemove) {
+				ship.getAIList().remove(ia);
 			}
 			iasToRemove.clear();
 		}

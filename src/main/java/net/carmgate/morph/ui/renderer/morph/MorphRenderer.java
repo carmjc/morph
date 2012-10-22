@@ -13,6 +13,7 @@ import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.Renderer;
+import net.carmgate.morph.ui.renderer.RendererUtil;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
 
 import org.apache.log4j.Logger;
@@ -59,6 +60,8 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-stem-32.png").getPath())));
 			textures.put(MorphType.GUN,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-gun-32.png").getPath())));
+			textures.put(MorphType.MINER,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-gun-32.png").getPath())));
 
 			// Energy and mass gauge texture
 			energyMassTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-gauge.png").getPath()));
@@ -73,40 +76,6 @@ public class MorphRenderer implements Renderer<Morph> {
 
 	public static Map<MorphType, Texture> getTextures() {
 		return textures;
-	}
-
-	/**
-	 * @param texture
-	 */
-	private void drawTexturedHexagon(Texture texture) {
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0.5f);
-		GL11.glVertex2f(-texture.getTextureWidth() / 2, 0);
-		GL11.glTexCoord2f(0.25f, 0.5f - (float) (Math.sqrt(3) / 4));
-		GL11.glVertex2f(-texture.getTextureWidth() / 4, (float) (-texture.getTextureWidth() * Math.sqrt(3) / 4));
-		GL11.glTexCoord2f(0.75f, 0.5f - (float) (Math.sqrt(3) / 4));
-		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (-texture.getTextureHeight() * Math.sqrt(3) / 4));
-		GL11.glTexCoord2f(0.5f, 0.5f);
-		GL11.glVertex2f(0, 0);
-
-		GL11.glTexCoord2f(0, 0.5f);
-		GL11.glVertex2f(-texture.getTextureWidth() / 2, 0);
-		GL11.glTexCoord2f(0.25f, 0.5f + (float) (Math.sqrt(3) / 4));
-		GL11.glVertex2f(-texture.getTextureWidth() / 4, (float) (texture.getTextureWidth() * Math.sqrt(3) / 4));
-		GL11.glTexCoord2f(0.75f, 0.5f + (float) (Math.sqrt(3) / 4));
-		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (texture.getTextureHeight() * Math.sqrt(3) / 4));
-		GL11.glTexCoord2f(0.5f, 0.5f);
-		GL11.glVertex2f(0, 0);
-
-		GL11.glTexCoord2f(0.75f, 0.5f + (float) (Math.sqrt(3) / 4));
-		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (texture.getTextureHeight() * Math.sqrt(3) / 4));
-		GL11.glTexCoord2f(1, 0.5f);
-		GL11.glVertex2f(texture.getTextureWidth() / 2, 0);
-		GL11.glTexCoord2f(0.75f, 0.5f - (float) (Math.sqrt(3) / 4));
-		GL11.glVertex2f(texture.getTextureWidth() / 4, (float) (-texture.getTextureHeight() * Math.sqrt(3) / 4));
-		GL11.glTexCoord2f(0.5f, 0.5f);
-		GL11.glVertex2f(0, 0);
-		GL11.glEnd();
 	}
 
 	/**
@@ -145,11 +114,10 @@ public class MorphRenderer implements Renderer<Morph> {
 		}
 
 		// Show the owner colored background
-		if (glMode != GL11.GL_SELECT || morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
-			ownerBgTexture.bind();
+		if (glMode != GL11.GL_SELECT && morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
 			Color color = morph.getShip().getOwner().getColor();
 			GL11.glColor4f((float) color.getRed() / 256, (float) color.getGreen() / 256, (float) color.getBlue() / 256, alphaLevel);
-			drawTexturedHexagon(ownerBgTexture);
+			RendererUtil.drawTexturedRectangle(ownerBgTexture, glMode);
 		}
 
 		// morph texture
@@ -179,13 +147,13 @@ public class MorphRenderer implements Renderer<Morph> {
 		// sphere texture
 		if (glMode != GL11.GL_SELECT) {
 			if (UIModel.getUiModel().getSelectionModel().getSelectedMorphs().containsValue(morph)) {
-				baseSelectedTexture.bind();
+				RendererUtil.drawTexturedRectangle(baseSelectedTexture, glMode);
 			} else {
-				baseTexture.bind();
+				RendererUtil.drawTexturedRectangle(baseTexture, glMode);
 			}
+		} else {
+			RendererUtil.drawTexturedHexagon(baseTexture, glMode, 32);
 		}
-
-		drawTexturedHexagon(baseTexture);
 
 		GL11.glColor4f(1, 1, 1, 1);
 
@@ -194,12 +162,15 @@ public class MorphRenderer implements Renderer<Morph> {
 			Texture morphTexture = textures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
 			if (morphTexture != null) {
 				morphTexture.bind();
-				drawTexturedHexagon(morphTexture);
+				RendererUtil.drawTexturedRectangle(morphTexture, glMode);
 			}
 
 			if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
-				renderEnergy(glMode, drawType, morph);
-				renderMass(glMode, drawType, morph);
+				// Render energy and mass gauge
+				RendererUtil.drawPartialCircle(energyMassTexture, nbSegments, cos, sin, -0.5f, 0,
+						Math.min(1, morph.getEnergy() / morph.getMaxEnergy()) / 2, true, glMode);
+				RendererUtil.drawPartialCircle(energyMassTexture, nbSegments, cos, sin, -0.5f, 0,
+						morph.getMass() / morph.getMaxMass() / 2, false, glMode);
 			}
 		}
 
@@ -210,49 +181,5 @@ public class MorphRenderer implements Renderer<Morph> {
 			GL11.glPopName();
 		}
 
-	}
-
-	private void renderEnergy(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Morph morph) {
-		energyMassTexture.bind();
-		GL11.glBegin(GL11.GL_TRIANGLES);
-		double t; // temporary data holder
-		double x = -0.5; // radius = 1
-		double y = 0;
-		for (int i = 0; i < nbSegments * Math.min(1, morph.getEnergy() / morph.getMaxEnergy()) / 2; i++) {
-			GL11.glTexCoord2f(0.5f, 0.5f);
-			GL11.glVertex2f(0, 0);
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
-			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
-
-			t = x;
-			x = cos * x - sin * y;
-			y = sin * t + cos * y;
-
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
-			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
-		}
-		GL11.glEnd();
-	}
-
-	private void renderMass(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Morph morph) {
-		energyMassTexture.bind();
-		GL11.glBegin(GL11.GL_TRIANGLES);
-		double t; // temporary data holder
-		double x = -0.5; // radius = 1
-		double y = 0;
-		for (int i = 0; i < nbSegments * morph.getMass() / morph.getMaxMass() / 2; i++) {
-			GL11.glTexCoord2f(0.5f, 0.5f);
-			GL11.glVertex2f(0, 0);
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
-			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
-
-			t = x;
-			x = cos * x + sin * y;
-			y = -sin * t + cos * y;
-
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
-			GL11.glVertex2d(energyMassTexture.getTextureWidth() * x, energyMassTexture.getTextureWidth() * y);
-		}
-		GL11.glEnd();
 	}
 }

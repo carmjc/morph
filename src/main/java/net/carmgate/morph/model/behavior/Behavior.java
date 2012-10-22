@@ -8,6 +8,8 @@ import net.carmgate.morph.model.behavior.listener.BehaviorListener;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.world.World;
 
+import org.apache.log4j.Logger;
+
 /**
  * Allows to define any behavior on any element of the model.
  * Keep in mind, even if a behavior is strongly linked to a morph for instance,
@@ -18,6 +20,9 @@ import net.carmgate.morph.model.solid.world.World;
  */
 @BehaviorInfo
 public abstract class Behavior<T extends Morph> {
+
+	private static final Logger LOGGER = Logger.getLogger(Behavior.class);
+
 	private final T owner;
 	/** Number of millis before next activation, counting from last update. */
 	private long msecBeforeNextActivation = 0;

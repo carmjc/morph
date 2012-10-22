@@ -14,6 +14,6 @@ public @interface BehaviorRendererInfo {
 	/**
 	 * @return true if the behavior should be rendered before all morphs
 	 */
-	boolean preMorphRendering() default false;
+	boolean preRendering() default false;
 
 }

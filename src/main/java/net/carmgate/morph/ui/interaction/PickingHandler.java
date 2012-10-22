@@ -4,6 +4,7 @@ import java.nio.IntBuffer;
 
 import net.carmgate.morph.Main;
 import net.carmgate.morph.Main.PickingContext;
+import net.carmgate.morph.model.solid.mattersource.MatterSource;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
@@ -37,6 +38,15 @@ public class PickingHandler {
 	private IWMenuItem getPickedIWMenuItem(IntBuffer selectBuf) {
 		IWMenuItem menuItem = UIModel.getUiModel().getCurrentIWMenu().getMenuItems().get(selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
 		return menuItem;
+	}
+
+	/**
+	 * @param selectBuf
+	 * @return the picked in-world menu item.
+	 */
+	private MatterSource getPickedMatterSource(IntBuffer selectBuf) {
+		MatterSource mSource = World.getWorld().getMatterSources().get(selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
+		return mSource;
 	}
 
 	/**
@@ -83,11 +93,7 @@ public class PickingHandler {
 	 */
 	private int glPick(int x, int y, IntBuffer selectBuf) {
 		GL11.glSelectBuffer(selectBuf);
-
 		LOGGER.trace("Picking at " + x + " " + y);
-		if (UIModel.getUiModel().getSelectionModel().getSelectedShips().size() > 0) {
-			LOGGER.trace("Selected ship: " + UIModel.getUiModel().getSelectionModel().getSelectedShips().values().iterator().next().getPos());
-		}
 
 		// get viewport
 		IntBuffer viewport = BufferUtils.createIntBuffer(16);
@@ -179,7 +185,13 @@ public class PickingHandler {
 		LOGGER.trace("Menu item: " + selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
 		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > 0
 				&& selectBuf.get(3) == PickingContext.IW_MENU.ordinal()) {
-			pickedObject = getPickedIWMenuItem(selectBuf);
+			return getPickedIWMenuItem(selectBuf);
+		}
+
+		// pick asteroids
+		if (selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) > 0
+				&& selectBuf.get(3) == PickingContext.ASTEROID.ordinal()) {
+			return getPickedMatterSource(selectBuf);
 		}
 		return pickedObject;
 	}

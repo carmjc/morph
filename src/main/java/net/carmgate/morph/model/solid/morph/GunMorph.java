@@ -1,7 +1,7 @@
 package net.carmgate.morph.model.solid.morph;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.behavior.LaserFiringBehavior;
+import net.carmgate.morph.model.behavior.LaserFiring;
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
@@ -11,7 +11,7 @@ public class GunMorph extends BasicMorph {
 	private Morph target;
 
 	public GunMorph() {
-		getActivableBehaviorList().add(new LaserFiringBehavior(this));
+		getActivableBehaviorList().add(new LaserFiring(this));
 	}
 
 	public Morph getTarget() {

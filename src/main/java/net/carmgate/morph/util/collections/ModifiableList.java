@@ -23,6 +23,7 @@ public class ModifiableList<T> implements Iterable<T> {
 		}
 	}
 
+	@Override
 	public Iterator<T> iterator() {
 		return list.iterator();
 	}

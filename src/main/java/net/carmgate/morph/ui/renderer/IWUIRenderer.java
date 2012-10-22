@@ -18,6 +18,7 @@ import net.carmgate.morph.ui.renderer.morph.MorphRenderer;
 import org.apache.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 import org.newdawn.slick.opengl.TextureLoader;
 
 public class IWUIRenderer implements Renderer<World> {
@@ -93,7 +94,12 @@ public class IWUIRenderer implements Renderer<World> {
 
 					// Draw the morph matching the possible evolution
 					if (menuItem instanceof EvolutionTypeIWMenuItem) {
-						baseTexture.bind();
+						if (glMode != GL11.GL_SELECT) {
+							baseTexture.bind();
+						} else {
+							TextureImpl.bindNone();
+						}
+
 						GL11.glColor4f(1, 1, 1, 0.5f);
 						GL11.glBegin(GL11.GL_QUADS);
 						// We need to draw trapezoids instead of squares
@@ -115,7 +121,9 @@ public class IWUIRenderer implements Renderer<World> {
 						GL11.glColor4f(1f, 1f, 1f, 1f);
 						GL11.glColor4f(1, 1, 1, 1f);
 
-						renderMorphTypeMenuItemContent(glMode, i, menuItem);
+						if (glMode != GL11.GL_SELECT) {
+							renderMorphTypeMenuItemContent(glMode, i, menuItem);
+						}
 					}
 
 					if (glMode == GL11.GL_SELECT) {

@@ -4,12 +4,14 @@ import net.carmgate.morph.Main;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
+import net.carmgate.morph.model.solid.mattersource.MatterSource;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.solid.world.WorldArea;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.energysource.EnergySourceRenderer;
+import net.carmgate.morph.ui.renderer.mattersource.MatterSourceRenderer;
 import net.carmgate.morph.ui.renderer.ship.SelectedShipRenderer;
 import net.carmgate.morph.ui.renderer.ship.ShipRenderer;
 
@@ -18,6 +20,7 @@ import org.newdawn.slick.opengl.TextureImpl;
 
 public class WorldRenderer implements Renderer<World> {
 
+	public static boolean selectRendering = false;
 	public static boolean debugDisplay = false;
 	public static float scale = 1;
 	public static final Vect3D focalPoint = new Vect3D(0, 0, 0);
@@ -27,7 +30,9 @@ public class WorldRenderer implements Renderer<World> {
 	private SelectedShipRenderer selectedShipRenderer = new SelectedShipRenderer();
 	private ForceRenderer currentForceRenderer = new ForceRenderer();
 	private WorldAreaRenderer currentWorldAreaRenderer = new WorldAreaRenderer();
-	private EnergySourceRenderer currentEnergySourceRenderer = new EnergySourceRenderer();
+	private EnergySourceRenderer energySourceRenderer = new EnergySourceRenderer();
+	private MatterSourceRenderer matterSourceRenderer = new MatterSourceRenderer();
+	private ParticleRenderer particleRenderer = new ParticleRenderer();
 
 	/**
 	 * Renders the world.
@@ -39,16 +44,27 @@ public class WorldRenderer implements Renderer<World> {
 
 		// glMode = GL11.GL_SELECT;
 
+		if (glMode != GL11.GL_SELECT) {
+			particleRenderer.render(glMode, drawType, world.getParticleEngine(), true);
+		}
+
 		if (glMode == GL11.GL_RENDER) {
 			TextureImpl.bindNone();
 			renderWorldAreas(glMode, drawType, world);
 		}
 
+		// Do whatever is necessary to draw the behaviors in the background
+		for (Ship s : World.getWorld().getShips().values()) {
+			shipRenderer.renderShipMorphBehaviors(glMode, drawType, s, true);
+		}
+
 		if (glMode == GL11.GL_SELECT) {
 			renderShips(glMode, drawType, world);
+			renderMatterSources(glMode, drawType, world);
 			renderEnergySources(glMode, drawType, world);
 		} else {
 			renderEnergySources(glMode, drawType, world);
+			renderMatterSources(glMode, drawType, world);
 			renderShips(glMode, drawType, world);
 		}
 
@@ -59,14 +75,17 @@ public class WorldRenderer implements Renderer<World> {
 
 			// Show the pointer
 			renderPointer(glMode, drawType);
+		}
 
+		if (glMode != GL11.GL_SELECT) {
+			particleRenderer.render(glMode, drawType, world.getParticleEngine(), false);
 		}
 
 	}
 
 	private void renderEnergySources(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
 		for (EnergySource e : world.getEnergySources().values()) {
-			currentEnergySourceRenderer.render(glMode, drawType, e);
+			energySourceRenderer.render(glMode, drawType, e);
 		}
 	}
 
@@ -79,6 +98,12 @@ public class WorldRenderer implements Renderer<World> {
 	private void renderForces(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
 		for (Force f : world.getForceList()) {
 			currentForceRenderer.render(glMode, drawType, f);
+		}
+	}
+
+	private void renderMatterSources(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
+		for (MatterSource e : world.getMatterSources().values()) {
+			matterSourceRenderer.render(glMode, drawType, e);
 		}
 	}
 

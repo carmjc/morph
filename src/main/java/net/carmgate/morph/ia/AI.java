@@ -1,6 +1,6 @@
 package net.carmgate.morph.ia;
 
-public interface IA {
+public interface AI {
 	void compute();
 
 	boolean done();

@@ -18,13 +18,13 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-@BehaviorRendererInfo(preMorphRendering = true)
+@BehaviorRendererInfo(preRendering = true)
 public class PropulsingRenderer extends BehaviorRenderer<Propulsing> {
 	private static final int TRAIL_WIDTH = 4;
 
 	private static final int NB_OF_COORD_IN_TRAIL = 100;
 
-	private static final Logger LOGGER = Logger.getLogger(LaserFiringBehaviorRenderer.class);
+	private static final Logger LOGGER = Logger.getLogger(LaserFiringRenderer.class);
 
 	/** Trails, by porpulsor morphs' id. */
 	private Map<Integer, Queue<Vect3D>> trails = new HashMap<Integer, Queue<Vect3D>>();

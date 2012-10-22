@@ -53,7 +53,7 @@ public abstract class BehaviorRenderer<K extends Behavior<?>> implements Rendere
 	 * @param preMorphRendering true if the renderer is called before all morphs rendering
 	 */
 	public final void render(int glMode, RenderStyle renderStyle, Behavior<?> behavior, boolean preMorphRendering) {
-		if (preMorphRendering == getClass().getAnnotation(BehaviorRendererInfo.class).preMorphRendering()) {
+		if (preMorphRendering == getClass().getAnnotation(BehaviorRendererInfo.class).preRendering()) {
 			render(glMode, renderStyle, behavior);
 		}
 	}
