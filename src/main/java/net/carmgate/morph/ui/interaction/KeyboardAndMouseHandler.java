@@ -7,8 +7,8 @@ import java.util.Map;
 
 import net.carmgate.morph.Main;
 import net.carmgate.morph.ia.AI;
-import net.carmgate.morph.ia.impl.mining.GoInMiningRangeAndMineAI;
-import net.carmgate.morph.ia.impl.tracker.GoToPositionAI;
+import net.carmgate.morph.ia.impl.morph.mining.GoInMiningRangeAndMineAI;
+import net.carmgate.morph.ia.impl.morph.tracker.GoToPositionAI;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.solid.mattersource.MatterSource;
 import net.carmgate.morph.model.solid.morph.Morph;
@@ -298,7 +298,7 @@ public class KeyboardAndMouseHandler {
 				UIModel.getUiModel().getSelectionModel().removeAllShipsFromSelection();
 			}
 
-			if (FriendOrFoe.SELF.equals(selectedShip.getOwner().getFriendOrFoe())) {
+			if (FriendOrFoe.SELF.equals(selectedShip.getOwner().getFriendOrFoe()) || WorldRenderer.debugDisplay) {
 				UIModel.getUiModel().getSelectionModel().addShipToSelection(selectedShip);
 			}
 		}

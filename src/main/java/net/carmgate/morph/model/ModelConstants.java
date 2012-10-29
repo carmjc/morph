@@ -49,4 +49,8 @@ public interface ModelConstants {
 	/** The amount of matter mined per second. */
 	public static final int MINING_SPEED = 2;
 
+	// FIRING
+	/** The maximum distance at which a morph might fire on an other morph. */
+	public static final int MAX_FIRING_DISTANCE = 400;
+
 }

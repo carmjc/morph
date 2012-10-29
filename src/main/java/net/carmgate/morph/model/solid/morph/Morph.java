@@ -69,7 +69,7 @@ public abstract class Morph extends WorldSolid implements Activable {
 	/** This behaviors won't be (de)activated with Morph.tryTo(De)Active(). */
 	private final List<Behavior<?>> activationIsolatedBehaviorList = new ArrayList<Behavior<?>>();
 
-	private State state;
+	private State state = State.INACTIVE;
 
 	/** Morph mass. */
 	private float mass = 0.5f;

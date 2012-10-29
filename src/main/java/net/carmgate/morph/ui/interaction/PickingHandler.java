@@ -159,7 +159,7 @@ public class PickingHandler {
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
 		int hits = glPick(x, y, selectBuf);
-		LOGGER.trace("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
+		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
 		// if there was no solid model hit, we need to deselect everything
 		if (hits == 0 || selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) == 0) {

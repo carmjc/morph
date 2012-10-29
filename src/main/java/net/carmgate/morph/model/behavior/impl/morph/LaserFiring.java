@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.behavior.impl.morph;
 
+import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.BehaviorInfo;
@@ -37,6 +38,12 @@ public class LaserFiring extends Behavior<GunMorph> {
 		Morph targetMorph = gun.getTarget();
 		Ship targetShip = gun.getTarget().getShip();
 		Morph newTargetMorph = null;
+
+		// If the target is too far away, deactivate itself
+		if (targetMorph.getPosInWorld().distance(getOwner().getPosInWorld()) > ModelConstants.MAX_FIRING_DISTANCE) {
+			getOwner().tryToDeactivate(true);
+			return;
+		}
 
 		// Detect ship in the way
 		double normalLength = Math.hypot(targetMorph.getPosInWorld().x - gun.getPosInWorld().x, targetMorph.getPosInWorld().y - gun.getPosInWorld().y);

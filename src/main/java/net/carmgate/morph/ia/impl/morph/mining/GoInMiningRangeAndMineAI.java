@@ -1,9 +1,9 @@
-package net.carmgate.morph.ia.impl.mining;
+package net.carmgate.morph.ia.impl.morph.mining;
 
 import java.util.List;
 
 import net.carmgate.morph.ia.AI;
-import net.carmgate.morph.ia.impl.tracker.GoToPositionAI;
+import net.carmgate.morph.ia.impl.morph.tracker.GoToPositionAI;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.solid.WorldPositionSupport;
 import net.carmgate.morph.model.solid.mattersource.MatterSource;

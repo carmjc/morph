@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.ia.AI;
-import net.carmgate.morph.ia.impl.tracker.GoToPositionAI;
+import net.carmgate.morph.ia.impl.morph.tracker.GoToPositionAI;
 import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;

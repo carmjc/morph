@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.solid.morph.impl;
 
+import net.carmgate.morph.model.ModelConstants;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.impl.morph.LaserFiring;
 import net.carmgate.morph.model.solid.TargettingSupport;
@@ -14,6 +15,11 @@ public class GunMorph extends BasicMorph implements TargettingSupport<Morph> {
 
 	public GunMorph() {
 		getActivationLinkedBehaviorList().add(new LaserFiring(this));
+	}
+
+	@Override
+	public boolean canBeActivated() {
+		return super.canBeActivated() && target.getPosInWorld().distance(getPosInWorld()) < ModelConstants.MAX_FIRING_DISTANCE;
 	}
 
 	@Override

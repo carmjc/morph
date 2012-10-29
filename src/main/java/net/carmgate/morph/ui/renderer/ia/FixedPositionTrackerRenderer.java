@@ -3,7 +3,7 @@ package net.carmgate.morph.ui.renderer.ia;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import net.carmgate.morph.ia.impl.tracker.GoToPositionAI;
+import net.carmgate.morph.ia.impl.morph.tracker.GoToPositionAI;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.ui.renderer.Renderer;
 

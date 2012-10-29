@@ -22,6 +22,7 @@ import net.carmgate.morph.model.solid.RotationSupport;
 import net.carmgate.morph.model.solid.WorldPositionSupport;
 import net.carmgate.morph.model.solid.WorldSolid;
 import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.impl.PropulsorMorph;
 import net.carmgate.morph.model.solid.ship.listener.ShipEvent;
 import net.carmgate.morph.model.solid.ship.listener.ShipListener;
 import net.carmgate.morph.model.solid.world.World;
@@ -543,6 +544,13 @@ public abstract class Ship extends WorldSolid implements WorldPositionSupport,
 		morphsById.remove(morph.getId());
 		morphsByPosInShipGrid.remove(morph.getPosInShipGrid());
 		morphsByType.get(morph.getClass()).remove(morph);
+
+		// check if this is the last propulsor morph
+		// if this is the case, we have to add a PropulsorsLost behavior to one of the ship's morphs
+		if (morphsByType.get(PropulsorMorph.class).size() == 0 && morphsById.size() > 0) {
+			final Morph standingMorph = morphsById.values().iterator().next();
+			standingMorph.getActivationIsolatedBehaviorList().add(new PropulsorsLost(standingMorph));
+		}
 	}
 
 	/**

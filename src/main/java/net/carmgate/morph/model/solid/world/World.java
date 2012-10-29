@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.ia.AI;
+import net.carmgate.morph.ia.impl.user.FightAnyOpponentShip;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
@@ -69,6 +70,9 @@ public class World {
 	/** the list of all ships in game. */
 	private final Map<Long, Ship> ships = new HashMap<Long, Ship>();
 
+	/** the list of opponent AIs. */
+	private final List<AI> opponentAIs = new ArrayList<AI>();
+
 	/** A list of forces to show. */
 	private final List<Force> forceList = new ArrayList<Force>();
 
@@ -122,6 +126,9 @@ public class World {
 		UserFactory.addUser(new User(UserType.AI, "Nemesis", FriendOrFoe.FOE, new Color(150, 50, 50)));
 		// UserFactory.addUser(new User(UserType.GOD, "God", FriendOrFoe.FRIEND, new Color(255, 255, 255)));
 
+		// Assign opponent AIs
+		opponentAIs.add(new FightAnyOpponentShip(UserFactory.findUser("Nemesis")));
+
 		// Create a star
 		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000);
 		getEnergySources().put(star.getId(), star);
@@ -136,7 +143,7 @@ public class World {
 
 		// Create a ship for the ennemy
 		ship = new EnemyTestShip1(280, -300, 0, UserFactory.findUser("Nemesis"));
-		getShips().put(ship.getId(), ship);
+		// getShips().put(ship.getId(), ship);
 
 		// Create another ship for the ennemy
 		ship = new EnemyTestShip2(250, -220, 0, UserFactory.findUser("Nemesis"));
@@ -206,7 +213,7 @@ public class World {
 			}
 		}
 
-		// udpate IAs
+		// udpate ship IAs
 		// TODO This code should evolve. AIs might target non-ship elements
 		for (Ship ship : World.getWorld().getShips().values()) {
 			List<AI<Ship>> iasToRemove = new ArrayList<AI<Ship>>();
@@ -228,5 +235,9 @@ public class World {
 			iasToRemove.clear();
 		}
 
+		// update opponent AIs
+		for (AI<User> ai : opponentAIs) {
+			ai.compute();
+		}
 	}
 }
