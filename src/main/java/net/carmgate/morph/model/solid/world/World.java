@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.carmgate.morph.ia.AI;
-import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
@@ -60,14 +59,6 @@ public class World {
 		}
 		return worldInstance;
 	}
-
-	/**
-	 * World areas.
-	 * The coordinates of the world areas in this Map are not the world coordinates, but the coordinates of the world areas along the 3 axis.
-	 * @See {@link WorldArea#toWorldAreaPos(Vect3D)}
-	 */
-	@Deprecated
-	private final Map<Vect3D, WorldArea> worldAreas = new HashMap<Vect3D, WorldArea>();
 
 	/** the list of all energy sources in the game. */
 	private final Map<Long, EnergySource> energySources = new HashMap<Long, EnergySource>();
@@ -123,25 +114,6 @@ public class World {
 	 */
 	public final long getSinceLastUpdateTS() {
 		return sinceLastUpdateTS;
-	}
-
-	/**
-	 * Get the world area for a given world position.
-	 * @param pos in world coordinates
-	 * @return the corresponding world area
-	 */
-	@Deprecated
-	public WorldArea getWorldArea(Vect3D pos) {
-		if (worldAreas.get(WorldArea.toWorldAreaPos(pos)) == null) {
-			worldAreas.put(WorldArea.toWorldAreaPos(pos), new WorldArea(new Vect3D(pos)));
-		}
-
-		return worldAreas.get(WorldArea.toWorldAreaPos(pos));
-	}
-
-	@Deprecated
-	public Map<Vect3D, WorldArea> getWorldAreas() {
-		return worldAreas;
 	}
 
 	public final void init() {
