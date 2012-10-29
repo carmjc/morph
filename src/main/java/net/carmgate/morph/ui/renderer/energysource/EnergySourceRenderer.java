@@ -14,7 +14,8 @@ public class EnergySourceRenderer implements Renderer<EnergySource> {
 		renderersMap.put(Star.class, new StarRenderer());
 	}
 
-	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, EnergySource sceneItem) {
+	@Override
+	public void render(int glMode, RenderStyle drawType, EnergySource sceneItem) {
 		renderersMap.get(sceneItem.getClass()).render(glMode, drawType, sceneItem);
 	}
 }

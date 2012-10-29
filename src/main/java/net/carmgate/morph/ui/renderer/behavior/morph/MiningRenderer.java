@@ -36,7 +36,7 @@ public class MiningRenderer extends BehaviorRenderer<Mining> {
 	}
 
 	@Override
-	protected void renderBehavior(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Mining behavior) {
+	protected void renderBehavior(int glMode, RenderStyle drawType, Mining behavior) {
 
 		// Source position
 		Vect3D sourcePos = behavior.getOwner().getPosInWorld();

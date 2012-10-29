@@ -15,7 +15,7 @@ public class MatterSourceRenderer implements Renderer<MatterSource> {
 	}
 
 	@Override
-	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, MatterSource sceneItem) {
+	public void render(int glMode, RenderStyle drawType, MatterSource sceneItem) {
 		renderersMap.get(sceneItem.getClass()).render(glMode, drawType, sceneItem);
 	}
 }

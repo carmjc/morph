@@ -33,7 +33,7 @@ public class StarRenderer implements Renderer<Star> {
 	}
 
 	@Override
-	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Star star) {
+	public void render(int glMode, RenderStyle drawType, Star star) {
 		GL11.glTranslatef(star.getPos().x, star.getPos().y, star.getPos().z);
 
 		double alphaLevel = 0.17d;

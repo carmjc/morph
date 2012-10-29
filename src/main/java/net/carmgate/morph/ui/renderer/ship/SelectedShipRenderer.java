@@ -37,7 +37,7 @@ public class SelectedShipRenderer implements Renderer<Ship> {
 	}
 
 	@Override
-	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, Ship ship) {
+	public void render(int glMode, RenderStyle drawType, Ship ship) {
 		GL11.glTranslatef(ship.getPos().x, ship.getPos().y, ship.getPos().z);
 		GL11.glTranslatef(ship.getComInShip().x, ship.getComInShip().y, ship.getComInShip().z);
 		GL11.glRotatef(ship.getRot(), 0, 0, 1);

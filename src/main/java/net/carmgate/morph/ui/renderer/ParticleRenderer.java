@@ -23,11 +23,6 @@ public class ParticleRenderer implements Renderer<ParticleEngine> {
 		}
 	}
 
-	@Override
-	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, ParticleEngine particleEngine) {
-		render(glMode, drawType, particleEngine, false);
-	}
-
 	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, ParticleEngine particleEngine, boolean background) {
 		for (Particle p : particleEngine.getParticles()) {
 			if (p.isBackground() == background) {
@@ -37,6 +32,11 @@ public class ParticleRenderer implements Renderer<ParticleEngine> {
 				GL11.glTranslatef(-p.getPos().x, -p.getPos().y, -p.getPos().z);
 			}
 		}
+	}
+
+	@Override
+	public void render(int glMode, RenderStyle drawType, ParticleEngine particleEngine) {
+		render(glMode, drawType, particleEngine, false);
 	}
 
 }

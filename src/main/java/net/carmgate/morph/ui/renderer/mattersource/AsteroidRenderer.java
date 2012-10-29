@@ -31,7 +31,7 @@ public class AsteroidRenderer implements Renderer<MatterSource> {
 	}
 
 	@Override
-	public void render(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, MatterSource asteroid) {
+	public void render(int glMode, RenderStyle drawType, MatterSource asteroid) {
 		GL11.glTranslatef(asteroid.getPos().x, asteroid.getPos().y, asteroid.getPos().z);
 		GL11.glRotatef(asteroid.getRotationSpeed() * World.getWorld().getCurrentTS() / 1000 % 360, 0, 0, 1);
 

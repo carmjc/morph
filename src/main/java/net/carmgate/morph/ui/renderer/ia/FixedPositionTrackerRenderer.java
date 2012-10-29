@@ -28,9 +28,7 @@ public class FixedPositionTrackerRenderer implements Renderer<GoToPositionAI> {
 	}
 
 	@Override
-	public void render(int glMode,
-			net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType,
-			GoToPositionAI tracker) {
+	public void render(int glMode, RenderStyle drawType, GoToPositionAI tracker) {
 		Vect3D targetPos = tracker.getTargetPos();
 
 		if (drawType == RenderStyle.DEBUG) {
