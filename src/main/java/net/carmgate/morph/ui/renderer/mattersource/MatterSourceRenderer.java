@@ -3,8 +3,8 @@ package net.carmgate.morph.ui.renderer.mattersource;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.carmgate.morph.model.solid.mattersource.Asteroid;
 import net.carmgate.morph.model.solid.mattersource.MatterSource;
+import net.carmgate.morph.model.solid.mattersource.impl.Asteroid;
 import net.carmgate.morph.ui.renderer.Renderer;
 
 public class MatterSourceRenderer implements Renderer<MatterSource> {

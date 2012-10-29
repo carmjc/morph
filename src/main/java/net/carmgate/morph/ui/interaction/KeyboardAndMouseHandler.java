@@ -7,12 +7,12 @@ import java.util.Map;
 
 import net.carmgate.morph.Main;
 import net.carmgate.morph.ia.AI;
-import net.carmgate.morph.ia.MiningAI;
-import net.carmgate.morph.ia.tracker.FixedPositionTracker;
+import net.carmgate.morph.ia.impl.mining.GoInMiningRangeAndMineAI;
+import net.carmgate.morph.ia.impl.tracker.GoToPositionAI;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.solid.mattersource.MatterSource;
-import net.carmgate.morph.model.solid.morph.GunMorph;
 import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.solid.morph.impl.GunMorph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.model.user.User.FriendOrFoe;
@@ -29,7 +29,7 @@ import net.carmgate.morph.ui.interaction.actions.zoom.ZoomOutAction;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
-import net.carmgate.morph.util.collections.ModifiableList;
+import net.carmgate.morph.util.collections.ModifiableIterable;
 
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -205,9 +205,9 @@ public class KeyboardAndMouseHandler {
 						// Look for an existing mining ai for this ship
 						// If we find one, update it's target
 						boolean foundAnAI = false;
-						for (AI ia : selectedShip.getAIList()) {
-							if (ia instanceof MiningAI) {
-								((MiningAI) ia).setTarget(mSource);
+						for (AI<Ship> ia : selectedShip.getAIList()) {
+							if (ia instanceof GoInMiningRangeAndMineAI) {
+								((GoInMiningRangeAndMineAI) ia).setTarget(mSource);
 								foundAnAI = true;
 							}
 						}
@@ -215,7 +215,7 @@ public class KeyboardAndMouseHandler {
 						// If we found no tracker, create a new one and add it to this ship's
 						// AI list
 						if (!foundAnAI) {
-							selectedShip.getAIList().add(new MiningAI(selectedShip, mSource));
+							selectedShip.getAIList().add(new GoInMiningRangeAndMineAI(selectedShip, mSource));
 						}
 					}
 				} else {
@@ -223,14 +223,14 @@ public class KeyboardAndMouseHandler {
 					// a move to order
 					LOGGER.trace("Number of selected morphs: " + UIModel.getUiModel().getSelectionModel().getSelectedMorphs().size());
 					for (Ship selectedShip : UIModel.getUiModel().getSelectionModel().getSelectedShips().values()) {
-						ModifiableList<AI> iaList = selectedShip.getAIList();
+						ModifiableIterable<AI<Ship>> iaList = selectedShip.getAIList();
 
 						// Look for existing tracker
 						// If we find one, update it's target
 						boolean foundAnAI = false;
-						for (AI ia : iaList) {
-							if (ia instanceof FixedPositionTracker) {
-								((FixedPositionTracker) ia).setTargetPos(worldMousePos);
+						for (AI<Ship> ia : iaList) {
+							if (ia instanceof GoToPositionAI) {
+								((GoToPositionAI) ia).setTargetPos(worldMousePos);
 								foundAnAI = true;
 							}
 						}
@@ -238,7 +238,7 @@ public class KeyboardAndMouseHandler {
 						// If we found no tracker, create a new one and add it to this ship's
 						// AI list
 						if (!foundAnAI) {
-							iaList.add(new FixedPositionTracker(selectedShip, worldMousePos));
+							iaList.add(new GoToPositionAI(selectedShip, worldMousePos));
 						}
 					}
 				}
@@ -255,6 +255,8 @@ public class KeyboardAndMouseHandler {
 	}
 
 	public void select(Object pickedObject) {
+
+		LOGGER.trace("pickedObject: " + pickedObject);
 
 		// if the pickedObject is null, deselect everything
 		if (pickedObject == null) {

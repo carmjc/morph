@@ -7,7 +7,6 @@ import net.carmgate.morph.model.solid.energysource.EnergySource;
 import net.carmgate.morph.model.solid.mattersource.MatterSource;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
-import net.carmgate.morph.model.solid.world.WorldArea;
 import net.carmgate.morph.ui.MorphMouse;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.energysource.EnergySourceRenderer;
@@ -29,7 +28,6 @@ public class WorldRenderer implements Renderer<World> {
 	private ShipRenderer shipRenderer = new ShipRenderer();
 	private SelectedShipRenderer selectedShipRenderer = new SelectedShipRenderer();
 	private ForceRenderer currentForceRenderer = new ForceRenderer();
-	private WorldAreaRenderer currentWorldAreaRenderer = new WorldAreaRenderer();
 	private EnergySourceRenderer energySourceRenderer = new EnergySourceRenderer();
 	private MatterSourceRenderer matterSourceRenderer = new MatterSourceRenderer();
 	private ParticleRenderer particleRenderer = new ParticleRenderer();
@@ -46,11 +44,6 @@ public class WorldRenderer implements Renderer<World> {
 
 		if (glMode != GL11.GL_SELECT) {
 			particleRenderer.render(glMode, drawType, world.getParticleEngine(), true);
-		}
-
-		if (glMode == GL11.GL_RENDER) {
-			TextureImpl.bindNone();
-			renderWorldAreas(glMode, drawType, world);
 		}
 
 		// Do whatever is necessary to draw the behaviors in the background
@@ -145,28 +138,8 @@ public class WorldRenderer implements Renderer<World> {
 		GL11.glPopName();
 	}
 
-	/**
-	 * Render the world area
-	 * @param glMode {@link GL11#GL_RENDER} or {@link GL11#GL_SELECT}
-	 * @param drawType Normal or Debug mode
-	 * @param world the world whose ships should be rendered.
-	 */
-	private void renderWorldAreas(int glMode, net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType, World world) {
-		for (WorldArea wa : world.getWorldAreas().values()) {
-			currentWorldAreaRenderer.render(glMode, drawType, wa);
-		}
-	}
-
 	public void setForceRenderer(ForceRenderer forceRenderer) {
 		currentForceRenderer = forceRenderer;
-	}
-
-	public void setShipRenderer(ShipRenderer shipRenderer) {
-		shipRenderer = shipRenderer;
-	}
-
-	public void setWorldAreaRenderer(WorldAreaRenderer worldAreaRenderer) {
-		currentWorldAreaRenderer = worldAreaRenderer;
 	}
 
 }

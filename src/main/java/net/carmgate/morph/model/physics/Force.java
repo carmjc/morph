@@ -12,24 +12,24 @@ public class Force {
 		this.vector = vector;
 	}
 
-	public Morph getTarget() {
+	public final Morph getTarget() {
 		return target;
 	}
 
-	public Vect3D getVector() {
+	public final Vect3D getVector() {
 		return vector;
 	}
 
-	public void setTarget(Morph target) {
+	public final void setTarget(Morph target) {
 		this.target = target;
 	}
 
-	public void setVector(Vect3D vector) {
+	public final void setVector(Vect3D vector) {
 		this.vector = vector;
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return "Force(" + vector + ")";
 	}
 }

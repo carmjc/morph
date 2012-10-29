@@ -59,7 +59,7 @@ public class IWUIRenderer implements Renderer<World> {
 	private void renderEvolvingContextualMenu(int glMode, RenderStyle drawType) {
 		GL11.glPushName(Main.PickingContext.IW_MENU.ordinal());
 
-		Map<Integer, Morph> selectedMorphs = UIModel.getUiModel().getSelectionModel().getSelectedMorphs();
+		Map<Long, Morph> selectedMorphs = UIModel.getUiModel().getSelectionModel().getSelectedMorphs();
 		if (selectedMorphs.size() > 0) {
 			Morph m = selectedMorphs.values().iterator().next();
 			// TODO investigate why it is necessary to add 5 to the morph coordinates
@@ -88,7 +88,7 @@ public class IWUIRenderer implements Renderer<World> {
 					// Draw the menu item
 					if (glMode == GL11.GL_SELECT) {
 						if (menuItem != null) {
-							GL11.glPushName(menuItem.getId());
+							GL11.glPushName((int) menuItem.getId());
 						}
 					}
 
@@ -100,7 +100,15 @@ public class IWUIRenderer implements Renderer<World> {
 							TextureImpl.bindNone();
 						}
 
-						GL11.glColor4f(1, 1, 1, 0.5f);
+						// Animate alpha
+						if (glMode != GL11.GL_SELECT) {
+							if ((float) World.getWorld().getCurrentTS() / 1000 % 1 < 0.5f) {
+								GL11.glColor4f(1, 1, 1, 0.5f + (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
+							} else {
+								GL11.glColor4f(1, 1, 1, 1f - (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
+							}
+						}
+
 						GL11.glBegin(GL11.GL_QUADS);
 						// We need to draw trapezoids instead of squares
 						// If we don't, we get 6 overlapping squares for the menu items and there is no way to know
@@ -122,6 +130,7 @@ public class IWUIRenderer implements Renderer<World> {
 						GL11.glColor4f(1, 1, 1, 1f);
 
 						if (glMode != GL11.GL_SELECT) {
+							GL11.glColor4f(1, 1, 1, 1f);
 							renderMorphTypeMenuItemContent(glMode, i, menuItem);
 						}
 					}
@@ -150,12 +159,8 @@ public class IWUIRenderer implements Renderer<World> {
 	private void renderMorphTypeMenuItemContent(int glMode, int menuItemIndex, IWMenuItem menuItem) {
 		if (menuItem != null && glMode != GL11.GL_SELECT) {
 			Texture baseTexture = MorphRenderer.getBaseTexture();
+
 			if (baseTexture != null) {
-				if ((float) World.getWorld().getCurrentTS() / 1000 % 1 < 0.5f) {
-					GL11.glColor4f(1, 1, 1, 0.75f + (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
-				} else {
-					GL11.glColor4f(1, 1, 1, 1.25f - (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
-				}
 
 				GL11.glTranslatef(0, -40, 0);
 				GL11.glRotatef(-60 * menuItemIndex, 0, 0, 1);
@@ -177,11 +182,6 @@ public class IWUIRenderer implements Renderer<World> {
 			}
 			Texture evolTexture = MorphRenderer.getTextures().get(((EvolutionTypeIWMenuItem) menuItem).getEvolutionType().getMorphType());
 			if (evolTexture != null) {
-				if ((float) World.getWorld().getCurrentTS() / 1000 % 1 < 0.5f) {
-					GL11.glColor4f(1, 1, 1, 0.75f + (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
-				} else {
-					GL11.glColor4f(1, 1, 1, 1.25f - (float) World.getWorld().getCurrentTS() / 1000 % 1 / 2);
-				}
 
 				GL11.glTranslatef(0, -40, 0);
 				GL11.glRotatef(-60 * menuItemIndex, 0, 0, 1);

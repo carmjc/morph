@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.carmgate.morph.model.solid.WorldPositionSupport;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.ui.model.iwmenu.IWMenuItem;
-import net.carmgate.morph.util.collections.ModifiableList;
+import net.carmgate.morph.util.collections.ModifiableIterable;
 import net.carmgate.morph.util.collections.ModifiableMap;
 
 import org.apache.log4j.Logger;
@@ -18,16 +19,16 @@ public class SelectionModel {
 	private static final Logger LOGGER = Logger.getLogger(SelectionModel.class);
 
 	/** selected morphs. */
-	private final ModifiableMap<Integer, Morph> selectedMorphs = new ModifiableMap<Integer, Morph>(new HashMap<Integer, Morph>());
+	private final ModifiableMap<Long, Morph> selectedMorphs = new ModifiableMap<Long, Morph>(new HashMap<Long, Morph>());
 
 	/** selected ships. */
-	private final ModifiableMap<Integer, Ship> selectedShips = new ModifiableMap<Integer, Ship>(new HashMap<Integer, Ship>());
+	private final ModifiableMap<Long, Ship> selectedShips = new ModifiableMap<Long, Ship>(new HashMap<Long, Ship>());
 
 	/** selected in-world menu items. */
-	private final ModifiableMap<Integer, IWMenuItem> selectedIWMenuItems = new ModifiableMap<Integer, IWMenuItem>(new HashMap<Integer, IWMenuItem>());
+	private final ModifiableMap<Long, IWMenuItem> selectedIWMenuItems = new ModifiableMap<Long, IWMenuItem>(new HashMap<Long, IWMenuItem>());
 
 	/** Selection Listeners. */
-	private ModifiableList<SelectionListener> selectionListeners = new ModifiableList<SelectionListener>(new ArrayList<SelectionListener>());
+	private ModifiableIterable<SelectionListener> selectionListeners = new ModifiableIterable<SelectionListener>(new ArrayList<SelectionListener>());
 
 	public SelectionModel() {
 	}
@@ -116,7 +117,7 @@ public class SelectionModel {
 	/**
 	 * @param ship
 	 */
-	private void fireShipDeselected(Ship ship) {
+	private void fireShipDeselected(WorldPositionSupport ship) {
 		selectionListeners.lock();
 		for (SelectionListener l : selectionListeners) {
 			l.shipDeselected(new SelectionEvent(ship));
@@ -127,7 +128,7 @@ public class SelectionModel {
 	/**
 	 * @param ship
 	 */
-	private void fireShipSelected(Ship ship) {
+	private void fireShipSelected(WorldPositionSupport ship) {
 		selectionListeners.lock();
 		for (SelectionListener l : selectionListeners) {
 			l.shipSelected(new SelectionEvent(ship));
@@ -135,15 +136,15 @@ public class SelectionModel {
 		selectionListeners.unlock();
 	}
 
-	public Map<Integer, IWMenuItem> getSelectedIWMenuItems() {
+	public Map<Long, IWMenuItem> getSelectedIWMenuItems() {
 		return Collections.unmodifiableMap(selectedIWMenuItems.getMap());
 	}
 
-	public Map<Integer, Morph> getSelectedMorphs() {
-		return Collections.unmodifiableMap(new HashMap<Integer, Morph>(selectedMorphs.getMap()));
+	public Map<Long, Morph> getSelectedMorphs() {
+		return Collections.unmodifiableMap(new HashMap<Long, Morph>(selectedMorphs.getMap()));
 	}
 
-	public Map<Integer, Ship> getSelectedShips() {
+	public Map<Long, Ship> getSelectedShips() {
 		return Collections.unmodifiableMap(selectedShips.getMap());
 	}
 

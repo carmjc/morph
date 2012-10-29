@@ -3,7 +3,7 @@ package net.carmgate.morph.model.solid.ship.listener;
 /**
  * Ship listener.
  * Use a ship listener to be notified of events happening on ships.
- * Whatever the ship, all listeners are notified when there is an event on any ship.
+ * All listeners are notified when there is an event on any ship.
  */
 public interface ShipListener {
 

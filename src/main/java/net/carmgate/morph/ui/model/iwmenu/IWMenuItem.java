@@ -5,13 +5,13 @@ public class IWMenuItem {
 	private static int lastAssignedId = 0;
 
 	/** The menu item id. For picking purposes. */
-	private final int id;
+	private final long id;
 
 	public IWMenuItem() {
 		id = ++lastAssignedId;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 }

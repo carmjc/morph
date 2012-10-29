@@ -1,5 +1,6 @@
 package net.carmgate.morph.model.behavior;
 
+import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.annotation.BehaviorInfo;
 import net.carmgate.morph.model.solid.morph.Morph;
 

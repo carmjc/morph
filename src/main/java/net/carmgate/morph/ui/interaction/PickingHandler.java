@@ -36,7 +36,7 @@ public class PickingHandler {
 	 * @return the picked in-world menu item.
 	 */
 	private IWMenuItem getPickedIWMenuItem(IntBuffer selectBuf) {
-		IWMenuItem menuItem = UIModel.getUiModel().getCurrentIWMenu().getMenuItems().get(selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
+		IWMenuItem menuItem = UIModel.getUiModel().getCurrentIWMenu().getMenuItems().get((long) selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
 		return menuItem;
 	}
 
@@ -45,7 +45,7 @@ public class PickingHandler {
 	 * @return the picked in-world menu item.
 	 */
 	private MatterSource getPickedMatterSource(IntBuffer selectBuf) {
-		MatterSource mSource = World.getWorld().getMatterSources().get(selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
+		MatterSource mSource = World.getWorld().getMatterSources().get((long) selectBuf.get(3 + NAME_STACK_LEVEL_IN_WORLD_MENU_ITEMS));
 		return mSource;
 	}
 
@@ -55,7 +55,7 @@ public class PickingHandler {
 	 */
 	private Morph getPickedMorph(IntBuffer selectBuf) {
 		Ship ship = getPickedShip(selectBuf);
-		Morph morph = ship.getMorphsByIds().get(selectBuf.get(3 + NAME_STACK_LEVEL_MORPHS));
+		Morph morph = ship.getMorphsByIds().get((long) selectBuf.get(3 + NAME_STACK_LEVEL_MORPHS));
 		return morph;
 	}
 
@@ -64,7 +64,7 @@ public class PickingHandler {
 	 * @return the picked ship
 	 */
 	private Ship getPickedShip(IntBuffer selectBuf) {
-		Ship selectedShip = World.getWorld().getShips().get(selectBuf.get(3 + NAME_STACK_LEVEL_SHIPS));
+		Ship selectedShip = World.getWorld().getShips().get((long) selectBuf.get(3 + NAME_STACK_LEVEL_SHIPS));
 		return selectedShip;
 	}
 
@@ -159,7 +159,7 @@ public class PickingHandler {
 
 		IntBuffer selectBuf = BufferUtils.createIntBuffer(512);
 		int hits = glPick(x, y, selectBuf);
-		LOGGER.debug("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
+		LOGGER.trace("pick hits: " + hits + "- selectBuf: " + getSelectBufferDebugString(selectBuf));
 
 		// if there was no solid model hit, we need to deselect everything
 		if (hits == 0 || selectBuf.get(NAME_STACK_LEVEL_SELECT_BUFFER_STACK_DEPTH) == 0) {

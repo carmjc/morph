@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import net.carmgate.morph.model.ModelConstants;
-import net.carmgate.morph.model.solid.energysource.Star;
+import net.carmgate.morph.model.solid.energysource.impl.Star;
 import net.carmgate.morph.ui.renderer.Renderer;
 import net.carmgate.morph.ui.renderer.RendererUtil;
 

@@ -6,6 +6,7 @@ import net.carmgate.morph.model.Vect3D;
  * A world area is a portion of space holding a varying amount of free morph mass available to gather.
  * @author Carm
  */
+@Deprecated
 public class WorldArea {
 	/** coordinates are factored by WORLDAREA_SIZE. */
 	public Vect3D pos;

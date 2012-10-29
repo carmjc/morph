@@ -5,7 +5,7 @@ import java.util.Map;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.ship.Ship;
-import net.carmgate.morph.model.solid.ship.SplittedShip;
+import net.carmgate.morph.model.solid.ship.SplittingShip;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.model.UIModel;
 
@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 public class SplittingAction implements Runnable {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(SplittingAction.class);
 
 	/**
@@ -43,8 +44,8 @@ public class SplittingAction implements Runnable {
 
 	@Override
 	public void run() {
-		Map<Integer, Ship> selectedShips = UIModel.getUiModel().getSelectionModel().getSelectedShips();
-		Map<Integer, Morph> selectedMorphs = UIModel.getUiModel().getSelectionModel().getSelectedMorphs();
+		Map<Long, Ship> selectedShips = UIModel.getUiModel().getSelectionModel().getSelectedShips();
+		Map<Long, Morph> selectedMorphs = UIModel.getUiModel().getSelectionModel().getSelectedMorphs();
 
 		if (selectedShips.size() == 1 && selectedMorphs.size() > 0) {
 			Ship selectedShip = selectedShips.values().iterator().next();
@@ -53,7 +54,7 @@ public class SplittingAction implements Runnable {
 			selectedShip.removeMorphs(selectedMorphs.values());
 
 			// Create a new ship and add the selected morphs to it
-			Ship newShip = new SplittedShip(selectedShip, selectedMorphs.values());
+			Ship newShip = new SplittingShip(selectedShip, selectedMorphs.values());
 
 			// Replace a morph at (0,0) in ship coordinates for each ship
 			recenterShipMorphs(newShip);

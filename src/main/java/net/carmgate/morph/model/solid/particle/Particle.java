@@ -1,8 +1,9 @@
 package net.carmgate.morph.model.solid.particle;
 
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.solid.WorldPositionSupport;
 
-public class Particle {
+public class Particle implements WorldPositionSupport {
 
 	/** true if the particle should be renderer in the background. */
 	protected boolean background;
@@ -40,16 +41,29 @@ public class Particle {
 		}
 	}
 
-	public long getLife() {
+	public final long getLife() {
 		return life;
 	}
 
-	public Vect3D getPos() {
+	@Override
+	public final Vect3D getPos() {
 		return pos;
 	}
 
-	public boolean isBackground() {
+	public final boolean isBackground() {
 		return background;
+	}
+
+	public float getRotSpeed() {
+		return 0;
+	}
+
+	public float getRotAccel() {
+		return 0;
+	}
+
+	public float getRot() {
+		return 0;
 	}
 
 }

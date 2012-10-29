@@ -1,7 +1,7 @@
 package net.carmgate.morph.ui.interaction.actions;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.behavior.Evolving;
+import net.carmgate.morph.model.behavior.impl.morph.Evolving;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 import net.carmgate.morph.ui.model.UIModel;
@@ -26,13 +26,14 @@ public class ShowEvolveMenuAction implements Runnable {
 			EvolutionTypeIWMenuItem menuItem = (EvolutionTypeIWMenuItem) selectionEvent.getSource();
 			Morph selectedMorph = UIModel.getUiModel().getSelectionModel().getSelectedMorphs().values().iterator().next();
 			Evolving transformBehavior = new Evolving(selectedMorph, menuItem.getEvolutionType());
-			selectedMorph.getAlternateBehaviorList().add(transformBehavior);
+			selectedMorph.getActivationIsolatedBehaviorList().add(transformBehavior);
 
 			// Remove iwselections
 			UIModel.getUiModel().getSelectionModel().removeAllIWMenuItemsFromSelection();
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(ShowEvolveMenuAction.class);
 
 	private MenuListener inWorldMenuListener;

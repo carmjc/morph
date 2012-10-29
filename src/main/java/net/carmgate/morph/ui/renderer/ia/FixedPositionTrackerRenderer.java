@@ -3,9 +3,8 @@ package net.carmgate.morph.ui.renderer.ia;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import net.carmgate.morph.ia.tracker.FixedPositionTracker;
+import net.carmgate.morph.ia.impl.tracker.GoToPositionAI;
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.ui.renderer.ForceRenderer;
 import net.carmgate.morph.ui.renderer.Renderer;
 
 import org.apache.log4j.Logger;
@@ -13,13 +12,12 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTracker> {
+public class FixedPositionTrackerRenderer implements Renderer<GoToPositionAI> {
 
 	static private final Logger log = Logger.getLogger(FixedPositionTrackerRenderer.class);
 
 	/** The texture under the morph image. */
 	private static Texture texture;
-	private ForceRenderer forceRenderer;
 
 	public void init() {
 		try {
@@ -27,14 +25,12 @@ public class FixedPositionTrackerRenderer implements Renderer<FixedPositionTrack
 		} catch (IOException e) {
 			log.error("Could not load textures", e);
 		}
-
-		forceRenderer = new ForceRenderer();
 	}
 
 	@Override
 	public void render(int glMode,
 			net.carmgate.morph.ui.renderer.Renderer.RenderStyle drawType,
-			FixedPositionTracker tracker) {
+			GoToPositionAI tracker) {
 		Vect3D targetPos = tracker.getTargetPos();
 
 		if (drawType == RenderStyle.DEBUG) {

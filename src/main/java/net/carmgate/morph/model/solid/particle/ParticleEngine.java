@@ -11,11 +11,10 @@ import org.apache.log4j.Logger;
 
 public class ParticleEngine {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(ParticleEngine.class);
 
 	private List<Particle> particles = new LinkedList<Particle>();
-
-	private int oscillationPeriod;
 
 	/**
 	 * Add a particle.
@@ -24,15 +23,15 @@ public class ParticleEngine {
 	 * @param z initial pos z coordinate.
 	 * @param life the life expectancy in millis.
 	 */
-	public void addParticle(long life, Vect3D pos, Vect3D direction, int oscillationPeriod, boolean background) {
+	public final void addParticle(long life, Vect3D pos, Vect3D direction, int oscillationPeriod, boolean background) {
 		particles.add(new Particle(life, pos, direction, oscillationPeriod, background));
 	}
 
-	public List<Particle> getParticles() {
+	public final List<Particle> getParticles() {
 		return particles;
 	}
 
-	public void update() {
+	public final void update() {
 		long sinceLastUpdate = World.getWorld().getSinceLastUpdateTS();
 
 		Iterator<Particle> i = particles.iterator();

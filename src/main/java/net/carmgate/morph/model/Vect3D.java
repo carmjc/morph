@@ -74,10 +74,15 @@ public class Vect3D {
 		}
 
 		// Convert in degrees before returning
+		// and adjust to the interval [-180;180]
 		float angleInDegrees = (float) Math.toDegrees(angle);
 		if (angleInDegrees > 180) {
 			angleInDegrees = angleInDegrees - 360;
 		}
+		if (angleInDegrees < -180) {
+			angleInDegrees = angleInDegrees + 360;
+		}
+
 		return angleInDegrees;
 	}
 
@@ -195,11 +200,11 @@ public class Vect3D {
 
 	/**
 	 * Rotates a vector by the given angles in degrees.
-	 * @param angle the rotation angles in degrees along the z axis.
+	 * @param angleBetweenRdVAndCTT the rotation angles in degrees along the z axis.
 	 */
-	public Vect3D rotate(float angle) {
-		float newX = (float) (Math.cos(Math.toRadians(angle)) * x - Math.sin(Math.toRadians(angle)) * y);
-		float newY = (float) (Math.sin(Math.toRadians(angle)) * x + Math.cos(Math.toRadians(angle)) * y);
+	public Vect3D rotate(double angleBetweenRdVAndCTT) {
+		float newX = (float) (Math.cos(Math.toRadians(angleBetweenRdVAndCTT)) * x - Math.sin(Math.toRadians(angleBetweenRdVAndCTT)) * y);
+		float newY = (float) (Math.sin(Math.toRadians(angleBetweenRdVAndCTT)) * x + Math.cos(Math.toRadians(angleBetweenRdVAndCTT)) * y);
 		x = newX;
 		y = newY;
 		return this;

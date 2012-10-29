@@ -4,8 +4,10 @@ import net.carmgate.morph.model.solid.world.WorldArea;
 
 import org.lwjgl.opengl.GL11;
 
+@Deprecated
 public class WorldAreaRenderer implements Renderer<WorldArea> {
 
+	@Override
 	public void render(int glMode, RenderStyle drawType, WorldArea worldArea) {
 		float x = worldArea.pos.x * WorldArea.WORLDAREA_SIZE;
 		float y = worldArea.pos.y * WorldArea.WORLDAREA_SIZE;

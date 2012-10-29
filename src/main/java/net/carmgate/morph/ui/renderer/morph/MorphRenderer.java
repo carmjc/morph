@@ -6,11 +6,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.behavior.ProgressBehavior;
+import net.carmgate.morph.model.behavior.Progress;
 import net.carmgate.morph.model.solid.morph.Morph;
-import net.carmgate.morph.model.solid.morph.Morph.MorphType;
+import net.carmgate.morph.model.solid.morph.impl.GunMorph;
+import net.carmgate.morph.model.solid.morph.impl.MinerMorph;
+import net.carmgate.morph.model.solid.morph.impl.PropulsorMorph;
+import net.carmgate.morph.model.solid.morph.impl.stem.StemMorph;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.Renderer;
 import net.carmgate.morph.ui.renderer.RendererUtil;
@@ -40,7 +44,7 @@ public class MorphRenderer implements Renderer<Morph> {
 	private static Texture baseSelectedTexture;
 
 	/** The map of the morph texture. */
-	private final static Map<MorphType, Texture> textures = new HashMap<Morph.MorphType, Texture>();
+	private final static Map<Class<? extends Morph>, Texture> textures = new HashMap<Class<? extends Morph>, Texture>();
 
 	// loading resources
 	static {
@@ -54,14 +58,14 @@ public class MorphRenderer implements Renderer<Morph> {
 			ownerBgTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-owner-bg.png").getPath()));
 
 			// Normal textures
-			textures.put(MorphType.PROPULSOR,
+			textures.put(PropulsorMorph.class,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-prop-32.png").getPath())));
-			textures.put(MorphType.STEM,
+			textures.put(StemMorph.class,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-stem-32.png").getPath())));
-			textures.put(MorphType.GUN,
+			textures.put(GunMorph.class,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-gun-32.png").getPath())));
-			textures.put(MorphType.MINER,
-					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-gun-32.png").getPath())));
+			textures.put(MinerMorph.class,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-miner-32.png").getPath())));
 
 			// Energy and mass gauge texture
 			energyMassTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-gauge.png").getPath()));
@@ -74,7 +78,7 @@ public class MorphRenderer implements Renderer<Morph> {
 		return baseTexture;
 	}
 
-	public static Map<MorphType, Texture> getTextures() {
+	public static Map<Class<? extends Morph>, Texture> getTextures() {
 		return textures;
 	}
 
@@ -93,8 +97,8 @@ public class MorphRenderer implements Renderer<Morph> {
 		}
 		float morphScaleFactor = 1;
 
-		for (Behavior<?> b : morph.getAlternateBehaviorList()) {
-			if (b instanceof ProgressBehavior) {
+		for (Behavior<?> b : morph.getActivationIsolatedBehaviorList()) {
+			if (b instanceof Progress) {
 				morphScaleFactor = 0.65f;
 				alphaLevel *= 0.5f;
 				break;
@@ -105,16 +109,16 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		// make current morph selectable
 		if (glMode == GL11.GL_SELECT) {
-			GL11.glPushName(morph.getId());
+			GL11.glPushName((int) morph.getId());
 		}
 
 		// Shadow morphs are just basic morphs with more transparency
-		if (morph.getClass().getAnnotation(MorphInfo.class).type() == MorphType.SHADOW) {
+		if (morph.getClass().getAnnotation(MorphInfo.class).virtual()) {
 			alphaLevel *= 0.3f;
 		}
 
 		// Show the owner colored background
-		if (glMode != GL11.GL_SELECT && morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+		if (glMode != GL11.GL_SELECT && !morph.getClass().getAnnotation(MorphInfo.class).virtual()) {
 			Color color = morph.getShip().getOwner().getColor();
 			GL11.glColor4f((float) color.getRed() / 256, (float) color.getGreen() / 256, (float) color.getBlue() / 256, alphaLevel);
 			RendererUtil.drawTexturedRectangle(ownerBgTexture, glMode);
@@ -136,7 +140,7 @@ public class MorphRenderer implements Renderer<Morph> {
 		} else if (UIModel.getUiModel().getSelectionModel().getSelectedShips().values().contains(morph.getShip())) {
 			// selected ship color
 			GL11.glColor4f(0.85f, 0.85f, 1, alphaLevel);
-		} else if (morph.getShip().getActiveMorphList().contains(morph)) {
+		} else if (morph.getState() == State.ACTIVE) {
 			// Active morph
 			GL11.glColor4f(1, 1, 1, alphaLevel);
 		} else {
@@ -159,13 +163,13 @@ public class MorphRenderer implements Renderer<Morph> {
 
 		// morph texture
 		if (glMode != GL11.GL_SELECT) {
-			Texture morphTexture = textures.get(morph.getClass().getAnnotation(MorphInfo.class).type());
+			Texture morphTexture = textures.get(morph.getClass());
 			if (morphTexture != null) {
 				morphTexture.bind();
 				RendererUtil.drawTexturedRectangle(morphTexture, glMode);
 			}
 
-			if (morph.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
+			if (!morph.getClass().getAnnotation(MorphInfo.class).virtual()) {
 				// Render energy and mass gauge
 				RendererUtil.drawPartialCircle(energyMassTexture, nbSegments, cos, sin, -0.5f, 0,
 						Math.min(1, morph.getEnergy() / morph.getMaxEnergy()) / 2, true, glMode);

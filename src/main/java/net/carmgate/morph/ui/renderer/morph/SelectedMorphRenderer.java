@@ -2,9 +2,9 @@ package net.carmgate.morph.ui.renderer.morph;
 
 import java.text.DecimalFormat;
 
+import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.behavior.State;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.ui.renderer.UIRenderer;
 import net.carmgate.morph.ui.renderer.WorldRenderer;
@@ -37,7 +37,7 @@ public class SelectedMorphRenderer extends MorphRenderer {
 		TextureImpl.bindNone();
 
 		String activeBehaviorList = "";
-		for (Behavior<?> behavior : morph.getActivableBehaviorList()) {
+		for (Behavior<?> behavior : morph.getActivationLinkedBehaviorList()) {
 			if (behavior.getState() == State.ACTIVE) {
 				if (activeBehaviorList.length() > 0) {
 					activeBehaviorList += ", ";

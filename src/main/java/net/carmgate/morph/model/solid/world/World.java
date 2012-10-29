@@ -8,17 +8,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.carmgate.morph.model.ModelConstants;
+import net.carmgate.morph.ia.AI;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.annotation.MorphInfo;
 import net.carmgate.morph.model.physics.Force;
 import net.carmgate.morph.model.solid.energysource.EnergySource;
-import net.carmgate.morph.model.solid.energysource.Star;
-import net.carmgate.morph.model.solid.mattersource.Asteroid;
-import net.carmgate.morph.model.solid.mattersource.Asteroid.AsteroidType;
+import net.carmgate.morph.model.solid.energysource.impl.Star;
 import net.carmgate.morph.model.solid.mattersource.MatterSource;
+import net.carmgate.morph.model.solid.mattersource.impl.Asteroid;
 import net.carmgate.morph.model.solid.morph.Morph;
-import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 import net.carmgate.morph.model.solid.particle.ParticleEngine;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.ship.test.EnemyTestShip1;
@@ -68,16 +66,17 @@ public class World {
 	 * The coordinates of the world areas in this Map are not the world coordinates, but the coordinates of the world areas along the 3 axis.
 	 * @See {@link WorldArea#toWorldAreaPos(Vect3D)}
 	 */
+	@Deprecated
 	private final Map<Vect3D, WorldArea> worldAreas = new HashMap<Vect3D, WorldArea>();
 
 	/** the list of all energy sources in the game. */
-	private final Map<Integer, EnergySource> energySources = new HashMap<Integer, EnergySource>();
+	private final Map<Long, EnergySource> energySources = new HashMap<Long, EnergySource>();
 
 	/** the list of all matter sources in the game. */
-	private final Map<Integer, MatterSource> matterSources = new HashMap<Integer, MatterSource>();
+	private final Map<Long, MatterSource> matterSources = new HashMap<Long, MatterSource>();
 
 	/** the list of all ships in game. */
-	private final Map<Integer, Ship> ships = new HashMap<Integer, Ship>();
+	private final Map<Long, Ship> ships = new HashMap<Long, Ship>();
 
 	/** A list of forces to show. */
 	private final List<Force> forceList = new ArrayList<Force>();
@@ -92,37 +91,37 @@ public class World {
 	/**
 	 * @return number of millis since game start.
 	 */
-	public long getCurrentTS() {
+	public final long getCurrentTS() {
 		return currentTS;
 	}
 
-	public Map<Integer, EnergySource> getEnergySources() {
+	public final Map<Long, EnergySource> getEnergySources() {
 		return energySources;
 	}
 
-	public List<Force> getForceList() {
+	public final List<Force> getForceList() {
 		return forceList;
 	}
 
-	public Map<Integer, MatterSource> getMatterSources() {
+	public final Map<Long, MatterSource> getMatterSources() {
 		return matterSources;
 	}
 
 	/**
 	 * @return This world's particle engine.
 	 */
-	public ParticleEngine getParticleEngine() {
+	public final ParticleEngine getParticleEngine() {
 		return particleEngine;
 	}
 
-	public Map<Integer, Ship> getShips() {
+	public final Map<Long, Ship> getShips() {
 		return ships;
 	}
 
 	/**
 	 * @return the number of millis since last update.
 	 */
-	public long getSinceLastUpdateTS() {
+	public final long getSinceLastUpdateTS() {
 		return sinceLastUpdateTS;
 	}
 
@@ -131,6 +130,7 @@ public class World {
 	 * @param pos in world coordinates
 	 * @return the corresponding world area
 	 */
+	@Deprecated
 	public WorldArea getWorldArea(Vect3D pos) {
 		if (worldAreas.get(WorldArea.toWorldAreaPos(pos)) == null) {
 			worldAreas.put(WorldArea.toWorldAreaPos(pos), new WorldArea(new Vect3D(pos)));
@@ -139,22 +139,23 @@ public class World {
 		return worldAreas.get(WorldArea.toWorldAreaPos(pos));
 	}
 
+	@Deprecated
 	public Map<Vect3D, WorldArea> getWorldAreas() {
 		return worldAreas;
 	}
 
-	public void init() {
+	public final void init() {
 		// Create users
 		UserFactory.addUser(new User(UserType.HUMAN, "Me", FriendOrFoe.SELF, new Color(0, 0, 0)));
 		UserFactory.addUser(new User(UserType.AI, "Nemesis", FriendOrFoe.FOE, new Color(150, 50, 50)));
-		UserFactory.addUser(new User(UserType.GOD, "God", FriendOrFoe.FRIEND, new Color(255, 255, 255)));
+		// UserFactory.addUser(new User(UserType.GOD, "God", FriendOrFoe.FRIEND, new Color(255, 255, 255)));
 
 		// Create a star
-		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000, UserFactory.findUser("God"));
+		EnergySource star = new Star(1000, -400, 0, 5.2f, 3000);
 		getEnergySources().put(star.getId(), star);
 
 		// Create an asteroid
-		MatterSource asteroid = new Asteroid(-800, 400, 0, AsteroidType.TYPE_0, 1000);
+		MatterSource asteroid = new Asteroid(-800, 400, 0, 1000);
 		getMatterSources().put(asteroid.getId(), asteroid);
 
 		// Create a ship for me
@@ -171,81 +172,9 @@ public class World {
 	}
 
 	/**
-	 * Checks if morphs are dead and if the ship is dead.
-	 * Removes dead morphs from ship.
-	 * @param ship the ship to check
-	 * @return true if the ship is dead.
-	 */
-	private boolean processDeath(Ship ship) {
-		List<Morph> morphsToRemove = new ArrayList<Morph>();
-		for (Morph m : ship.getMorphsByIds().values()) {
-			if (m.getMass() <= 0 && m.getClass().getAnnotation(MorphInfo.class).type() != MorphType.SHADOW) {
-				morphsToRemove.add(m);
-			}
-		}
-
-		ship.removeMorphs(morphsToRemove);
-		if (ship.getMorphsByIds().size() == 0) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private void processEnergyManagement(Ship ship) {
-		for (Morph m : ship.getMorphsByIds().values()) {
-			// if there is too much excess of energy, the morph will loose a portion of its mass
-			// proportional to the amount of energy above sustainable amount of energy in excess
-			float sustainableExcessEnergy = m.getClass().getAnnotation(MorphInfo.class).maxEnergy()
-					* ModelConstants.MAX_EXCEED_ENERGY_AS_RATIO_OF_MAX_MORPH_ENERGY;
-			if (m.getExcessEnergy() > sustainableExcessEnergy) {
-				float energyAboveSustainable = m.getExcessEnergy() - sustainableExcessEnergy;
-				float lostMass = energyAboveSustainable * ModelConstants.MASS_LOSS_TO_EXCESS_ENERGY_RATIO;
-				m.setMass(m.getMass() - lostMass);
-				LOGGER.trace("Lost mass: " + lostMass + " - lost mass / s: " + lostMass * 1000 / World.getWorld().getSinceLastUpdateTS());
-				m.setEnergy(m.getEnergy() - energyAboveSustainable);
-			}
-
-		}
-	}
-
-	/**
-	 * Energy sources will replenish the morphs of a ship if they are close enough.
-	 * @param ship
-	 */
-	private void processGettingEnergyFromEnergySource(Ship ship) {
-		for (EnergySource energySource : getEnergySources().values()) {
-			double energyGainedPerMorph = 0;
-			float distance = ship.getPos().distance(energySource.getPos());
-
-			// A distance of 1000 pixels to the star causes the star to give no energy to the ship
-			// The greater the ship, the more energy it gets
-			// The greater the star, the more energy it emits
-			double minimumActingDistanceSquared = energySource.getEffectRadius() * energySource.getEffectRadius();
-			double distanceSquared = distance * distance;
-
-			if (distanceSquared < minimumActingDistanceSquared) {
-				energyGainedPerMorph = (minimumActingDistanceSquared - distanceSquared) / minimumActingDistanceSquared
-						* energySource.getRadiatedEnergy()
-						* sinceLastUpdateTS / 1000;
-
-				for (Morph m : ship.getMorphsByIds().values()) {
-					// if the morph is not virtual (selection shadows for instance)
-					// then we update it's energy
-					if (!m.getClass().getAnnotation(MorphInfo.class).virtual()) {
-						// augment morph energy
-						m.setEnergy((float) (m.getEnergy() + energyGainedPerMorph));
-
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Update the world.
 	 */
-	public void update() {
+	public final void update() {
 		// update the number of millis since game start
 		long oldTS = currentTS;
 		currentTS = new Date().getTime() - gameStartMsec;
@@ -258,19 +187,41 @@ public class World {
 		}
 
 		// update ships
-		List<Ship> shipsToRemove = new ArrayList<Ship>();
+		List<Ship> shipsToRemove = null;
 		for (Ship ship : getShips().values()) {
-			processGettingEnergyFromEnergySource(ship);
-			processEnergyManagement(ship);
-			if (processDeath(ship)) {
-				shipsToRemove.add(ship);
+
+			// Remove dead morphs
+			// FIXME it should use a morph property. The morph should be responsible for its death status
+			List<Morph> morphsToRemove = null;
+			for (Morph m : ship.getMorphsByIds().values()) {
+				if (m.getMass() <= 0 && !m.getClass().getAnnotation(MorphInfo.class).virtual()) {
+					if (morphsToRemove == null) {
+						morphsToRemove = new ArrayList<Morph>();
+					}
+					morphsToRemove.add(m);
+				}
 			}
-			ship.update();
+			// really remove dead morphs
+			ship.removeMorphs(morphsToRemove);
+
+			// Remove dead ships
+			if (ship.getMorphsByIds().size() == 0) {
+				if (shipsToRemove == null) {
+					shipsToRemove = new ArrayList<Ship>();
+				}
+				shipsToRemove.add(ship);
+			} else {
+				// FIXME Once energy management behaviors have been created, this should be put
+				// before death management
+				ship.update();
+			}
+		}
+		// really remove dead ships
+		if (shipsToRemove != null) {
+			getShips().values().removeAll(shipsToRemove);
 		}
 
-		for (Ship ship : shipsToRemove) {
-			World.getWorld().ships.remove(ship.getId());
-		}
+		LOGGER.trace(getShips());
 
 		// update particles
 		particleEngine.update();
@@ -282,5 +233,28 @@ public class World {
 				i.remove();
 			}
 		}
+
+		// udpate IAs
+		// TODO This code should evolve. AIs might target non-ship elements
+		for (Ship ship : World.getWorld().getShips().values()) {
+			List<AI<Ship>> iasToRemove = new ArrayList<AI<Ship>>();
+			ship.getAIList().lock();
+			for (AI<Ship> ia : ship.getAIList()) {
+				if (ia != null) {
+					if (ia.done()) {
+						iasToRemove.add(ia);
+						LOGGER.trace("Removing Ai: " + ia.getClass().getName());
+					} else {
+						ia.compute();
+					}
+				}
+			}
+			ship.getAIList().unlock();
+			for (AI<Ship> ia : iasToRemove) {
+				ship.getAIList().remove(ia);
+			}
+			iasToRemove.clear();
+		}
+
 	}
 }

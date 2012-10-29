@@ -1,7 +1,6 @@
 package net.carmgate.morph.ui.model.iwmenu;
 
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
-import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
 public class EvolutionTypeIWMenuItem extends IWMenuItem {
 

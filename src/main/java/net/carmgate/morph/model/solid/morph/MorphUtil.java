@@ -28,7 +28,7 @@ public class MorphUtil {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	private static <T extends Morph> void addOneSurroundingMorph(Ship ship, float x, float y, float z, T newMorph,
+	private static final <T extends Morph> void addOneSurroundingMorph(Ship ship, float x, float y, float z, T newMorph,
 			Set<T> surroundingMorphs) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		if (ship.addMorph(newMorph, x, y, z, false)) {
 			surroundingMorphs.add(newMorph);
@@ -42,7 +42,7 @@ public class MorphUtil {
 	 * @param morphList 
 	 * @return the added surrounding morphs or an empty set if no surrounding morphs has been added.
 	 */
-	public static <T extends Morph> Set<T> addSurroundingMorphs(List<Morph> morphList, Class<T> template) {
+	public static final <T extends Morph> Set<T> addSurroundingMorphs(List<Morph> morphList, Class<T> template) {
 		for (Morph m : morphList) {
 			return internalAddSurroundingMorphs(m, template);
 		}
@@ -57,7 +57,7 @@ public class MorphUtil {
 	 * @param morph
 	 * @return the added surrounding morphs or an empty set if no surrounding morphs has been added.
 	 */
-	public static <T extends Morph> Set<T> addSurroundingMorphs(Morph morph, Class<T> template) {
+	public static final <T extends Morph> Set<T> addSurroundingMorphs(Morph morph, Class<T> template) {
 		// get the surrounding morphs
 		return internalAddSurroundingMorphs(morph, template);
 	}
@@ -69,7 +69,7 @@ public class MorphUtil {
 	 * @param morph
 	 * @return the added surrounding morphs or an empty set if no surrounding morphs has been added.
 	 */
-	private static <T extends Morph> Set<T> internalAddSurroundingMorphs(Morph morph, Class<T> template) {
+	private static final <T extends Morph> Set<T> internalAddSurroundingMorphs(Morph morph, Class<T> template) {
 		Set<T> surroundingMorphs = new HashSet<T>();
 
 		try {

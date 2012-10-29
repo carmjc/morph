@@ -7,9 +7,9 @@ import java.util.Map;
  * 
  */
 public class IWMenu {
-	private final Map<Integer, IWMenuItem> menuItems = new HashMap<Integer, IWMenuItem>();
+	private final Map<Long, IWMenuItem> menuItems = new HashMap<Long, IWMenuItem>();
 
-	public Map<Integer, IWMenuItem> getMenuItems() {
+	public Map<Long, IWMenuItem> getMenuItems() {
 		return menuItems;
 	}
 

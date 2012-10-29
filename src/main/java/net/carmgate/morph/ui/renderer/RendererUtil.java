@@ -32,13 +32,14 @@ public abstract class RendererUtil {
 		double t; // temporary data holder
 		double x = initialRadiusX; // radius = 1
 		double y = initialRadiusY;
+		double radius = Math.hypot(x, y);
 
 		// Render the disc
 		GL11.glBegin(GL11.GL_TRIANGLES);
 		for (int i = 0; i < nbSegments * percentageOfDisc; i++) {
 			GL11.glTexCoord2f(0.5f, 0.5f);
 			GL11.glVertex2f(initialRadiusY, initialRadiusY);
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
+			GL11.glTexCoord2d(0.5f + x / (2 * radius), 0.5f + y / (2 * radius));
 			GL11.glVertex2d(textureWidth * x, textureWidth * y);
 
 			t = x;
@@ -50,7 +51,7 @@ public abstract class RendererUtil {
 				y = -sin * t + cos * y;
 			}
 
-			GL11.glTexCoord2d(0.5f + x, 0.5f + y);
+			GL11.glTexCoord2d(0.5f + x / (2 * radius), 0.5f + y / (2 * radius));
 			GL11.glVertex2d(textureWidth * x, textureWidth * y);
 		}
 		GL11.glEnd();

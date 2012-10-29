@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
-import net.carmgate.morph.model.solid.morph.Morph.MorphType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
@@ -47,7 +46,7 @@ public @interface MorphInfo {
 	/**
 	 * Default : {@link MorphType#BASIC}
 	 */
-	MorphType type() default MorphType.BASIC;
+	// MorphType type() default MorphType.BASIC;
 
 	/**
 	 * True if the morph is virtual.

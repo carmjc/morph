@@ -42,7 +42,7 @@ public class AsteroidRenderer implements Renderer<MatterSource> {
 			RendererUtil.drawTexturedRectangle(baseTexture, glMode);
 		} else {
 			GL11.glPushName(Main.PickingContext.ASTEROID.ordinal());
-			GL11.glPushName(asteroid.getId());
+			GL11.glPushName((int) asteroid.getId()); // FIXME replace this by using two names instead of one.
 			RendererUtil.drawTexturedHexagon(baseTexture, glMode, 64);
 			GL11.glPopName();
 			GL11.glPopName();

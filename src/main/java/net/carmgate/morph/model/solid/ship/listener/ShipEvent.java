@@ -1,16 +1,16 @@
 package net.carmgate.morph.model.solid.ship.listener;
 
-import net.carmgate.morph.model.solid.ship.Ship;
+import net.carmgate.morph.model.solid.WorldPositionSupport;
 
 public class ShipEvent {
 
-	private final Ship ship;
+	private final WorldPositionSupport ship;
 
-	public ShipEvent(Ship ship) {
+	public ShipEvent(WorldPositionSupport ship) {
 		this.ship = ship;
 	}
 
-	public Ship getShip() {
+	public final WorldPositionSupport getShip() {
 		return ship;
 	}
 }

@@ -1,15 +1,14 @@
 package net.carmgate.morph.model.solid.mattersource;
 
 import net.carmgate.morph.model.Vect3D;
+import net.carmgate.morph.model.solid.WorldPositionSupport;
+import net.carmgate.morph.model.solid.WorldSolid;
 
-public abstract class MatterSource {
-
-	private static int lastId = 0;
-	private int id = ++lastId;
+public abstract class MatterSource extends WorldSolid implements WorldPositionSupport {
 
 	protected final Vect3D pos = new Vect3D();
 	private float rotationSpeed;
-	private int mass;
+	private float mass;
 	private final int initialMass;
 
 	public MatterSource(float x, float y, float z, float rotationSpeed, int mass) {
@@ -21,21 +20,15 @@ public abstract class MatterSource {
 		initialMass = mass;
 	}
 
-	/**
-	 * @return the id of the source. This is a unique Id for all sources.
-	 */
-	public int getId() {
-		return id;
-	}
-
 	public int getInitialMass() {
 		return initialMass;
 	}
 
-	public int getMass() {
+	public float getMass() {
 		return mass;
 	}
 
+	@Override
 	public Vect3D getPos() {
 		return pos;
 	}
@@ -44,8 +37,20 @@ public abstract class MatterSource {
 		return rotationSpeed;
 	}
 
-	public void setMass(int mass) {
+	public void setMass(float mass) {
 		this.mass = mass;
+	}
+
+	public float getRotSpeed() {
+		return 0;
+	}
+
+	public float getRotAccel() {
+		return 0;
+	}
+
+	public float getRot() {
+		return 0;
 	}
 
 }

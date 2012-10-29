@@ -3,9 +3,11 @@ package net.carmgate.morph.model.behavior;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.carmgate.morph.model.Activable;
+import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.annotation.BehaviorInfo;
 import net.carmgate.morph.model.behavior.listener.BehaviorListener;
-import net.carmgate.morph.model.solid.morph.Morph;
+import net.carmgate.morph.model.requirements.Requirement;
 import net.carmgate.morph.model.solid.world.World;
 
 import org.apache.log4j.Logger;
@@ -19,8 +21,9 @@ import org.apache.log4j.Logger;
  * @param <T> the type of owner of the behavior.
  */
 @BehaviorInfo
-public abstract class Behavior<T extends Morph> {
+public abstract class Behavior<T> implements Activable {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Behavior.class);
 
 	private final T owner;
@@ -35,6 +38,9 @@ public abstract class Behavior<T extends Morph> {
 	private long activationTS;
 	/** behavior listeners. */
 	private final List<BehaviorListener> behaviorListeners = new ArrayList<BehaviorListener>();
+
+	/** activation requirements. This property is lazily initialized. */
+	private List<Requirement> activationRequirements;
 
 	public Behavior(T owner) {
 		this(owner, State.INACTIVE);
@@ -65,8 +71,22 @@ public abstract class Behavior<T extends Morph> {
 		return true;
 	}
 
-	public void addBehaviorListener(BehaviorListener behaviorListener) {
+	/**
+	 * <p>Add a behavior listener.</p>
+	 * <p>See {@link BehaviorListener} for details about events fired.
+	 * @param behaviorListener
+	 */
+	public final void addBehaviorListener(BehaviorListener behaviorListener) {
 		behaviorListeners.add(behaviorListener);
+	}
+
+	@Override
+	public boolean canBeActivated() {
+		if (msecBeforeNextActivation > 0) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -88,15 +108,34 @@ public abstract class Behavior<T extends Morph> {
 	 */
 	protected abstract void execute();
 
-	public long getActivationTS() {
+	@Override
+	public final List<Requirement> getActivationRequirements() {
+		if (activationRequirements == null) {
+			activationRequirements = new ArrayList<Requirement>();
+		}
+		return activationRequirements;
+	}
+
+	/**
+	 * @return the current TS at the time of last execution. 0 if the behavior has never been executed.
+	 */
+	public final long getActivationTS() {
 		return activationTS;
 	}
 
-	public long getLastExecutionTS() {
+	/**
+	 * @return the current TS at the time of last execution of the behavior.
+	 * 0 if the behavior is inactive.
+	 * <p>Caution is advised however: 0 does not mean the behavior is inactive.</p>  
+	 */
+	public final long getLastExecutionTS() {
 		return lastExecutionTS;
 	}
 
-	public T getOwner() {
+	/**
+	 * @return the owner of the behavior.
+	 */
+	public final T getOwner() {
 		return owner;
 	}
 
@@ -106,38 +145,41 @@ public abstract class Behavior<T extends Morph> {
 	 * this will always return {@link State#ACTIVE}.
 	 * @return
 	 */
-	public State getState() {
+	@Override
+	public final State getState() {
 		if (getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			return State.ACTIVE;
 		}
 		return state;
 	}
 
-	public void removeBehaviorListener(BehaviorListener behaviorListener) {
+	/**
+	 * Removes a behavior listener from the list of behavior listeners of this behavior.
+	 * @param behaviorListener
+	 */
+	public final void removeBehaviorListener(BehaviorListener behaviorListener) {
 		behaviorListeners.remove(behaviorListener);
 	}
 
 	/**
-	 * Tries to activate the behavior.
-	 * If the cool down timer has expired, the behavior is activated.
-	 * This method do not execute the behavior, thus, there will be no direct tangible
-	 * effect of the activation besides the fact that, if activated, it is possible to execute it.
-	 * It is strongly discouraged to override this method.
+	 * <p><b>Caution</b>: Never call this method on a behavior that is in the activable behavior list of a morph.</p>
+	 * <p>If the cool down timer has expired, the behavior is activated.</p>
 	 * @return the behavior {@link State} after the call
 	 */
+	@Override
 	public final State tryToActivate() {
 		if (state == State.ACTIVE) {
 			// Cannot activate an active behavior
 			return state;
 		}
 
-		if (msecBeforeNextActivation == 0) {
+		if (canBeActivated()) {
 			if (activate()) {
 				state = State.ACTIVE;
 				activationTS = World.getWorld().getCurrentTS();
 				msecBeforeNextDeactivation = getClass().getAnnotation(BehaviorInfo.class).deactivationCoolDownTime();
 			}
-		} else {
+		} else if (msecBeforeNextActivation > 0) {
 			msecBeforeNextActivation--;
 		}
 
@@ -145,28 +187,26 @@ public abstract class Behavior<T extends Morph> {
 	}
 
 	/**
-	 * Tries to deactivate the behavior.
-	 * If the deactivation cool down timer has expired, the behavior is deactivated
-	 * Thus, the behavior might be prevented from deactivating.
-	 * It is strongly discouraged to override this method.
+	 * <p>If the deactivation cool down timer has expired, the behavior is deactivated
+	 * Thus, the behavior might be prevented from deactivating.</p>
+	 * <p>Never call this method on a behavior that is in the activable behavior list of a morph.</p>
 	 * @return the behavior {@link State} after the call
 	 */
+	@Override
 	public final State tryToDeactivate() {
 		return tryToDeactivate(false);
 	}
 
 	/**
-	 * Tries to deactivate the behavior.
-	 * If the deactivation cool down timer has expired, the behavior is deactivated
-	 * Thus, the behavior might be prevented from deactivating.
-	 * It is strongly discouraged to override this method.
-	 * If the deactivation has been forced, the result of the {@link Behavior#deactivate()} method
-	 * will be disregarded and deactivation will be completed whatever its value.
-	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
-	 * it cannot be deactivated. 
+	 * <p>If the deactivation cool down timer has expired, the behavior is deactivated
+	 * Thus, the behavior might be prevented from deactivating.</p>
+	 * <p>If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * it cannot be deactivated.</p> 
+	 * <p>Never call this method on a behavior that is in the activable behavior list of a morph.</p>
 	 * @param forced true to force deactivation regardless of cool down.
 	 * @return the behavior {@link State} after the call
 	 */
+	@Override
 	public final State tryToDeactivate(boolean forced) {
 		// if the behavior is always active, it cannot be deactivated
 		if (state == State.INACTIVE || getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
@@ -194,12 +234,12 @@ public abstract class Behavior<T extends Morph> {
 	}
 
 	/**
-	 * Execute the behavior.
-	 * Activating a behavior just enables us to execute it, but it does nothing per se.
-	 * Executing, on the contrary, really cause the behavior to do something.
-	 * It is strongly discouraged to override this method.
-	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
-	 * there is nothing to stop it from executing.
+	 * <p>Execute the behavior.</p>
+	 * <p>Activating a behavior just enables us to execute it, but it does nothing per se.
+	 * Executing, on the contrary, really cause the behavior to do something.</p>
+	 * <p>If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * there is nothing to stop it from executing.</p>
+	 * <p>Never call this method on a behavior that is in the activable behavior list of a morph.</p>
 	 * @return true if the behavior was successfully executed.
 	 */
 	public final boolean tryToExecute() {
@@ -207,19 +247,28 @@ public abstract class Behavior<T extends Morph> {
 	}
 
 	/**
-	 * Execute the behavior.
-	 * Activating a behavior just enables us to execute it, but it does nothing per se.
-	 * Executing, on the contrary, really cause the behavior to do something.
-	 * It is strongly discouraged to override this method.
-	 * If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
-	 * there is nothing to stop it from executing.
+	 * <p>Execute the behavior.</p>
+	 * <p>Activating a behavior just enables us to execute it, but it does nothing per se.
+	 * Executing, on the contrary, really cause the behavior to do something.</p>
+	 * <p>If the behavior has the annotation parameter {@link BehaviorInfo#alwaysActive()} set to true,
+	 * there is nothing to stop it from executing.</p>
+	 * <p>Never call this method on a behavior that is in the activable behavior list of a morph.</p>
 	 * @param forced true if the {@link Behavior} should be activated regardless of the activation state
 	 * of the owning morph.
 	 * @return true if the behavior was successfully executed.
 	 */
 	public final boolean tryToExecute(boolean forced) {
 		// FIXME Should be done elsewhere. A behavior should not be responsible for deactivated its effects when its owner is disabled
-		if (!forced && getOwner().getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
+
+		// If the execution is not forced
+		// if the behavior is not meant to be an always active behavior
+		// and if it's owner is activable but inactive
+		// then don't execute the behavior
+		Activable activableOwner = null;
+		if (owner instanceof Activable) {
+			activableOwner = (Activable) getOwner();
+		}
+		if (!forced && activableOwner != null && activableOwner.getState() == State.INACTIVE && !getClass().getAnnotation(BehaviorInfo.class).alwaysActive()) {
 			return false;
 		}
 

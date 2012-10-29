@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.carmgate.morph.model.solid.energysource.EnergySource;
-import net.carmgate.morph.model.solid.energysource.Star;
+import net.carmgate.morph.model.solid.energysource.impl.Star;
 import net.carmgate.morph.ui.renderer.Renderer;
 
 public class EnergySourceRenderer implements Renderer<EnergySource> {
