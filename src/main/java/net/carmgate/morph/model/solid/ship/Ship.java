@@ -436,7 +436,7 @@ public abstract class Ship extends WorldSolid implements WorldPositionSupport,
 		// is properly filled.
 		List<Morph> list = morphsByType.get(type);
 		if (list == null) {
-			return null;
+			return Collections.unmodifiableList(Collections.<T>emptyList());
 		}
 		return (List<T>) Collections.unmodifiableList(list);
 	}

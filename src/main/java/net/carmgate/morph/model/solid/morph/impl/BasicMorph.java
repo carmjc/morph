@@ -1,7 +1,7 @@
 package net.carmgate.morph.model.solid.morph.impl;
 
 import net.carmgate.morph.model.annotation.MorphInfo;
-import net.carmgate.morph.model.behavior.impl.morph.DiffusingEnergy;
+import net.carmgate.morph.model.behavior.impl.morph.EnergyDiffusing;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.Morph.EvolutionType;
 
@@ -18,7 +18,7 @@ public class BasicMorph extends Morph {
 	private static final Logger LOGGER = Logger.getLogger(BasicMorph.class);
 
 	public BasicMorph() {
-		getAlwaysActiveBehaviorList().add(new DiffusingEnergy(this));
+		getAlwaysActiveBehaviorList().add(new EnergyDiffusing(this));
 	}
 
 	/**

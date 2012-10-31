@@ -13,7 +13,7 @@ import net.carmgate.morph.ia.impl.morph.tracker.GoToPositionAI;
 import net.carmgate.morph.model.State;
 import net.carmgate.morph.model.Vect3D;
 import net.carmgate.morph.model.behavior.Behavior;
-import net.carmgate.morph.model.behavior.impl.morph.DiffusingEnergy;
+import net.carmgate.morph.model.behavior.impl.morph.EnergyDiffusing;
 import net.carmgate.morph.model.behavior.impl.morph.Evolving;
 import net.carmgate.morph.model.behavior.impl.morph.LaserFiring;
 import net.carmgate.morph.model.behavior.impl.morph.Mining;
@@ -77,11 +77,11 @@ public class ShipRenderer implements Renderer<Ship> {
 		selectedMorphRenderer = new SelectedMorphRenderer();
 
 		// Behavior renderers map init
-		behaviorRenderersMap.put(DiffusingEnergy.class, null);
+		behaviorRenderersMap.put(EnergyDiffusing.class, null);
 		behaviorRenderersMap.put(Evolving.class, new ProgressRenderer());
 		behaviorRenderersMap.put(LaserFiring.class, new LaserFiringRenderer());
 		behaviorRenderersMap.put(Propulsing.class, new PropulsingRenderer());
-		behaviorRenderersMap.put(DiffusingEnergy.class, new SpreadingEnergyRenderer());
+		behaviorRenderersMap.put(EnergyDiffusing.class, new SpreadingEnergyRenderer());
 		behaviorRenderersMap.put(Mining.class, new MiningRenderer());
 
 		// IA renderers map init

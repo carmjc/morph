@@ -29,7 +29,7 @@ public class GoToShipAndEngage implements AI<Ship> {
 		// Check that the ship is at optimal mining distance of the asteroid.
 		float distanceToTarget = target.getPosInWorld().distance(ship.getPos());
 		if (distanceToTarget > 300) {
-			LOGGER.debug("Moving");
+			LOGGER.trace("Moving");
 
 			Vect3D trackerPos = new Vect3D(target.getPosInWorld()).substract(ship.getPos());
 			trackerPos.normalize(distanceToTarget - 200).add(ship.getPos());
@@ -51,7 +51,7 @@ public class GoToShipAndEngage implements AI<Ship> {
 
 		// Engage
 		for (GunMorph m : ship.getMorphsByType(GunMorph.class)) {
-			LOGGER.debug("Gun state: " + m.getState());
+			LOGGER.trace("Gun state: " + m.getState());
 			m.setTarget(target);
 			if (m.getState() == State.INACTIVE) {
 				m.tryToActivate();

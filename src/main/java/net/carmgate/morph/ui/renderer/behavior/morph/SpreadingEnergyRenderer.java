@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import net.carmgate.morph.model.Vect3D;
-import net.carmgate.morph.model.behavior.impl.morph.DiffusingEnergy;
+import net.carmgate.morph.model.behavior.impl.morph.EnergyDiffusing;
 import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.world.World;
 import net.carmgate.morph.ui.renderer.behavior.BehaviorRenderer;
@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-public class SpreadingEnergyRenderer extends BehaviorRenderer<DiffusingEnergy> {
+public class SpreadingEnergyRenderer extends BehaviorRenderer<EnergyDiffusing> {
 
 	private final static int TRANSFER_WIDTH = 8;
 
@@ -33,7 +33,7 @@ public class SpreadingEnergyRenderer extends BehaviorRenderer<DiffusingEnergy> {
 	}
 
 	@Override
-	protected void renderBehavior(int glMode, RenderStyle drawType, DiffusingEnergy behavior) {
+	protected void renderBehavior(int glMode, RenderStyle drawType, EnergyDiffusing behavior) {
 		for (Morph m : behavior.getOwner().getNeighbors()) {
 			if (m != null
 					&& m.getEnergy() / m.getMaxEnergy() < behavior.getOwner().getEnergy() * 0.9

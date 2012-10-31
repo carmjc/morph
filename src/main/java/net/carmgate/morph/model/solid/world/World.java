@@ -143,7 +143,7 @@ public class World {
 
 		// Create a ship for the ennemy
 		ship = new EnemyTestShip1(280, -300, 0, UserFactory.findUser("Nemesis"));
-		// getShips().put(ship.getId(), ship);
+		getShips().put(ship.getId(), ship);
 
 		// Create another ship for the ennemy
 		ship = new EnemyTestShip2(250, -220, 0, UserFactory.findUser("Nemesis"));

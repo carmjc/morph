@@ -14,6 +14,7 @@ import net.carmgate.morph.model.solid.morph.Morph;
 import net.carmgate.morph.model.solid.morph.impl.GunMorph;
 import net.carmgate.morph.model.solid.morph.impl.MinerMorph;
 import net.carmgate.morph.model.solid.morph.impl.PropulsorMorph;
+import net.carmgate.morph.model.solid.morph.impl.ShieldMorph;
 import net.carmgate.morph.model.solid.morph.impl.stem.StemMorph;
 import net.carmgate.morph.ui.model.UIModel;
 import net.carmgate.morph.ui.renderer.Renderer;
@@ -66,6 +67,8 @@ public class MorphRenderer implements Renderer<Morph> {
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-gun-32.png").getPath())));
 			textures.put(MinerMorph.class,
 					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-miner-32.png").getPath())));
+			textures.put(ShieldMorph.class,
+					TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-overlay-shield-32.png").getPath())));
 
 			// Energy and mass gauge texture
 			energyMassTexture = TextureLoader.getTexture("PNG", new FileInputStream(ClassLoader.getSystemResource("morphs/morph-base-32-gauge.png").getPath()));

@@ -17,11 +17,11 @@ import org.apache.log4j.Logger;
  * </ul>
  */
 @BehaviorInfo(alwaysActive = true)
-public class DiffusingEnergy extends NoActivationBehavior<Morph> {
+public class EnergyDiffusing extends NoActivationBehavior<Morph> {
 
-	private static final Logger LOGGER = Logger.getLogger(DiffusingEnergy.class);
+	private static final Logger LOGGER = Logger.getLogger(EnergyDiffusing.class);
 
-	public DiffusingEnergy(Morph owner) {
+	public EnergyDiffusing(Morph owner) {
 		super(owner);
 		LOGGER.trace("new SpreadingBehavior for " + getOwner().getClass());
 	}

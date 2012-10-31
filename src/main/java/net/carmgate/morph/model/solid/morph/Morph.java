@@ -16,6 +16,7 @@ import net.carmgate.morph.model.solid.morph.impl.BasicMorph;
 import net.carmgate.morph.model.solid.morph.impl.GunMorph;
 import net.carmgate.morph.model.solid.morph.impl.MinerMorph;
 import net.carmgate.morph.model.solid.morph.impl.PropulsorMorph;
+import net.carmgate.morph.model.solid.morph.impl.ShieldMorph;
 import net.carmgate.morph.model.solid.morph.impl.stem.StemMorph;
 import net.carmgate.morph.model.solid.ship.Ship;
 import net.carmgate.morph.model.solid.world.World;
@@ -36,7 +37,8 @@ public abstract class Morph extends WorldSolid implements Activable {
 		TO_GUN(GunMorph.class, 30),
 		TO_MINER(MinerMorph.class, 30),
 		TO_PROPULSOR(PropulsorMorph.class, 10),
-		TO_STEM(StemMorph.class, 100);
+		TO_STEM(StemMorph.class, 100),
+		TO_SHIELD(ShieldMorph.class, 50);
 
 		private final Class<? extends Morph> morphType;
 		private final int durationInSeconds;
